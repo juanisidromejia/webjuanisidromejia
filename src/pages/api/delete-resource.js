@@ -1,5 +1,4 @@
-import fs from 'fs';
-import path from 'path';
+import { getStore } from '@netlify/blobs';
 
 export const prerender = false;
 
@@ -32,47 +31,43 @@ export async function POST({ request, cookies }) {
             });
         }
 
-        const partiturasDir = path.resolve('./public/partituras');
-        const categoryDir = path.join(partiturasDir, category);
+        // Cargar datos desde Netlify Blobs
+        const store = getStore('resources');
+        let resourcesData = {
+            beginner: {},
+            intermediate: {},
+            advanced: {}
+        };
 
-        if (!fs.existsSync(categoryDir)) {
-            return new Response(JSON.stringify({ error: 'Categoría no encontrada' }), {
-                status: 404,
+        try {
+            const data = await store.get('data');
+            if (data) {
+                resourcesData = JSON.parse(data);
+            }
+        } catch (error) {
+            return new Response(JSON.stringify({ error: 'Error al leer datos de recursos' }), {
+                status: 500,
                 headers: { 'Content-Type': 'application/json' }
             });
         }
 
-        // Buscar y eliminar archivos relacionados con la canción
-        const files = fs.readdirSync(categoryDir);
-        const songFiles = files.filter((file) => file.startsWith(songName + '.') && (file.endsWith('.pdf') || file.endsWith('.mscz') || file.endsWith('.ogg')));
-
-        if (songFiles.length === 0) {
+        if (!resourcesData[category] || !resourcesData[category][songName]) {
             return new Response(JSON.stringify({ error: 'Canción no encontrada en esta categoría' }), {
                 status: 404,
                 headers: { 'Content-Type': 'application/json' }
             });
         }
 
-        // Eliminar archivos
-        let deletedCount = 0;
-        const errors = [];
+        // Eliminar la canción
+        delete resourcesData[category][songName];
 
-        for (const file of songFiles) {
-            try {
-                const filePath = path.join(categoryDir, file);
-                fs.unlinkSync(filePath);
-                deletedCount++;
-            } catch (error) {
-                errors.push(`Error eliminando ${file}: ${error.message}`);
-            }
-        }
+        // Guardar datos actualizados
+        await store.set('data', JSON.stringify(resourcesData));
 
         return new Response(
             JSON.stringify({
                 success: true,
-                message: `Se eliminaron ${deletedCount} archivo(s) de la canción "${songName}"`,
-                deletedFiles: songFiles,
-                ...(errors.length > 0 && { warnings: errors })
+                message: `Canción "${songName}" eliminada exitosamente de la categoría ${category}`
             }),
             {
                 status: 200,

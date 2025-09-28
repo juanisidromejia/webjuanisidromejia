@@ -1,9 +1,5 @@
-import fs from 'fs';
-import path from 'path';
-import { promisify } from 'util';
+import { getStore } from '@netlify/blobs';
 import type { APIContext } from 'astro';
-
-const writeFileAsync = promisify(fs.writeFile);
 
 export const prerender = false;
 
@@ -29,12 +25,21 @@ export async function POST({ request }: APIContext) {
             });
         }
 
-        const partiturasDir = path.resolve('./public/partituras');
-        const categoryDir = path.join(partiturasDir, category);
+        // Cargar datos existentes desde Netlify Blobs
+        const store = getStore('resources');
+        let resourcesData: Record<string, Record<string, Record<string, string>>> = {
+            beginner: {},
+            intermediate: {},
+            advanced: {}
+        };
 
-        // Asegurar que el directorio de categoría existe
-        if (!fs.existsSync(categoryDir)) {
-            fs.mkdirSync(categoryDir, { recursive: true });
+        try {
+            const data = await store.get('data');
+            if (data) {
+                resourcesData = JSON.parse(data);
+            }
+        } catch (error) {
+            // Usar datos por defecto si no existe
         }
 
         let uploadedCount = 0;
@@ -48,7 +53,7 @@ export async function POST({ request }: APIContext) {
             }
 
             const fileName = file.name;
-            const fileExt = path.extname(fileName).toLowerCase();
+            const fileExt = '.' + fileName.split('.').pop()?.toLowerCase();
 
             // Validar extensión
             if (!allowedExtensions.includes(fileExt)) {
@@ -64,14 +69,20 @@ export async function POST({ request }: APIContext) {
 
             // Sanitizar nombre de archivo
             const sanitizedName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
-            const filePath = path.join(categoryDir, sanitizedName);
+            const baseName = sanitizedName.replace(/\.(pdf|mscz|ogg)$/i, '');
+            const ext = fileExt.slice(1); // sin punto
 
             // Leer el contenido del archivo
             const arrayBuffer = await file.arrayBuffer();
             const buffer = Buffer.from(arrayBuffer);
+            const base64 = buffer.toString('base64');
 
-            // Guardar archivo
-            await writeFileAsync(filePath, buffer as any);
+            // Guardar en la estructura de datos
+            if (!resourcesData[category][baseName]) {
+                resourcesData[category][baseName] = {};
+            }
+            resourcesData[category][baseName][ext] = base64;
+
             uploadedCount++;
         }
 
@@ -87,6 +98,9 @@ export async function POST({ request }: APIContext) {
                 }
             );
         }
+
+        // Guardar datos actualizados en Netlify Blobs
+        await store.set('data', JSON.stringify(resourcesData));
 
         const response = {
             success: true,

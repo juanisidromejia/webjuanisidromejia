@@ -1,48 +1,43 @@
-import fs from 'fs';
-import path from 'path';
+import { getStore } from '@netlify/blobs';
 
 export const prerender = false;
 
 export async function GET() {
     try {
-        const partiturasDir = path.resolve('./public/partituras');
-        const categories = ['beginner', 'intermediate', 'advanced'] as const;
-        const categorizedResources: Record<string, Record<string, Record<string, string>>> = {};
+        const store = getStore('resources');
+        let categorizedResources: Record<string, Record<string, Record<string, string>>> = {
+            beginner: {},
+            intermediate: {},
+            advanced: {}
+        };
 
-        // Inicializar categorías
-        categories.forEach((category) => {
-            categorizedResources[category] = {};
-        });
-
-        // Leer archivos de cada categoría
-        categories.forEach((category) => {
-            const categoryDir = path.join(partiturasDir, category);
-
-            if (fs.existsSync(categoryDir)) {
-                const files = fs.readdirSync(categoryDir).filter((file) => file.endsWith('.pdf') || file.endsWith('.mscz') || file.endsWith('.ogg'));
-
-                files.forEach((file: string) => {
-                    const baseName = file.replace(/\.(pdf|mscz|ogg)$/i, '');
-                    const ext = file.split('.').pop()?.toLowerCase() || '';
-
-                    if (!categorizedResources[category][baseName]) {
-                        categorizedResources[category][baseName] = {} as Record<string, string>;
+        try {
+            const data = await store.get('data');
+            if (data) {
+                const resourcesData = JSON.parse(data);
+                // Convertir base64 a data URLs
+                for (const category in resourcesData) {
+                    for (const songName in resourcesData[category]) {
+                        for (const ext in resourcesData[category][songName]) {
+                            const base64 = resourcesData[category][songName][ext];
+                            const mimeType = ext === 'pdf' ? 'application/pdf' : ext === 'mscz' ? 'application/octet-stream' : 'audio/ogg';
+                            categorizedResources[category][songName] = categorizedResources[category][songName] || {};
+                            categorizedResources[category][songName][ext] = `data:${mimeType};base64,${base64}`;
+                        }
                     }
-
-                    // Crear URL relativa para el archivo
-                    categorizedResources[category][baseName][ext] = `/partituras/${category}/${file}`;
-                });
-
-                // Ordenar alfabéticamente dentro de cada categoría
-                const sortedCategory: Record<string, Record<string, string>> = {};
-                Object.keys(categorizedResources[category])
-                    .sort()
-                    .forEach((key) => {
-                        sortedCategory[key] = categorizedResources[category][key];
-                    });
-                categorizedResources[category] = sortedCategory;
+                    // Ordenar alfabéticamente
+                    const sortedCategory: Record<string, Record<string, string>> = {};
+                    Object.keys(categorizedResources[category])
+                        .sort()
+                        .forEach((key) => {
+                            sortedCategory[key] = categorizedResources[category][key];
+                        });
+                    categorizedResources[category] = sortedCategory;
+                }
             }
-        });
+        } catch (error) {
+            console.error('Error reading from blobs:', error);
+        }
 
         return new Response(JSON.stringify(categorizedResources), {
             status: 200,
