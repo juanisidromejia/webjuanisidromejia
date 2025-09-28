@@ -1,0 +1,27 @@
+import { c as createComponent, a as createAstro, r as renderComponent, b as renderTemplate, m as maybeRenderHead } from '../../chunks/astro/server_C4Ew1Baj.mjs';
+import 'kleur/colors';
+import { g as getTranslations, $ as $$BaseLayout } from '../../chunks/BaseLayout_Duk68Qm4.mjs';
+export { renderers } from '../../renderers.mjs';
+
+const $$Astro = createAstro();
+const $$About = createComponent(async ($$result, $$props, $$slots) => {
+  const Astro2 = $$result.createAstro($$Astro, $$props, $$slots);
+  Astro2.self = $$About;
+  const currentLocale = Astro2.currentLocale || "ru";
+  const translations = await getTranslations(currentLocale);
+  return renderTemplate`${renderComponent($$result, "BaseLayout", $$BaseLayout, { "title": translations.about_title, "description": translations.about_text, "showHeader": false }, { "default": async ($$result2) => renderTemplate` ${maybeRenderHead()}<article class="mb-16 sm:mb-24"> <header class="mb-8"> <h1 class="text-3xl leading-tight font-serif font-medium sm:text-5xl sm:leading-tight">${translations.about_title}</h1> <p class="mt-4 text-lg text-muted">${translations.about_subtitle}</p> </header> <div class="max-w-none prose prose-dante sm:prose-lg"> <p>${translations.about_text}</p> <h2>Хуан Исидро Мехия - Классический гитарист и дирижер</h2> <p><strong>Привет!</strong> Я Хуан Исидро Мехия, страстный классический гитарист и музыкальный руководитель, посвятивший себя помощи молодым музыкантам в развитии их навыков. Мой подход сочетает традиционное музыкальное образование с современными технологиями и искусственным интеллектом.</p> <h2>Навыки и экспертиза</h2> <p>Я специализируюсь на исполнении классической гитары и дирижировании оркестром, с обширным опытом в музыкальном образовании. Моя экспертиза включает традиционные методы преподавания, усиленные современными технологическими инструментами и инновационными подходами к музыкальному обучению.</p> <h2>Инновации в музыкальном образовании</h2> <p>Я процветаю, находя новые способы сделать музыкальное образование более доступным и эффективным. Будь то интеграция технологий в традиционные методы преподавания, разработка новых педагогических подходов или создание инновационных учебных опытов, я подхожу к каждому вызову с энтузиазмом и преданностью.</p> <h2>Глобальная перспектива, локальное влияние</h2> <p>Мой опыт охватывает разные культуры и музыкальные традиции, что позволяет мне привносить глобальную перспективу в музыкальное образование, сохраняя при этом сильные связи с местными музыкальными сообществами и традициями.</p> <h2>Непрерывное обучение</h2> <p>Эволюционирующая природа музыкального образования и технологий вдохновляет меня оставаться в курсе последних разработок. Я всегда стремлюсь расширить свои знания и принять новые инструменты, которые улучшают музыкальное обучение и исполнение.</p> <h2>Сотрудничество и коммуникация</h2> <p>Я верю в силу сотрудничества в музыкальном образовании. Работая со студентами, коллегами-музыкантами, преподавателями или учреждениями, я ценю четкую коммуникацию для обеспечения успеха каждого музыкального пути.</p> <h2>Связаться</h2> <p>Вас интересует музыкальное образование, возможности выступлений или сотрудничество? Я буду рад услышать от вас! Не стесняйтесь обращаться за уроками, возможностями дирижирования или просто дружеской беседой о музыке.</p> <p><em>Давайте создадим прекрасную музыку вместе!</em></p> </div> </article> ` })}`;
+}, "/home/jimp/develop/astro/juanisidromejia/src/pages/ru/about.astro", void 0);
+
+const $$file = "/home/jimp/develop/astro/juanisidromejia/src/pages/ru/about.astro";
+const $$url = "/ru/about";
+
+const _page = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+    __proto__: null,
+    default: $$About,
+    file: $$file,
+    url: $$url
+}, Symbol.toStringTag, { value: 'Module' }));
+
+const page = () => _page;
+
+export { page };
