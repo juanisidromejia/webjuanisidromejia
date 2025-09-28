@@ -21,3 +21,16 @@ export default defineConfig({
         })
     ]
 });
+import { defineConfig } from 'astro/config';
+import netlify from '@astrojs/netlify';
+
+export default defineConfig({
+  // ... tu configuración existente
+
+  adapter: netlify({
+    edgeMiddleware: true
+  }),
+
+  output: 'server'
+});
+
