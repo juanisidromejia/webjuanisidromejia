@@ -1,5 +1,22 @@
-import fs from 'fs';
-import path from 'path';
+import { getStore } from '@netlify/blobs';
+
+interface Subscriber {
+    id: string;
+    email: string;
+    name: string;
+    subscribedAt: string;
+    active: boolean;
+}
+
+interface Newsletter {
+    id: string;
+    title: string;
+    content: string;
+    date: string;
+    status: 'draft' | 'sent';
+    sentAt?: string;
+    recipients?: number;
+}
 
 export const prerender = false;
 
@@ -16,22 +33,24 @@ export async function POST({ request }) {
             });
         }
 
-        // Leer datos existentes
-        const filePath = path.resolve('./src/data/admin/newsletter.json');
-        let newsletterData = { newsletters: [], subscribers: [] };
+        // Leer datos existentes usando Netlify Blobs
+        const store = getStore('newsletter');
+        let newsletterData: { newsletters: Newsletter[]; subscribers: Subscriber[] } = { newsletters: [], subscribers: [] };
 
         try {
-            const fileContent = fs.readFileSync(filePath, 'utf8');
-            newsletterData = JSON.parse(fileContent);
+            const dataStr = await store.get('data');
+            if (dataStr) {
+                newsletterData = JSON.parse(dataStr);
+            }
         } catch (error) {
-            // Si no existe el archivo, usar datos por defecto
+            // Si no existe, usar datos por defecto
         }
 
         // Crear nuevo newsletter
-        const newNewsletter = {
+        const newNewsletter: Newsletter = {
             id: Date.now().toString(),
-            title,
-            content,
+            title: title as string,
+            content: content as string,
             date: new Date().toISOString().split('T')[0],
             status: 'draft',
             recipients: 0
@@ -39,8 +58,8 @@ export async function POST({ request }) {
 
         newsletterData.newsletters.unshift(newNewsletter);
 
-        // Guardar datos actualizados
-        fs.writeFileSync(filePath, JSON.stringify(newsletterData, null, 2));
+        // Guardar datos actualizados usando Netlify Blobs
+        await store.set('data', JSON.stringify(newsletterData, null, 2));
 
         return new Response(
             JSON.stringify({
@@ -64,9 +83,17 @@ export async function POST({ request }) {
 
 export async function GET() {
     try {
-        const filePath = path.resolve('./src/data/admin/newsletter.json');
-        const fileContent = fs.readFileSync(filePath, 'utf8');
-        const newsletterData = JSON.parse(fileContent);
+        const store = getStore('newsletter');
+        let newsletterData: { newsletters: Newsletter[]; subscribers: Subscriber[] } = { newsletters: [], subscribers: [] };
+
+        try {
+            const data = await store.get('data');
+            if (data) {
+                newsletterData = JSON.parse(data);
+            }
+        } catch (error) {
+            // usar default
+        }
 
         return new Response(JSON.stringify(newsletterData), {
             status: 200,

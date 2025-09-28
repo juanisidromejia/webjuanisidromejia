@@ -1,8 +1,25 @@
-import fs from 'fs';
-import path from 'path';
+import { getStore } from '@netlify/blobs';
+import type { APIContext } from 'astro';
 import dotenv from 'dotenv';
 
 dotenv.config({ path: '.env.local' });
+
+interface Subscriber {
+    id: string;
+    email: string;
+    name: string;
+    subscribedAt: string;
+    active: boolean;
+}
+
+interface Newsletter {
+    id: string;
+    title: string;
+    content: string;
+    date: string;
+    status: 'draft' | 'sent';
+    sentAt?: string;
+}
 
 export const prerender = false;
 
@@ -25,15 +42,17 @@ export async function POST({ request }) {
             });
         }
 
-        // Leer datos existentes
-        const filePath = path.resolve('./src/data/admin/newsletter.json');
-        let newsletterData = { newsletters: [], subscribers: [] };
+        // Leer datos existentes usando Netlify Blobs
+        const store = getStore('newsletter');
+        let newsletterData: { newsletters: Newsletter[]; subscribers: Subscriber[] } = { newsletters: [], subscribers: [] };
 
         try {
-            const fileContent = fs.readFileSync(filePath, 'utf8');
-            newsletterData = JSON.parse(fileContent);
+            const data = await store.get('data');
+            if (data) {
+                newsletterData = JSON.parse(data);
+            }
         } catch (error) {
-            // Si no existe el archivo, usar datos por defecto
+            // Si no existe, usar datos por defecto
         }
 
         // Verificar si el email ya está suscrito
@@ -56,8 +75,8 @@ export async function POST({ request }) {
 
         newsletterData.subscribers.push(newSubscriber);
 
-        // Guardar datos actualizados
-        fs.writeFileSync(filePath, JSON.stringify(newsletterData, null, 2));
+        // Guardar datos actualizados usando Netlify Blobs
+        await store.set('data', JSON.stringify(newsletterData, null, 2));
 
         return new Response(
             JSON.stringify({

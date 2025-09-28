@@ -1,5 +1,4 @@
-import fs from 'fs';
-import path from 'path';
+import { getStore } from '@netlify/blobs';
 
 export const prerender = false;
 
@@ -23,13 +22,15 @@ export async function POST({ request, cookies }) {
             });
         }
 
-        // Leer datos del newsletter
-        const filePath = path.resolve('./src/data/admin/newsletter.json');
+        // Leer datos del newsletter usando Netlify Blobs
+        const store = getStore('newsletter');
         let newsletterData = { newsletters: [], subscribers: [] };
 
         try {
-            const fileContent = fs.readFileSync(filePath, 'utf8');
-            newsletterData = JSON.parse(fileContent);
+            const data = await store.get('data');
+            if (data) {
+                newsletterData = JSON.parse(data);
+            }
         } catch (error) {
             return new Response(JSON.stringify({ error: 'Error al leer datos de suscriptores' }), {
                 status: 500,
@@ -64,8 +65,8 @@ export async function POST({ request, cookies }) {
         // Desactivar suscriptor
         newsletterData.subscribers[subscriberIndex].active = false;
 
-        // Guardar datos actualizados
-        fs.writeFileSync(filePath, JSON.stringify(newsletterData, null, 2));
+        // Guardar datos actualizados usando Netlify Blobs
+        await store.set('data', JSON.stringify(newsletterData, null, 2));
 
         return new Response(
             JSON.stringify({

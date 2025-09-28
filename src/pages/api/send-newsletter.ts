@@ -1,9 +1,26 @@
+import { getStore } from '@netlify/blobs';
 import nodemailer from 'nodemailer';
-import fs from 'fs';
-import path from 'path';
 import dotenv from 'dotenv';
 
 dotenv.config({ path: '.env.local' });
+
+interface Subscriber {
+    id: string;
+    email: string;
+    name: string;
+    subscribedAt: string;
+    active: boolean;
+}
+
+interface Newsletter {
+    id: string;
+    title: string;
+    content: string;
+    date: string;
+    status: 'draft' | 'sent';
+    sentAt?: string;
+    recipients?: number;
+}
 
 export const prerender = false;
 
@@ -11,10 +28,18 @@ export async function POST({ request }) {
     try {
         const { newsletterId } = await request.json();
 
-        // Leer datos del newsletter
-        const filePath = path.resolve('./src/data/admin/newsletter.json');
-        const fileContent = fs.readFileSync(filePath, 'utf8');
-        const newsletterData = JSON.parse(fileContent);
+        // Leer datos del newsletter usando Netlify Blobs
+        const store = getStore('newsletter');
+        let newsletterData: { newsletters: Newsletter[]; subscribers: Subscriber[] } = { newsletters: [], subscribers: [] };
+
+        try {
+            const data = await store.get('data');
+            if (data) {
+                newsletterData = JSON.parse(data);
+            }
+        } catch (error) {
+            return new Response(JSON.stringify({ error: 'Error reading newsletter data' }), { status: 500 });
+        }
 
         const newsletter = newsletterData.newsletters.find((n) => n.id === newsletterId);
         if (!newsletter) {
@@ -70,8 +95,8 @@ export async function POST({ request }) {
         newsletter.status = 'sent';
         newsletter.sentAt = new Date().toISOString();
 
-        // Guardar cambios
-        fs.writeFileSync(filePath, JSON.stringify(newsletterData, null, 2));
+        // Guardar cambios usando Netlify Blobs
+        await store.set('data', JSON.stringify(newsletterData, null, 2));
 
         return new Response(JSON.stringify({ success: true, sentCount: activeSubscribers.length }), { status: 200 });
     } catch (error) {

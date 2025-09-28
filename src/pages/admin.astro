@@ -31,15 +31,16 @@ interface Subscriber {
 const currentLocale = Astro.currentLocale || 'es';
 const translations = await getTranslations(currentLocale);
 
-// Leer datos del newsletter
-import fs from 'fs';
-import path from 'path';
+// Leer datos del newsletter usando Netlify Blobs
+import { getStore } from '@netlify/blobs';
 
 let newsletterData = { newsletters: [], subscribers: [] };
 try {
-  const filePath = path.resolve('./src/data/admin/newsletter.json');
-  const fileContent = fs.readFileSync(filePath, 'utf8');
-  newsletterData = JSON.parse(fileContent);
+  const store = getStore('newsletter');
+  const data = await store.get('data');
+  if (data) {
+    newsletterData = JSON.parse(data);
+  }
 } catch (error) {
   console.error('Error reading newsletter data:', error);
 }
