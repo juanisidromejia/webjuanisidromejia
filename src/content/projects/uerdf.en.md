@@ -4,6 +4,7 @@ description: Case study of guitar teaching at República de Francia School in Gu
 publishDate: '2024-09-24'
 isFeatured: true
 locale: 'en'
+slug: 'uerdf'
 seo:
   image:
     src: '/project-1.jpg'

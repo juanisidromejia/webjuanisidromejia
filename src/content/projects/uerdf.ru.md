@@ -4,6 +4,7 @@ description: Практический случай обучения гитаре
 publishDate: '2024-09-24'
 isFeatured: true
 locale: 'ru'
+slug: 'uerdf'
 seo:
   image:
     src: '/project-1.jpg'

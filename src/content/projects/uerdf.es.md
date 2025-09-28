@@ -4,6 +4,7 @@ description: Caso práctico de enseñanza de guitarra en el colegio República d
 publishDate: '2024-09-24'
 isFeatured: true
 locale: 'es'
+slug: 'uerdf'
 seo:
   image:
     src: '/project-1.jpg'
