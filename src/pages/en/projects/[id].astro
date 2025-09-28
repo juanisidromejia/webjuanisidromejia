@@ -31,6 +31,7 @@ const currentLocale = 'en';
 const translations = await getTranslations(currentLocale);
 
 // Recursos se cargan del lado del cliente
+let resources = {};
 ---
 
 <BaseLayout title={seo?.title ?? title} description={seo?.description ?? description} image={seo?.image} pageType="article" showHeader={false}>
