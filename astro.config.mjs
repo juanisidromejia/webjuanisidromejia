@@ -2,10 +2,11 @@ import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import tailwind from '@astrojs/tailwind';
+import netlify from '@astrojs/netlify';
 
 // https://astro.build/config
 export default defineConfig({
-    site: 'https://example.com',
+    site: 'https://juanisidromejia.netlify.app',
     i18n: {
         defaultLocale: 'es',
         locales: ['es', 'en', 'ru'],
@@ -19,18 +20,9 @@ export default defineConfig({
         tailwind({
             applyBaseStyles: false
         })
-    ]
+    ],
+    adapter: netlify({
+        edgeMiddleware: true
+    }),
+    output: 'server'
 });
-import { defineConfig } from 'astro/config';
-import netlify from '@astrojs/netlify';
-
-export default defineConfig({
-  // ... tu configuración existente
-
-  adapter: netlify({
-    edgeMiddleware: true
-  }),
-
-  output: 'server'
-});
-
