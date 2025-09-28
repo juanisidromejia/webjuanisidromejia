@@ -25,15 +25,7 @@ export const prerender = false;
 
 export async function POST({ request }: APIContext) {
     try {
-        let email: string;
-        try {
-            const data = await request.formData();
-            email = data.get('email') as string;
-        } catch (e) {
-            const text = await request.text();
-            const params = new URLSearchParams(text);
-            email = params.get('email') as string;
-        }
+        const { email } = await request.json();
 
         if (!email) {
             return new Response(JSON.stringify({ error: 'Email es requerido' }), {

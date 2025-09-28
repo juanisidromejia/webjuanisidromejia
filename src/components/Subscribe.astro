@@ -71,9 +71,9 @@ const { class: className } = Astro.props;
                         const response = await fetch('/api/subscribe', {
                             method: 'POST',
                             headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded'
+                                'Content-Type': 'application/json'
                             },
-                            body: new URLSearchParams({ email })
+                            body: JSON.stringify({ email })
                         });
 
                         const result = await response.json();
