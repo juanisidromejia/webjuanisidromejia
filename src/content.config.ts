@@ -22,6 +22,7 @@ const blog = defineCollection({
         updatedDate: z.coerce.date().optional(),
         isFeatured: z.boolean().default(false),
         tags: z.array(z.string()).default([]),
+        locale: z.string().optional(),
         seo: seoSchema.optional()
     })
 });
@@ -41,8 +42,16 @@ const projects = defineCollection({
         description: z.string().optional(),
         publishDate: z.coerce.date(),
         isFeatured: z.boolean().default(false),
+        locale: z.string().optional(),
         seo: seoSchema.optional()
     })
 });
 
-export const collections = { blog, pages, projects };
+const translations = defineCollection({
+    loader: glob({ pattern: '**/*.md', base: './src/translations' }),
+    schema: z.object({
+        title: z.string()
+    })
+});
+
+export const collections = { blog, pages, projects, translations };

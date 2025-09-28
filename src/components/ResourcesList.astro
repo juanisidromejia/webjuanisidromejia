@@ -1,0 +1,137 @@
+---
+export interface Props {
+    resources?: Record<string, Record<string, { pdf?: string; mscz?: string; ogg?: string }>>;
+}
+
+const { resources = {} } = Astro.props;
+
+// Definir las categorías y sus títulos
+const categories = {
+    beginner: 'Canciones para Principiantes',
+    intermediate: 'Canciones Intermedias',
+    advanced: 'Canciones Avanzadas'
+};
+---
+
+<div class="resources-section mt-12">
+    <h2 class="text-3xl font-serif font-medium mb-12 text-center">Recursos Musicales</h2>
+
+    {Object.entries(categories).map(([categoryKey, categoryTitle]) => {
+        const categoryResources = resources[categoryKey] || {};
+        const hasResources = Object.keys(categoryResources).length > 0;
+
+        return (
+            <div class="category-section mb-12">
+                <h2 class="text-2xl font-serif font-medium mb-8 text-center">{categoryTitle}</h2>
+                {hasResources ? (
+                    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        {Object.entries(categoryResources).map(([name, files]) => (
+                            <div class="resource-card bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+                                <h3 class="text-lg font-medium mb-4 text-center capitalize">
+                                    {name.replace(/[-_]/g, ' ')}
+                                </h3>
+
+                                <div class="flex flex-wrap gap-2 justify-center">
+                                    {files.pdf && (
+                                        <a
+                                            href={files.pdf}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="inline-flex items-center px-3 py-2 text-sm font-medium text-blue-700 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors"
+                                            title="Descargar PDF"
+                                        >
+                                            PDF
+                                        </a>
+                                    )}
+
+                                    {files.mscz && (
+                                        <a
+                                            href={files.mscz}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="inline-flex items-center px-3 py-2 text-sm font-medium text-green-700 bg-green-50 rounded-md hover:bg-green-100 transition-colors"
+                                            title="Descargar archivo MSCZ (MuseScore)"
+                                        >
+                                            MSCZ
+                                        </a>
+                                    )}
+
+                                    {files.ogg && (
+                                        <div class="audio-preview mt-3">
+                                            <audio controls class="audio-player" preload="none">
+                                                <source src={files.ogg} type="audio/ogg">
+                                                Tu navegador no soporta reproducción de audio.
+                                            </audio>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div class="mt-4 text-xs text-gray-500 text-center">
+                                    {Object.keys(files).length} archivo{Object.keys(files).length !== 1 ? 's' : ''} disponible{Object.keys(files).length !== 1 ? 's' : ''}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div class="text-center py-8 text-muted">
+                        <p class="text-sm">No hay recursos en esta categoría aún.</p>
+                    </div>
+                )}
+            </div>
+        );
+    })}
+
+
+</div>
+
+<style>
+    .resource-card {
+        transition: all 0.2s ease-in-out;
+    }
+
+    .resource-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .audio-preview {
+        margin-top: 0.75rem;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    .audio-player {
+        width: 100%;
+        max-width: 200px;
+        height: 40px;
+        border-radius: 6px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        outline: none;
+    }
+
+    .audio-player:focus {
+        outline: 2px solid #3b82f6;
+        outline-offset: 2px;
+    }
+
+    /* Ocultar barra de progreso y controles de tiempo para diseño minimalista */
+    .audio-player::-webkit-media-controls-timeline,
+    .audio-player::-webkit-media-controls-current-time-display,
+    .audio-player::-webkit-media-controls-time-remaining-display {
+        display: none !important;
+    }
+
+    /* Firefox */
+    .audio-player::-moz-range-track {
+        display: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+        .audio-player {
+            max-width: 150px;
+            height: 36px;
+        }
+    }
+</style>

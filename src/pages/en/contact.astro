@@ -1,0 +1,25 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getTranslations } from '../../utils/i18n';
+
+const currentLocale = Astro.currentLocale || 'en';
+const translations = await getTranslations(currentLocale);
+---
+
+<BaseLayout title={translations.contact_title} description={translations.contact_text} showHeader={false}>
+    <article class="mb-16 sm:mb-24">
+        <header class="mb-8">
+            <h1 class="text-3xl leading-tight font-serif font-medium sm:text-5xl sm:leading-tight">{translations.contact_title}</h1>
+            <p class="mt-4 text-lg text-muted">{translations.contact_subtitle}</p>
+        </header>
+        <div class="max-w-none prose prose-dante sm:prose-lg">
+            <p>{translations.contact_text}</p>
+
+            <h2>Email</h2>
+            <p>Feel free to drop me an email at <a href="mailto:juanisidromejia@gmail.com">juanisidromejia@gmail.com</a>, and I'll do my best to respond as soon as possible.</p>
+
+            <h2>Social Media</h2>
+            <p>Connect with me on social media as well. Find me on <a href="https://instagram.com/" target="_blank" rel="noopener">Instagram</a> or <a href="https://linkedin.com/" target="_blank" rel="noopener">LinkedIn</a>.</p>
+        </div>
+    </article>
+</BaseLayout>

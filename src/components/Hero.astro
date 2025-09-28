@@ -2,8 +2,17 @@
 import { marked } from 'marked';
 import Button from './Button.astro';
 import siteConfig from '../data/site-config';
+import { getTranslations } from '../utils/i18n';
 
-const hero = siteConfig.hero;
+const currentLocale = Astro.currentLocale || 'es';
+const translations = await getTranslations(currentLocale);
+
+const hero = {
+    title: translations.hero_title,
+    text: translations.hero_text,
+    image: siteConfig.hero?.image,
+    actions: siteConfig.hero?.actions
+};
 ---
 
 {

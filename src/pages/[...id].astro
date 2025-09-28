@@ -1,6 +1,7 @@
 ---
 import { type CollectionEntry, getCollection, render } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { getTranslations } from '../utils/i18n';
 
 export async function getStaticPaths() {
     const pages = await getCollection('pages');
@@ -17,15 +18,87 @@ type Props = { page: CollectionEntry<'pages'> };
 const { page } = Astro.props;
 const { title, seo } = page.data;
 const { Content } = await render(page);
+
+const currentLocale = Astro.currentLocale || 'es';
+const translations = await getTranslations(currentLocale);
+
+// Para las páginas traducidas, usar traducciones
+const isContactPage = page.id === 'contact';
+const isAboutPage = page.id === 'about';
+const isTermsPage = page.id === 'terms';
+
+let pageTitle = seo?.title ?? title;
+let pageDescription = seo?.description;
+
+if (isContactPage) {
+    pageTitle = translations.contact_title;
+    pageDescription = translations.contact_text;
+} else if (isAboutPage) {
+    pageTitle = translations.about_title;
+    pageDescription = translations.about_text;
+}
 ---
 
-<BaseLayout title={seo?.title ?? title} description={seo?.description} image={seo?.image} showHeader={false}>
+<BaseLayout title={pageTitle} description={pageDescription} image={seo?.image} showHeader={false}>
     <article class="mb-16 sm:mb-24">
         <header class="mb-8">
-            <h1 class="text-3xl leading-tight font-serif font-medium sm:text-5xl sm:leading-tight">{title}</h1>
+            <h1 class="text-3xl leading-tight font-serif font-medium sm:text-5xl sm:leading-tight">
+                {isContactPage ? translations.contact_title : isAboutPage ? translations.about_title : title}
+            </h1>
+            {(isContactPage || isAboutPage) && (
+                <p class="mt-4 text-lg text-muted">
+                    {isContactPage ? translations.contact_subtitle : translations.about_subtitle}
+                </p>
+            )}
         </header>
         <div class="max-w-none prose prose-dante sm:prose-lg">
-            <Content />
+            {isContactPage ? (
+                <>
+                    <p>{translations.contact_text}</p>
+
+                    <h2>Correo electrónico</h2>
+                    <p>No dudes en escribirme a <a href="mailto:juanisidromejia@gmail.com">juanisidromejia@gmail.com</a>, y haré lo posible por responder lo antes posible.</p>
+
+                    <h2>Redes sociales</h2>
+                    <p>También puedes conectarte conmigo en redes sociales. Encuéntrame en <a href="https://instagram.com/" target="_blank" rel="noopener">Instagram</a> o <a href="https://linkedin.com/" target="_blank" rel="noopener">LinkedIn</a>.</p>
+                </>
+            ) : isAboutPage ? (
+                <>
+                    <p>{translations.about_text}</p>
+
+                    <h2>Juan Isidro Mejía - Guitarrista clásico y director</h2>
+
+                    <p><strong>¡Hola!</strong> Soy Juan Isidro Mejía, un apasionado guitarrista clásico y director musical dedicado a ayudar a jóvenes músicos a desarrollar sus habilidades. Mi enfoque combina la educación musical tradicional con tecnologías modernas e inteligencia artificial.</p>
+
+                    <h2>Habilidades y experiencia</h2>
+
+                    <p>Me especializo en interpretación de guitarra clásica y dirección orquestal, con amplia experiencia en educación musical. Mi expertise incluye métodos tradicionales de enseñanza potenciados por herramientas tecnológicas modernas y enfoques innovadores para el aprendizaje musical.</p>
+
+                    <h2>Innovación en educación musical</h2>
+
+                    <p>Prospero encontrando nuevas formas de hacer la educación musical más accesible y efectiva. Ya sea integrando tecnología en métodos tradicionales de enseñanza, desarrollando nuevos enfoques pedagógicos, o creando experiencias de aprendizaje innovadoras, abordo cada desafío con entusiasmo y dedicación.</p>
+
+                    <h2>Perspectiva global, impacto local</h2>
+
+                    <p>Mi experiencia abarca diferentes culturas y tradiciones musicales, permitiéndome aportar una perspectiva global a la educación musical mientras mantengo fuertes conexiones con comunidades musicales locales y tradiciones.</p>
+
+                    <h2>Aprendizaje continuo</h2>
+
+                    <p>La naturaleza evolutiva de la educación musical y la tecnología me inspira a mantenerme al día con los últimos desarrollos. Siempre estoy ansioso por expandir mis conocimientos y adoptar nuevas herramientas que mejoren el aprendizaje y la interpretación musical.</p>
+
+                    <h2>Colaboración y comunicación</h2>
+
+                    <p>Creo en el poder de la colaboración en la educación musical. Trabajando con estudiantes, colegas músicos, educadores o instituciones, valoro la comunicación clara para asegurar el éxito de cada viaje musical.</p>
+
+                    <h2>Ponte en contacto</h2>
+
+                    <p>¿Te interesa la educación musical, oportunidades de interpretación o colaboración? ¡Me encantaría saber de ti! No dudes en contactarme para lecciones, oportunidades de dirección, o simplemente una conversación amigable sobre música.</p>
+
+                    <p><em>¡Creemos música hermosa juntos!</em></p>
+                </>
+            ) : (
+                <Content />
+            )}
         </div>
     </article>
 </BaseLayout>

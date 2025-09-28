@@ -15,7 +15,44 @@ pnpm-debug.log*
 
 # environment variables
 .env
+.env.local
 .env.production
+.env.development
 
-# macOS-specific files
+# admin data (sensitive)
+src/data/admin/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
 .DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# Temporary folders
+tmp/
+temp/
+
+# Cache
+.cache/
+.parcel-cache/
+
+# Database
+*.db
+*.sqlite

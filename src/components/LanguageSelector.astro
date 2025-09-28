@@ -1,0 +1,34 @@
+---
+// Componente para cambiar idioma
+const currentLocale = Astro.currentLocale || 'es';
+const locales = [
+    { code: 'es', name: 'ES' },
+    { code: 'en', name: 'EN' },
+    { code: 'ru', name: 'RU' }
+] as const;
+
+const currentPath = Astro.url.pathname;
+---
+
+<div class="language-selector flex gap-2">
+  {locales.map(locale => {
+    const isActive = currentLocale === locale.code;
+    const href = locale.code === 'es'
+      ? currentPath.replace(/^\/(es|en|ru)/, '') || '/'
+      : `/${locale.code}${currentPath.replace(/^\/(es|en|ru)/, '')}`;
+
+    return (
+      <a
+        href={href}
+        class:list={[
+          "px-2 py-1 text-sm font-medium rounded transition-colors",
+          isActive
+            ? "bg-main text-white"
+            : "text-main hover:bg-main hover:text-white"
+        ]}
+      >
+        {locale.name}
+      </a>
+    );
+  })}
+</div>

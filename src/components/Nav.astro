@@ -1,9 +1,18 @@
 ---
 import NavLink from './NavLink.astro';
 import ThemeToggle from './ThemeToggle.astro';
-import siteConfig from '../data/site-config';
+import LanguageSelector from './LanguageSelector.astro';
+import { getTranslations } from '../utils/i18n';
 
-const navLinks = siteConfig.headerNavLinks || [];
+const currentLocale = Astro.currentLocale || 'es';
+const translations = await getTranslations(currentLocale);
+
+const navLinks = [
+    { text: translations.home, href: '/' },
+    { text: translations.resources, href: '/projects' },
+    { text: translations.blog, href: '/blog' },
+    { text: translations.tags, href: '/tags' }
+];
 ---
 
 <nav class="min-h-10 pt-4 pb-12 relative sm:min-h-14 sm:pb-24 md:pt-8">
@@ -33,7 +42,8 @@ const navLinks = siteConfig.headerNavLinks || [];
             </div>
         )
     }
-    <div class="absolute right-0 top-4 z-10 md:top-8">
+    <div class="absolute right-0 top-4 z-10 md:top-8 flex items-center gap-4">
+        <LanguageSelector />
         <ThemeToggle />
     </div>
 </nav>
