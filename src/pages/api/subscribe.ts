@@ -1,5 +1,5 @@
-import { getStore } from '@netlify/blobs';
 import type { APIContext } from 'astro';
+import { getStore } from '@netlify/blobs';
 import dotenv from 'dotenv';
 
 dotenv.config({ path: '.env.local' });
@@ -23,16 +23,16 @@ interface Newsletter {
 
 export const prerender = false;
 
-export async function POST({ request }) {
+export async function POST({ request }: APIContext) {
     try {
-        let email;
+        let email: string;
         try {
             const data = await request.formData();
-            email = data.get('email');
+            email = data.get('email') as string;
         } catch (e) {
             const text = await request.text();
             const params = new URLSearchParams(text);
-            email = params.get('email');
+            email = params.get('email') as string;
         }
 
         if (!email) {

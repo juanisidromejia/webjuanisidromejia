@@ -1,3 +1,4 @@
+import type { APIContext } from 'astro';
 import { getStore } from '@netlify/blobs';
 
 interface Subscriber {
@@ -20,7 +21,7 @@ interface Newsletter {
 
 export const prerender = false;
 
-export async function POST({ request }) {
+export async function POST({ request }: APIContext) {
     try {
         const data = await request.formData();
         const title = data.get('title');

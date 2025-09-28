@@ -26,10 +26,10 @@ const categories = {
                 {hasResources ? (
                     <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {Object.entries(categoryResources).map(([name, files]) => (
-                            <div class="resource-card bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
-                                <h3 class="text-lg font-medium mb-4 text-center capitalize">
-                                    {name.replace(/[-_]/g, ' ')}
-                                </h3>
+                             <div class="resource-card bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+                                 <h3 class="text-lg font-medium mb-4 text-center capitalize text-black">
+                                     {name.replace(/[-_]/g, ' ')}
+                                 </h3>
 
                                 <div class="flex flex-wrap gap-2 justify-center">
                                     {files.pdf && (
@@ -85,45 +85,39 @@ const categories = {
  </div>
 
  <script>
-     document.addEventListener('DOMContentLoaded', async () => {
-         try {
-             const response = await fetch('/api/resources');
-             if (response.ok) {
-                 const resources = await response.json();
-                 updateResources(resources);
-             }
-         } catch (error) {
-             console.error('Error loading resources:', error);
-         }
-     });
+      document.addEventListener('DOMContentLoaded', async () => {
+          try {
+              const response = await fetch('/api/resources');
+              if (response.ok) {
+                  const resources = await response.json() as Record<string, Record<string, { pdf?: string; mscz?: string; ogg?: string }>>;
+                  updateResources(resources);
+              }
+          } catch (error) {
+              console.error('Error loading resources:', error);
+          }
+      });
 
-     function updateResources(resources) {
-         const categories = ['beginner', 'intermediate', 'advanced'];
-         const categoryTitles = {
-             beginner: 'Canciones para Principiantes',
-             intermediate: 'Canciones Intermedias',
-             advanced: 'Canciones Avanzadas'
-         };
+      function updateResources(resources: Record<string, Record<string, { pdf?: string; mscz?: string; ogg?: string }>>) {
+          const categories = ['beginner', 'intermediate', 'advanced'];
+          const categoryTitles: Record<string, string> = {
+              beginner: 'Canciones para Principiantes',
+              intermediate: 'Canciones Intermedias',
+              advanced: 'Canciones Avanzadas'
+          };
 
-         categories.forEach(categoryKey => {
-             const categoryTitle = categoryTitles[categoryKey];
-             const categoryResources = resources[categoryKey] || {};
-             const hasResources = Object.keys(categoryResources).length > 0;
-
-             // Find the category section
-             const categorySection = document.querySelector(`.category-section h2`);
-             // Wait, better to find by class or something.
+          categories.forEach(categoryKey => {
+              const categoryResources = resources[categoryKey] || {};
 
              // Since it's dynamic, perhaps replace the content.
 
              // To make it simple, clear and rebuild the sections.
 
-             const resourcesSection = document.querySelector('.resources-section');
-             if (resourcesSection) {
-                 // Clear existing content except the title
-                 const title = resourcesSection.querySelector('h2');
-                 resourcesSection.innerHTML = '';
-                 resourcesSection.appendChild(title);
+              const resourcesSection = document.querySelector('.resources-section');
+              if (resourcesSection) {
+                  // Clear existing content except the title
+                  const title = resourcesSection.querySelector('h2');
+                  resourcesSection.innerHTML = '';
+                  if (title) resourcesSection.appendChild(title);
 
                  // Rebuild categories
                  categories.forEach(catKey => {
@@ -156,10 +150,13 @@ const categories = {
                              flex.className = 'flex flex-wrap gap-2 justify-center';
 
                              if (files.pdf) {
+                                 const base64 = files.pdf.split(',')[1];
+                                 const mimeType = 'application/pdf';
+                                 const blob = new Blob([Uint8Array.from(atob(base64), c => c.charCodeAt(0))], { type: mimeType });
+                                 const url = URL.createObjectURL(blob);
                                  const a = document.createElement('a');
-                                 a.href = files.pdf;
-                                 a.target = '_blank';
-                                 a.rel = 'noopener noreferrer';
+                                 a.href = url;
+                                 a.download = name.replace(/[-_]/g, ' ') + '.pdf';
                                  a.className = 'inline-flex items-center px-3 py-2 text-sm font-medium text-blue-700 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors';
                                  a.title = 'Descargar PDF';
                                  a.textContent = 'PDF';
@@ -167,10 +164,13 @@ const categories = {
                              }
 
                              if (files.mscz) {
+                                 const base64 = files.mscz.split(',')[1];
+                                 const mimeType = 'application/octet-stream';
+                                 const blob = new Blob([Uint8Array.from(atob(base64), c => c.charCodeAt(0))], { type: mimeType });
+                                 const url = URL.createObjectURL(blob);
                                  const a = document.createElement('a');
-                                 a.href = files.mscz;
-                                 a.target = '_blank';
-                                 a.rel = 'noopener noreferrer';
+                                 a.href = url;
+                                 a.download = name.replace(/[-_]/g, ' ') + '.mscz';
                                  a.className = 'inline-flex items-center px-3 py-2 text-sm font-medium text-green-700 bg-green-50 rounded-md hover:bg-green-100 transition-colors';
                                  a.title = 'Descargar archivo MSCZ (MuseScore)';
                                  a.textContent = 'MSCZ';

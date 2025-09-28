@@ -1,10 +1,11 @@
+import type { APIContext } from 'astro';
 import dotenv from 'dotenv';
 
 dotenv.config({ path: '.env.local' });
 
 export const prerender = false;
 
-export async function POST({ cookies }) {
+export async function POST({ cookies }: APIContext) {
     // Clear the admin auth cookie
     cookies.set('admin_auth', '', {
         path: '/',

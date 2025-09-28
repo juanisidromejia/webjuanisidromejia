@@ -1,4 +1,6 @@
+import type { APIContext } from 'astro';
 import { getStore } from '@netlify/blobs';
+// @ts-ignore
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 
@@ -24,7 +26,7 @@ interface Newsletter {
 
 export const prerender = false;
 
-export async function POST({ request }) {
+export async function POST({ request }: APIContext) {
     try {
         const { newsletterId } = await request.json();
 

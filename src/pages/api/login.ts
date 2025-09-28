@@ -1,10 +1,11 @@
+import type { APIContext } from 'astro';
 import dotenv from 'dotenv';
 
 dotenv.config({ path: '.env.local' });
 
 export const prerender = false;
 
-export async function POST({ request, cookies }) {
+export async function POST({ request, cookies }: APIContext) {
     try {
         const data = await request.formData();
         const password = data.get('password');
