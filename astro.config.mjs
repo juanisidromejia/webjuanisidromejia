@@ -21,8 +21,6 @@ export default defineConfig({
             applyBaseStyles: false
         })
     ],
-    adapter: netlify({
-        edgeMiddleware: true
-    }),
+    adapter: netlify(),
     output: 'server'
 });
