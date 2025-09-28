@@ -113,35 +113,7 @@ const { newsletters, subscribers } = newsletterData as { newsletters: Newsletter
                       </form>
                   </div>
 
-                  <!-- Enviar newsletter -->
-                  <div class="bg-main/5 p-6 rounded-lg border border-main/20 mt-8">
-                      <h3 class="text-xl font-semibold mb-4">Enviar Newsletter</h3>
-                      <div id="sendMessage" class="mb-4 hidden"></div>
-                      <div class="space-y-4">
-                          <div>
-                              <label for="newsletterSelect" class="block text-sm font-medium mb-1">Seleccionar Newsletter</label>
-                              <select
-                                  id="newsletterSelect"
-                                  class="w-full px-3 py-2 border border-main/30 rounded-md bg-transparent"
-                              >
-                                  <option value="">Seleccionar newsletter...</option>
-                                  {newsletters.filter(n => n.status === 'draft').map((newsletter) => (
-                                      <option value={newsletter.id}>{newsletter.title}</option>
-                                  ))}
-                              </select>
-                              <p class="text-xs text-muted mt-1">
-                                  Solo se muestran los newsletters en borrador.
-                              </p>
-                          </div>
-                          <button
-                              id="sendNewsletterBtn"
-                              class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
-                              disabled
-                          >
-                              Enviar Newsletter
-                          </button>
-                      </div>
-                  </div>
+
               </div>
 
                <!-- Subida de recursos -->
@@ -347,13 +319,6 @@ const { newsletters, subscribers } = newsletterData as { newsletters: Newsletter
                 submitBtn.disabled = false;
                 submitBtn.textContent = originalText;
             }
-        });
-
-        // Actualizar estado del botón enviar newsletter
-        document.getElementById('newsletterSelect')?.addEventListener('change', () => {
-            const newsletterSelect = document.getElementById('newsletterSelect') as HTMLSelectElement;
-            const sendBtn = document.getElementById('sendNewsletterBtn') as HTMLButtonElement;
-            sendBtn.disabled = !newsletterSelect.value;
         });
 
         // Enviar newsletter
