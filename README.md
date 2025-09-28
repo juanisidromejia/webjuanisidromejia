@@ -1,92 +1,108 @@
 # Dante - Astro & Tailwind CSS Theme by justgoodui.com
 
-Dante is a single-author blog and portfolio theme for Astro.js. Featuring a minimal, slick, responsive and content-focused design. For more Astro.js themes please check [justgoodui.com](https://justgoodui.com/).
+Dante is a single-author blog and portfolio theme for Astro.js. Featuring a
+minimal, slick, responsive and content-focused design. For more Astro.js
+themes please check [justgoodui.com](https://justgoodui.com/).
 
 ![Dante Astro.js Theme](public/dante-preview.jpg)
 
-[![Deploy to Netlify Button](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/JustGoodUI/dante-astro-theme)
+## Plan para actualizar README.md
 
-If you click this☝️ button, it will create a new repo for you that looks exactly like this one, and sets that repo up immediately for deployment on Netlify.
+### Análisis actual
 
-## Theme Features:
+El README.md actual es genérico del tema "Dante" y no refleja las
+personalizaciones realizadas para el portfolio de Juan Isidro Mejía.
 
-- ✅ Dark and light color mode
-- ✅ Hero section with bio
-- ✅ Portfolio collection
-- ✅ Pagination support
-- ✅ Post tags support
-- ✅ Subscription form
-- ✅ View transitions
-- ✅ Tailwind CSS
-- ✅ Mobile-first responsive layout
-- ✅ SEO-friendly with canonical URLs and OpenGraph data
-- ✅ Sitemap support
-- ✅ RSS Feed support
-- ✅ Markdown & MDX support
+### Contenido recomendado para el nuevo README.md (en inglés)
 
-## Template Integrations
+# Juan Isidro Mejía - Classical Guitarist & Music Conductor Portfolio
 
-- @astrojs/tailwind - https://docs.astro.build/en/guides/integrations-guide/tailwind/
-- @astrojs/sitemap - https://docs.astro.build/en/guides/integrations-guide/sitemap/
-- @astrojs/mdx - https://docs.astro.build/en/guides/markdown-content/
-- @astrojs/rss - https://docs.astro.build/en/guides/rss/
+A multilingual portfolio website built with Astro.js, showcasing the work of
+Juan Isidro Mejía, a dedicated classical guitarist and music conductor
+focused on helping young musicians develop their skills.
 
-## Project Structure
+![Portfolio Preview](public/dante-preview.jpg)
 
-Inside of Dante Astro theme, you'll see the following folders and files:
+## 🌟 Features
 
-```text
-├── public/
-├── src/
-│   ├── components/
-│   ├── content/
-│   ├── data/
-│   ├── icons/
-│   ├── layouts/
-│   ├── pages/
-│   ├── styles/
-│   └── utils/
-├── astro.config.mjs
-├── package.json
-├── README.md
-├── tailwind.config.cjs
-└── tsconfig.json
+- ✅ **Multilingual Support**: Spanish (default), English, and Russian
+- ✅ **Responsive Design**: Mobile-first with Tailwind CSS
+- ✅ **Dark/Light Mode**: Theme toggle functionality
+- ✅ **Project Portfolio**: Showcase of educational projects and case
+  studies
+- ✅ **Blog System**: Multilingual blog posts about music education
+- ✅ **Music Scores**: Interactive score viewer and resources
+- ✅ **Contact & Newsletter**: Subscription system and contact forms
+- ✅ **SEO Optimized**: OpenGraph, canonical URLs, sitemap, RSS feed
+- ✅ **Performance Focused**: Fast loading with Astro.js
+
+## 🎵 About Juan Isidro Mejía
+
+Classical guitarist and music conductor dedicated to music education.
+Specializing in helping young musicians develop their technical and musical
+skills through innovative approaches combining traditional methods with
+modern technology and AI.
+
+## 🛠️ Tech Stack
+
+- **Framework**: Astro.js
+- **Styling**: Tailwind CSS
+- **Content**: Markdown & MDX
+- **Internationalization**: Custom i18n system
+- **Deployment**: Vercel/Netlify compatible
+
+## 📁 Project Structure
+
+├── public/ │ ├── partituras/ # Music scores and resources │ └──
+images/ # Static assets ├── src/ │ ├── components/ # Reusable
+UI components │ ├── content/ # Blog posts and projects
+(multilingual) │ ├── pages/ # Route pages (/, /en/, /ru/, etc.) │
+├── translations/ # Language files │ └── utils/ # Helper
+functions └── astro.config.mjs # Astro configuration
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- npm or pnpm
+
+### Installation
+
+1. Clone the repository
+
+```bash
+git clone https://github.com/juanisidromejia/webjuanisidromejia.git
+cd webjuanisidromejia
+
+2. Install dependencies
+
+npm install
+
+3. Start development server
+
+npm run dev
+
+4. Open http://localhost:4321 http://localhost:4321
+
+### Build for Production
+
+npm run build
+npm run preview
+
+## 🌐 Multilingual Setup
+
+The site supports three languages:
+
+• Spanish (/): Default language
+• English (/en/): English version
+• Russian (/ru/): Russian version
+
+Content is organized by locale in the src/content/ directory with filename
+suffixes (.es.md, .en.md, .ru.md).
+
+## 📧 Contact
+
+Juan Isidro Mejía
+juanisidromejia@gmail.com
 ```
-
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro (`.astro`) components.
-
-The `src/content/` directory contains "collections" of related Markdown and MDX documents. Use `getCollection()` to retrieve posts from `src/content/blog/`, and type-check your frontmatter using an optional schema. See [Astro's Content Collections docs](https://docs.astro.build/en/guides/content-collections/) to learn more.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## Astro.js Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## Want to learn more about Astro.js?
-
-Check out [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
-
-## Credits
-
-- Demo content generate with [Chat GPT](https://chat.openai.com/)
-- Images for demo content from [Unsplash](https://unsplash.com/)
-
-## Astro Themes by Just Good UI
-
-- [Ovidius](https://github.com/JustGoodUI/ovidius-astro-theme) is a free single author blog theme.
-
-## License
-
-Licensed under the [GPL-3.0](https://github.com/JustGoodUI/dante-astro-theme/blob/main/LICENSE) license.
