@@ -80,11 +80,149 @@ const categories = {
             </div>
         );
     })}
+ 
 
+ </div>
 
-</div>
+ <script>
+     document.addEventListener('DOMContentLoaded', async () => {
+         try {
+             const response = await fetch('/api/resources');
+             if (response.ok) {
+                 const resources = await response.json();
+                 updateResources(resources);
+             }
+         } catch (error) {
+             console.error('Error loading resources:', error);
+         }
+     });
 
-<style>
+     function updateResources(resources) {
+         const categories = ['beginner', 'intermediate', 'advanced'];
+         const categoryTitles = {
+             beginner: 'Canciones para Principiantes',
+             intermediate: 'Canciones Intermedias',
+             advanced: 'Canciones Avanzadas'
+         };
+
+         categories.forEach(categoryKey => {
+             const categoryTitle = categoryTitles[categoryKey];
+             const categoryResources = resources[categoryKey] || {};
+             const hasResources = Object.keys(categoryResources).length > 0;
+
+             // Find the category section
+             const categorySection = document.querySelector(`.category-section h2`);
+             // Wait, better to find by class or something.
+
+             // Since it's dynamic, perhaps replace the content.
+
+             // To make it simple, clear and rebuild the sections.
+
+             const resourcesSection = document.querySelector('.resources-section');
+             if (resourcesSection) {
+                 // Clear existing content except the title
+                 const title = resourcesSection.querySelector('h2');
+                 resourcesSection.innerHTML = '';
+                 resourcesSection.appendChild(title);
+
+                 // Rebuild categories
+                 categories.forEach(catKey => {
+                     const catTitle = categoryTitles[catKey];
+                     const catResources = resources[catKey] || {};
+                     const hasRes = Object.keys(catResources).length > 0;
+
+                     const catDiv = document.createElement('div');
+                     catDiv.className = 'category-section mb-12';
+
+                     const h2 = document.createElement('h2');
+                     h2.className = 'text-2xl font-serif font-medium mb-8 text-center';
+                     h2.textContent = catTitle;
+                     catDiv.appendChild(h2);
+
+                     if (hasRes) {
+                         const grid = document.createElement('div');
+                         grid.className = 'grid gap-6 md:grid-cols-2 lg:grid-cols-3';
+
+                         Object.entries(catResources).forEach(([name, files]) => {
+                             const card = document.createElement('div');
+                             card.className = 'resource-card bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow';
+
+                             const h3 = document.createElement('h3');
+                             h3.className = 'text-lg font-medium mb-4 text-center capitalize';
+                             h3.textContent = name.replace(/[-_]/g, ' ');
+                             card.appendChild(h3);
+
+                             const flex = document.createElement('div');
+                             flex.className = 'flex flex-wrap gap-2 justify-center';
+
+                             if (files.pdf) {
+                                 const a = document.createElement('a');
+                                 a.href = files.pdf;
+                                 a.target = '_blank';
+                                 a.rel = 'noopener noreferrer';
+                                 a.className = 'inline-flex items-center px-3 py-2 text-sm font-medium text-blue-700 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors';
+                                 a.title = 'Descargar PDF';
+                                 a.textContent = 'PDF';
+                                 flex.appendChild(a);
+                             }
+
+                             if (files.mscz) {
+                                 const a = document.createElement('a');
+                                 a.href = files.mscz;
+                                 a.target = '_blank';
+                                 a.rel = 'noopener noreferrer';
+                                 a.className = 'inline-flex items-center px-3 py-2 text-sm font-medium text-green-700 bg-green-50 rounded-md hover:bg-green-100 transition-colors';
+                                 a.title = 'Descargar archivo MSCZ (MuseScore)';
+                                 a.textContent = 'MSCZ';
+                                 flex.appendChild(a);
+                             }
+
+                             if (files.ogg) {
+                                 const audioDiv = document.createElement('div');
+                                 audioDiv.className = 'audio-preview mt-3';
+                                 const audio = document.createElement('audio');
+                                 audio.controls = true;
+                                 audio.className = 'audio-player';
+                                 audio.preload = 'none';
+                                 const source = document.createElement('source');
+                                 source.src = files.ogg;
+                                 source.type = 'audio/ogg';
+                                 audio.appendChild(source);
+                                 audio.appendChild(document.createTextNode('Tu navegador no soporta reproducción de audio.'));
+                                 audioDiv.appendChild(audio);
+                                 flex.appendChild(audioDiv);
+                             }
+
+                             card.appendChild(flex);
+
+                             const countDiv = document.createElement('div');
+                             countDiv.className = 'mt-4 text-xs text-gray-500 text-center';
+                             const count = Object.keys(files).length;
+                             countDiv.textContent = `${count} archivo${count !== 1 ? 's' : ''} disponible${count !== 1 ? 's' : ''}`;
+                             card.appendChild(countDiv);
+
+                             grid.appendChild(card);
+                         });
+
+                         catDiv.appendChild(grid);
+                     } else {
+                         const emptyDiv = document.createElement('div');
+                         emptyDiv.className = 'text-center py-8 text-muted';
+                         const p = document.createElement('p');
+                         p.className = 'text-sm';
+                         p.textContent = 'No hay recursos en esta categoría aún.';
+                         emptyDiv.appendChild(p);
+                         catDiv.appendChild(emptyDiv);
+                     }
+
+                     resourcesSection.appendChild(catDiv);
+                 });
+             }
+         });
+     }
+ </script>
+
+ <style>
     .resource-card {
         transition: all 0.2s ease-in-out;
     }
