@@ -53,6 +53,9 @@ temp/
 .cache/
 .parcel-cache/
 
+# Netlify
+.netlify/
+
 # Database
 *.db
 *.sqlite
