@@ -16,7 +16,14 @@ const seoSchema = z.object({
 const blog = defineCollection({
     loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/blog' }),
     schema: z.object({
-        title: z.string(),
+        title: z.string().optional(),
+        title_es: z.string(),
+        title_en: z.string().optional(),
+        title_ru: z.string().optional(),
+        description: z.string().optional(),
+        description_es: z.string(),
+        description_en: z.string().optional(),
+        description_ru: z.string().optional(),
         excerpt: z.string().optional(),
         publishDate: z.coerce.date(),
         updatedDate: z.coerce.date().optional(),
@@ -38,8 +45,14 @@ const pages = defineCollection({
 const projects = defineCollection({
     loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/projects' }),
     schema: z.object({
-        title: z.string(),
+        title: z.string().optional(),
+        title_es: z.string(),
+        title_en: z.string().optional(),
+        title_ru: z.string().optional(),
         description: z.string().optional(),
+        description_es: z.string(),
+        description_en: z.string().optional(),
+        description_ru: z.string().optional(),
         publishDate: z.coerce.date(),
         isFeatured: z.boolean().default(false),
         locale: z.string().optional(),
