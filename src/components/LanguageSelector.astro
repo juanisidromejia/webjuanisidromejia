@@ -1,25 +1,22 @@
 ---
 // Componente para cambiar idioma
-const currentLocale = Astro.currentLocale || 'es';
+import { languageStore } from '../stores/language';
+
+const currentLang = languageStore.get();
 const locales = [
     { code: 'es', name: 'ES' },
     { code: 'en', name: 'EN' },
     { code: 'ru', name: 'RU' }
 ] as const;
-
-const currentPath = Astro.url.pathname;
 ---
 
 <div class="language-selector flex gap-2">
   {locales.map(locale => {
-    const isActive = currentLocale === locale.code;
-    const href = locale.code === 'es'
-      ? currentPath.replace(/^\/(es|en|ru)/, '') || '/'
-      : `/${locale.code}${currentPath.replace(/^\/(es|en|ru)/, '')}`;
+    const isActive = currentLang === locale.code;
 
     return (
-      <a
-        href={href}
+      <button
+        id={`lang-${locale.code}`}
         class:list={[
           "px-2 py-1 text-sm font-medium rounded transition-colors",
           isActive
@@ -28,7 +25,20 @@ const currentPath = Astro.url.pathname;
         ]}
       >
         {locale.name}
-      </a>
+      </button>
     );
   })}
 </div>
+
+<script>
+  import { languageStore, setLanguage, type Language } from '../stores/language';
+
+  // Add event listeners to buttons
+  const locales: Language[] = ['es', 'en', 'ru'];
+  locales.forEach(lang => {
+    const btn = document.getElementById(`lang-${lang}`);
+    btn?.addEventListener('click', () => {
+      setLanguage(lang);
+    });
+  });
+</script>

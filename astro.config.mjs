@@ -7,13 +7,6 @@ import netlify from '@astrojs/netlify';
 // https://astro.build/config
 export default defineConfig({
     site: 'https://juanisidromejia.netlify.app',
-    i18n: {
-        defaultLocale: 'es',
-        locales: ['es', 'en', 'ru'],
-        routing: {
-            prefixDefaultLocale: false
-        }
-    },
     integrations: [
         mdx(),
         sitemap(),

@@ -7,13 +7,14 @@ import ProjectPreview from '../../components/ProjectPreview.astro';
 import ResourcesList from '../../components/ResourcesList.astro';
 import { sortItemsByDateDesc } from '../../utils/data-utils';
 import { getTranslations, t } from '../../utils/i18n';
+import { languageStore } from '../../stores/language';
 
 export async function getStaticPaths() {
     const allProjects = await getCollection('projects');
-    const projects = allProjects.filter(p => p.data.locale === 'es').sort(sortItemsByDateDesc);
+    const projects = allProjects.sort(sortItemsByDateDesc);
     const projectCount = projects.length;
     return projects.map((project, index) => ({
-        params: { id: project.id.replace(/\..*$/, '') },
+        params: { id: project.id },
         props: {
             project,
             prevProject: index + 1 !== projectCount ? projects[index + 1] : null,
@@ -25,26 +26,28 @@ export async function getStaticPaths() {
 type Props = { project: CollectionEntry<'projects'>; prevProject: CollectionEntry<'projects'>; nextProject: CollectionEntry<'projects'> };
 
 const { project, prevProject, nextProject } = Astro.props;
-const { title, description, seo } = project.data;
+const currentLang = languageStore.get();
+const data = project.data as any;
+const title = data[`title_${currentLang}`] || data.title_es;
+const description = data[`description_${currentLang}`] || data.description_es;
 const { Content } = await render(project);
-const currentLocale = 'es';
-const translations = await getTranslations(currentLocale);
+const translations = await getTranslations(currentLang);
 
 // Recursos se cargan del lado del cliente
 let resources = {};
 ---
 
-<BaseLayout title={seo?.title ?? title} description={seo?.description ?? description} image={seo?.image} pageType="article" showHeader={false}>
+<BaseLayout title={title} description={description} pageType="article" showHeader={false}>
     <article class="mb-16 sm:mb-24">
         <header class="mb-8">
-            <h1 class="text-3xl leading-tight font-serif font-medium sm:text-5xl sm:leading-tight">{title}</h1>
+            <h1 id="project-title" class="text-3xl leading-tight font-serif font-medium sm:text-5xl sm:leading-tight">{title}</h1>
         </header>
         <div class="max-w-none prose prose-dante sm:prose-lg">
             <Content />
         </div>
 
         <!-- Mostrar recursos solo para el proyecto UERDF -->
-        {project.id.startsWith('uerdf') && <ResourcesList resources={resources} />}
+        {project.id.startsWith('uerdf') && <ResourcesList resources={resources} client:load />}
     </article>
     {
         (prevProject || nextProject) && (
@@ -56,3 +59,18 @@ let resources = {};
         )
     }
 </BaseLayout>
+
+<script is:inline define:vars={{ project: project.data }}>
+    import { languageStore } from '../../stores/language';
+
+    // Function to update content based on language
+    const updateContent = (lang) => {
+        const data = project;
+        const title = data[`title_${lang}`] || data.title_es;
+        document.getElementById('project-title').textContent = title;
+        // Update other elements if needed
+    };
+
+    // Subscribe to language changes
+    languageStore.subscribe(updateContent);
+</script>
