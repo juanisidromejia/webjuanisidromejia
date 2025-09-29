@@ -604,8 +604,8 @@ const { newsletters, subscribers } = newsletterData as { newsletters: Newsletter
         #category option,
         #songSelector option,
         #subscriberSelector option {
-            color: rgb(23 23 23); /* --color-text-main */
-            background-color: rgb(242 241 236); /* --color-bg-main */
+            color: rgb(23 23 23) !important; /* --color-text-main */
+            background-color: rgb(242 241 236) !important; /* --color-bg-main */
         }
 
         /* Ensure options are visible on hover/focus */
@@ -615,15 +615,15 @@ const { newsletters, subscribers } = newsletterData as { newsletters: Newsletter
         #songSelector option:focus,
         #subscriberSelector option:hover,
         #subscriberSelector option:focus {
-            background-color: rgb(234 233 225); /* --color-bg-muted */
+            background-color: rgb(234 233 225) !important; /* --color-bg-muted */
         }
 
         /* Selected option styling */
         #category option:checked,
         #songSelector option:checked,
         #subscriberSelector option:checked {
-            background-color: rgb(23 23 23); /* --color-text-main */
-            color: rgb(242 241 236); /* --color-bg-main */
+            background-color: rgb(23 23 23) !important; /* --color-text-main */
+            color: rgb(242 241 236) !important; /* --color-bg-main */
         }
     </style>
 </BaseLayout>
