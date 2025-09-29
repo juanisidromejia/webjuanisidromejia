@@ -15,9 +15,8 @@ const translations = await getTranslations(currentLocale);
 const posts = (await getCollection('blog')).sort(sortItemsByDateDesc);
 const featuredPosts = posts.filter(({ data }) => data.isFeatured);
 
-const localeSuffix = currentLocale === 'es' ? 'es' : currentLocale === 'en' ? 'en' : 'ru';
 const allProjects = await getCollection('projects');
-const projects = allProjects.filter(p => p.id.endsWith(localeSuffix)).sort(sortItemsByDateDesc);
+const projects = allProjects.sort(sortItemsByDateDesc);
 const featuredProjects = projects.filter(({ data }) => data.isFeatured);
 ---
 

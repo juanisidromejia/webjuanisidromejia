@@ -22,8 +22,6 @@ seo:
 **Resumen del Proyecto:**
 La Guía Musical Interactiva es una plataforma educativa completa que transforma el aprendizaje de la guitarra clásica en una experiencia atractiva y efectiva para estudiantes de secundaria. La plataforma combina lecciones teóricas con ejercicios prácticos, seguimiento del progreso y elementos interactivos que mantienen a los estudiantes motivados.
 
-> Trabajar con Juan Isidro Mejía ha sido una experiencia excepcional. Su conocimiento profundo de la pedagogía musical y su visión innovadora han creado una herramienta educativa que realmente conecta con los estudiantes jóvenes. ¡Una herramienta esencial para la educación musical moderna!
-
 ## Objetivos Educativos
 
 1. Hacer accesible el aprendizaje de la guitarra clásica para estudiantes de secundaria.

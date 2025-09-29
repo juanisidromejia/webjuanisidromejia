@@ -34,6 +34,7 @@ const blogCollection = defineCollection({
 const pagesCollection = defineCollection({
     type: 'content',
     schema: z.object({
+        title: z.string().optional(),
         title_es: z.string(),
         title_en: z.string().optional(),
         title_ru: z.string().optional()

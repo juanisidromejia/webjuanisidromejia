@@ -1,5 +1,8 @@
 ---
 title: Get in touch
+title_es: Contacto
+title_en: Get in touch
+title_ru: Связаться
 seo:
   title: Contact
   description: Get in touch through email or social media! Let me know how I can help.
