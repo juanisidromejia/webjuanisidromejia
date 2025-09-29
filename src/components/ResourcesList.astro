@@ -182,15 +182,36 @@ const { resources = {} } = Astro.props;
          return card;
      }
 
-     function createDownloadButton(text, dataUrl, name, ext, color) {
-         const btn = document.createElement('a');
-         btn.href = dataUrl;
-         btn.download = `${name.replace(/[-_]/g, ' ')}.${ext}`;
-         btn.className = `inline-flex items-center px-3 py-2 text-sm font-medium text-${color}-700 bg-${color}-50 rounded-md hover:bg-${color}-100 transition-colors`;
-         btn.title = `Descargar ${ext.toUpperCase()}`;
-         btn.textContent = text;
-         return btn;
-     }
+      function createDownloadButton(text, dataUrl, name, ext, color) {
+          const btn = document.createElement('a');
+          btn.href = dataUrl;
+          btn.download = `${name.replace(/[-_]/g, ' ')}.${ext}`;
+
+          // Use better contrast colors that work with the site's theme
+          let bgColor, textColor, hoverColor, borderColor;
+          if (color === 'blue') {
+              bgColor = 'bg-blue-600';
+              textColor = 'text-white';
+              hoverColor = 'hover:bg-blue-700';
+              borderColor = 'border-blue-600 hover:border-blue-700';
+          } else if (color === 'green') {
+              bgColor = 'bg-green-600';
+              textColor = 'text-white';
+              hoverColor = 'hover:bg-green-700';
+              borderColor = 'border-green-600 hover:border-green-700';
+          } else {
+              // Fallback
+              bgColor = 'bg-gray-600';
+              textColor = 'text-white';
+              hoverColor = 'hover:bg-gray-700';
+              borderColor = 'border-gray-600 hover:border-gray-700';
+          }
+
+          btn.className = `inline-flex items-center px-3 py-2 text-sm font-medium ${textColor} ${bgColor} border ${borderColor} rounded-md ${hoverColor} transition-colors`;
+          btn.title = `Descargar ${ext.toUpperCase()}`;
+          btn.textContent = text;
+          return btn;
+      }
 
      // Load resources when component mounts
      document.addEventListener('DOMContentLoaded', () => {
