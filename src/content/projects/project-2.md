@@ -1,9 +1,14 @@
 ---
-title: 'Guía Musical Interactiva: Aprende Guitarra Paso a Paso'
-description: Una plataforma educativa interactiva diseñada para estudiantes de escuela secundaria que quieren aprender a tocar la guitarra clásica, con lecciones progresivas, ejercicios prácticos y seguimiento personalizado.
+title: 'Guía Musical Interactiva'
+title_es: 'Guía Musical Interactiva: Aprende Guitarra Paso a Paso'
+title_en: 'Interactive Music Guide: Learn Guitar Step by Step'
+title_ru: 'Интерактивный музыкальный гид: Изучайте гитару шаг за шагом'
+description: 'Una plataforma educativa interactiva'
+description_es: 'Una plataforma educativa interactiva diseñada para estudiantes de escuela secundaria que quieren aprender a tocar la guitarra clásica, con lecciones progresivas, ejercicios prácticos y seguimiento personalizado.'
+description_en: 'An interactive educational platform designed for high school students who want to learn to play classical guitar, with progressive lessons, practical exercises, and personalized tracking.'
+description_ru: 'Интерактивная образовательная платформа, разработанная для старшеклассников, желающих научиться играть на классической гитаре, с прогрессивными уроками, практическими упражнениями и персональным отслеживанием.'
 publishDate: 'Dec 15 2024'
 isFeatured: true
-locale: 'es'
 seo:
   image:
     src: '/project-2.jpg'

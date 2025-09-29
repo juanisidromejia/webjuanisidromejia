@@ -3,9 +3,10 @@ import NavLink from './NavLink.astro';
 import ThemeToggle from './ThemeToggle.astro';
 import LanguageSelector from './LanguageSelector.astro';
 import { getTranslations } from '../utils/i18n';
+import { languageStore } from '../stores/language';
 
-const currentLocale = Astro.currentLocale || 'es';
-const translations = await getTranslations(currentLocale);
+const currentLang = languageStore.get();
+const translations = await getTranslations(currentLang);
 
 const navLinks = [
     { text: translations.home, href: '/' },
@@ -47,6 +48,26 @@ const navLinks = [
         <ThemeToggle />
     </div>
 </nav>
+
+<script is:inline>
+    import { languageStore } from '../stores/language';
+    import { getTranslations } from '../utils/i18n';
+
+    // Function to update nav links
+    const updateNav = async (lang) => {
+        const translations = await getTranslations(lang);
+        const navItems = document.querySelectorAll('.menu a');
+        const keys = ['home', 'resources', 'blog', 'tags'];
+        navItems.forEach((item, index) => {
+            if (keys[index]) {
+                item.textContent = translations[keys[index]];
+            }
+        });
+    };
+
+    // Subscribe to language changes
+    languageStore.subscribe(updateNav);
+</script>
 
 <style>
     @media (max-width: 767px) {
