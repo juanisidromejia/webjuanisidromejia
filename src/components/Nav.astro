@@ -49,28 +49,35 @@ const navLinks = [
     </div>
 </nav>
 
-<script type="module" is:inline>
-    import { languageStore } from '../stores/language';
-    import { getTranslations } from '../utils/i18n';
+<script>
+    // Translations
+    const translations = {
+        es: { home: 'Inicio', resources: 'Recursos', blog: 'Blog', tags: 'Etiquetas' },
+        en: { home: 'Home', resources: 'Resources', blog: 'Blog', tags: 'Tags' },
+        ru: { home: 'Главная', resources: 'Ресурсы', blog: 'Блог', tags: 'Теги' }
+    };
 
     // Function to update nav links
-    const updateNav = async (lang) => {
+    const updateNav = (lang: string) => {
         console.log('Updating nav for language:', lang);
-        const translations = await getTranslations(lang);
+        const trans = translations[lang as keyof typeof translations];
         const navItems = document.querySelectorAll('.menu a');
         const keys = ['home', 'resources', 'blog', 'tags'];
         navItems.forEach((item, index) => {
-            if (keys[index]) {
-                item.textContent = translations[keys[index]];
+            if (keys[index] && trans[keys[index] as keyof typeof trans]) {
+                item.textContent = trans[keys[index] as keyof typeof trans];
             }
         });
     };
 
-    // Subscribe to language changes
-    languageStore.subscribe((lang) => {
-        console.log('Language store changed to:', lang);
-        updateNav(lang).catch(console.error);
+    // Listen to language changes
+    document.addEventListener('languageChange', (e: any) => {
+        console.log('Language changed to:', e.detail);
+        updateNav(e.detail);
     });
+
+    // Initial update
+    updateNav((window as any).currentLang);
 </script>
 
 <style>

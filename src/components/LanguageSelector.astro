@@ -31,15 +31,16 @@ const locales = [
 </div>
 
 <script>
-  import { languageStore, setLanguage, type Language } from '../stores/language';
-
   // Add event listeners to buttons
-  const locales: Language[] = ['es', 'en', 'ru'];
+  const locales = ['es', 'en', 'ru'];
   locales.forEach(lang => {
     const btn = document.getElementById(`lang-${lang}`);
     btn?.addEventListener('click', () => {
       console.log('Language button clicked:', lang);
-      setLanguage(lang);
+      (window as any).currentLang = lang;
+      localStorage.setItem('language', lang);
+      // Trigger updates
+      document.dispatchEvent(new CustomEvent('languageChange', { detail: lang }));
     });
   });
 </script>

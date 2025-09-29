@@ -61,16 +61,20 @@ let resources = {};
 </BaseLayout>
 
 <script is:inline define:vars={{ project: project.data }}>
-    import { languageStore } from '../../stores/language';
-
     // Function to update content based on language
     const updateContent = (lang) => {
         const data = project;
         const title = data[`title_${lang}`] || data.title_es;
-        document.getElementById('project-title').textContent = title;
+        const titleEl = document.getElementById('project-title');
+        if (titleEl) titleEl.textContent = title;
         // Update other elements if needed
     };
 
-    // Subscribe to language changes
-    languageStore.subscribe(updateContent);
+    // Listen to language changes
+    document.addEventListener('languageChange', (e) => {
+        updateContent(e.detail);
+    });
+
+    // Initial update
+    updateContent(window.currentLang);
 </script>
