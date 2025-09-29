@@ -12,7 +12,7 @@ import { getTranslations, t } from '../../utils/i18n';
 
 export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
     const allProjects = await getCollection('projects');
-    const projects = allProjects.filter(p => p.data.locale === 'es').sort(sortItemsByDateDesc);
+    const projects = allProjects.sort(sortItemsByDateDesc);
     return paginate(projects, { pageSize: siteConfig.projectsPerPage || 6 });
 }
 
@@ -21,6 +21,11 @@ type Props = { page: Page<CollectionEntry<'projects'>> };
 const { page } = Astro.props;
 const portfolio = page.data;
 const translations = await getTranslations('es');
+const allTranslations = {
+    es: await getTranslations('es'),
+    en: await getTranslations('en'),
+    ru: await getTranslations('ru')
+};
 ---
 
 <BaseLayout
@@ -29,7 +34,25 @@ const translations = await getTranslations('es');
     image={{ src: '/dante-preview.jpg', alt: 'The preview of the site' }}
     showHeader={false}
 >
-    <h1 class="mb-12 text-2xl leading-tight font-serif italic sm:mb-16 sm:text-4xl">{t('projects_title', translations)}</h1>
+    <h1 id="projects-title" class="mb-12 text-2xl leading-tight font-serif italic sm:mb-16 sm:text-4xl">{t('projects_title', translations)}</h1>
     {portfolio.map((project) => <ProjectPreview project={project} class="mb-10 sm:mb-12" />)}
     <Pagination page={page} class="my-16 sm:my-24" />
 </BaseLayout>
+
+<script is:inline define:vars={{ allTranslations }}>
+    const updatePageContent = (lang) => {
+        const translations = allTranslations[lang] || allTranslations.es;
+        const titleEl = document.getElementById('projects-title');
+        if (titleEl) titleEl.textContent = translations.projects_title;
+        // Update document title if needed
+        document.title = translations.projects_title;
+    };
+
+    // Listen to language changes
+    document.addEventListener('languageChange', (e) => {
+        updatePageContent(e.detail);
+    });
+
+    // Initial update
+    updatePageContent(window.currentLang);
+</script>
