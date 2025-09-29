@@ -49,12 +49,13 @@ const navLinks = [
     </div>
 </nav>
 
-<script is:inline>
+<script type="module" is:inline>
     import { languageStore } from '../stores/language';
     import { getTranslations } from '../utils/i18n';
 
     // Function to update nav links
     const updateNav = async (lang) => {
+        console.log('Updating nav for language:', lang);
         const translations = await getTranslations(lang);
         const navItems = document.querySelectorAll('.menu a');
         const keys = ['home', 'resources', 'blog', 'tags'];
@@ -67,6 +68,7 @@ const navLinks = [
 
     // Subscribe to language changes
     languageStore.subscribe((lang) => {
+        console.log('Language store changed to:', lang);
         updateNav(lang).catch(console.error);
     });
 </script>

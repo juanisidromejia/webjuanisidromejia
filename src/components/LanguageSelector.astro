@@ -38,6 +38,7 @@ const locales = [
   locales.forEach(lang => {
     const btn = document.getElementById(`lang-${lang}`);
     btn?.addEventListener('click', () => {
+      console.log('Language button clicked:', lang);
       setLanguage(lang);
     });
   });

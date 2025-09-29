@@ -84,13 +84,18 @@ const categories = {
 
  </div>
 
- <script>
+  <script>
       document.addEventListener('DOMContentLoaded', async () => {
+          console.log('Loading resources...');
           try {
               const response = await fetch('/api/resources');
+              console.log('Resources response:', response);
               if (response.ok) {
                   const resources = await response.json() as Record<string, Record<string, { pdf?: string; mscz?: string; ogg?: string }>>;
+                  console.log('Resources data:', resources);
                   updateResources(resources);
+              } else {
+                  console.error('Resources fetch failed:', response.status);
               }
           } catch (error) {
               console.error('Error loading resources:', error);
