@@ -1,5 +1,5 @@
 ---
-export const prerender = false;
+export const prerender = true;
 
 import { type CollectionEntry, getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
@@ -7,7 +7,6 @@ import ProjectPreview from '../../components/ProjectPreview.astro';
 import ResourcesList from '../../components/ResourcesList.astro';
 import { sortItemsByDateDesc } from '../../utils/data-utils';
 import { getTranslations, t } from '../../utils/i18n';
-import { languageStore } from '../../stores/language';
 
 export async function getStaticPaths() {
     const allProjects = await getCollection('projects');
@@ -26,7 +25,7 @@ export async function getStaticPaths() {
 type Props = { project: CollectionEntry<'projects'>; prevProject: CollectionEntry<'projects'>; nextProject: CollectionEntry<'projects'> };
 
 const { project, prevProject, nextProject } = Astro.props;
-const currentLang = languageStore.get();
+const currentLang = 'es'; // Default for static generation
 const data = project.data as any;
 const title = data[`title_${currentLang}`] || data.title_es;
 const description = data[`description_${currentLang}`] || data.description_es;
@@ -65,9 +64,17 @@ let resources = {};
     const updateContent = (lang) => {
         const data = project;
         const title = data[`title_${lang}`] || data.title_es;
+        const description = data[`description_${lang}`] || data.description_es;
+
         const titleEl = document.getElementById('project-title');
         if (titleEl) titleEl.textContent = title;
-        // Update other elements if needed
+
+        const descEl = document.getElementById('project-description');
+        if (descEl) {
+            // Update meta description if needed
+            const metaDesc = document.querySelector('meta[name="description"]');
+            if (metaDesc) metaDesc.setAttribute('content', description);
+        }
     };
 
     // Listen to language changes
@@ -75,6 +82,8 @@ let resources = {};
         updateContent(e.detail);
     });
 
-    // Initial update
-    updateContent(window.currentLang);
+    // Initial update with current language
+    if (typeof window !== 'undefined' && window.currentLang) {
+        updateContent(window.currentLang);
+    }
 </script>

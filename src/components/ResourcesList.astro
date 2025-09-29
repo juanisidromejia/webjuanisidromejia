@@ -5,226 +5,197 @@ export interface Props {
 
 const { resources = {} } = Astro.props;
 
-// Definir las categorías y sus títulos
-const categories = {
-    beginner: 'Canciones para Principiantes',
-    intermediate: 'Canciones Intermedias',
-    advanced: 'Canciones Avanzadas'
-};
+
 ---
 
 <div class="resources-section mt-12">
     <h2 class="text-3xl font-serif font-medium mb-12 text-center">Recursos Musicales</h2>
 
-    {Object.entries(categories).map(([categoryKey, categoryTitle]) => {
-        const categoryResources = resources[categoryKey] || {};
-        const hasResources = Object.keys(categoryResources).length > 0;
+    <!-- Loading indicator -->
+    <div id="resources-loading" class="text-center py-8" style="display: none;">
+        <p class="text-sm text-muted">Cargando recursos...</p>
+    </div>
 
-        return (
-            <div class="category-section mb-12">
-                <h2 class="text-2xl font-serif font-medium mb-8 text-center">{categoryTitle}</h2>
-                {hasResources ? (
-                    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                        {Object.entries(categoryResources).map(([name, files]) => (
-                             <div class="resource-card bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
-                                 <h3 class="text-lg font-medium mb-4 text-center capitalize text-black">
-                                     {name.replace(/[-_]/g, ' ')}
-                                 </h3>
+    <!-- Error message -->
+    <div id="resources-error" class="text-center py-8 text-red-600" style="display: none;">
+        <p class="text-sm">Error al cargar recursos.</p>
+    </div>
 
-                                <div class="flex flex-wrap gap-2 justify-center">
-                                    {files.pdf && (
-                                        <a
-                                            href={files.pdf}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            class="inline-flex items-center px-3 py-2 text-sm font-medium text-blue-700 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors"
-                                            title="Descargar PDF"
-                                        >
-                                            PDF
-                                        </a>
-                                    )}
-
-                                    {files.mscz && (
-                                        <a
-                                            href={files.mscz}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            class="inline-flex items-center px-3 py-2 text-sm font-medium text-green-700 bg-green-50 rounded-md hover:bg-green-100 transition-colors"
-                                            title="Descargar archivo MSCZ (MuseScore)"
-                                        >
-                                            MSCZ
-                                        </a>
-                                    )}
-
-                                    {files.ogg && (
-                                        <div class="audio-preview mt-3">
-                                            <audio controls class="audio-player" preload="none">
-                                                <source src={files.ogg} type="audio/ogg">
-                                                Tu navegador no soporta reproducción de audio.
-                                            </audio>
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div class="mt-4 text-xs text-gray-500 text-center">
-                                    {Object.keys(files).length} archivo{Object.keys(files).length !== 1 ? 's' : ''} disponible{Object.keys(files).length !== 1 ? 's' : ''}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <div class="text-center py-8 text-muted">
-                        <p class="text-sm">No hay recursos en esta categoría aún.</p>
-                    </div>
-                )}
+    <!-- Beginner category -->
+    <div id="category-beginner" class="category-section mb-12">
+        <h3 class="text-2xl font-serif font-medium mb-8 text-center">Canciones para Principiantes</h3>
+        <div class="resource-grid grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div class="col-span-full text-center py-8 text-muted">
+                <p class="text-sm">Cargando recursos...</p>
             </div>
-        );
-    })}
+        </div>
+    </div>
+
+    <!-- Intermediate category -->
+    <div id="category-intermediate" class="category-section mb-12">
+        <h3 class="text-2xl font-serif font-medium mb-8 text-center">Canciones Intermedias</h3>
+        <div class="resource-grid grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div class="col-span-full text-center py-8 text-muted">
+                <p class="text-sm">Cargando recursos...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Advanced category -->
+    <div id="category-advanced" class="category-section mb-12">
+        <h3 class="text-2xl font-serif font-medium mb-8 text-center">Canciones Avanzadas</h3>
+        <div class="resource-grid grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div class="col-span-full text-center py-8 text-muted">
+                <p class="text-sm">Cargando recursos...</p>
+            </div>
+        </div>
+    </div>
  
 
  </div>
 
-  <script>
-      document.addEventListener('DOMContentLoaded', async () => {
-          console.log('Loading resources...');
-          try {
-              const response = await fetch('/api/resources');
-              console.log('Resources response:', response);
-              if (response.ok) {
-                  const resources = await response.json() as Record<string, Record<string, { pdf?: string; mscz?: string; ogg?: string }>>;
-                  console.log('Resources data:', resources);
-                  updateResources(resources);
-              } else {
-                  console.error('Resources fetch failed:', response.status);
-              }
-          } catch (error) {
-              console.error('Error loading resources:', error);
-          }
-      });
+ <script>
+     let isLoading = false;
 
-      function updateResources(resources: Record<string, Record<string, { pdf?: string; mscz?: string; ogg?: string }>>) {
-          const categories = ['beginner', 'intermediate', 'advanced'];
-          const categoryTitles: Record<string, string> = {
-              beginner: 'Canciones para Principiantes',
-              intermediate: 'Canciones Intermedias',
-              advanced: 'Canciones Avanzadas'
-          };
+     async function loadResources() {
+         if (isLoading) return;
+         isLoading = true;
 
-          categories.forEach(categoryKey => {
-              const categoryResources = resources[categoryKey] || {};
+         const loadingEl = document.getElementById('resources-loading');
+         const errorEl = document.getElementById('resources-error');
 
-             // Since it's dynamic, perhaps replace the content.
+         try {
+             if (loadingEl) loadingEl.style.display = 'block';
+             if (errorEl) errorEl.style.display = 'none';
 
-             // To make it simple, clear and rebuild the sections.
+             console.log('Loading resources...');
+             const response = await fetch('/api/resources');
 
-              const resourcesSection = document.querySelector('.resources-section');
-              if (resourcesSection) {
-                  // Clear existing content except the title
-                  const title = resourcesSection.querySelector('h2');
-                  resourcesSection.innerHTML = '';
-                  if (title) resourcesSection.appendChild(title);
-
-                 // Rebuild categories
-                 categories.forEach(catKey => {
-                     const catTitle = categoryTitles[catKey];
-                     const catResources = resources[catKey] || {};
-                     const hasRes = Object.keys(catResources).length > 0;
-
-                     const catDiv = document.createElement('div');
-                     catDiv.className = 'category-section mb-12';
-
-                     const h2 = document.createElement('h2');
-                     h2.className = 'text-2xl font-serif font-medium mb-8 text-center';
-                     h2.textContent = catTitle;
-                     catDiv.appendChild(h2);
-
-                     if (hasRes) {
-                         const grid = document.createElement('div');
-                         grid.className = 'grid gap-6 md:grid-cols-2 lg:grid-cols-3';
-
-                         Object.entries(catResources).forEach(([name, files]) => {
-                             const card = document.createElement('div');
-                             card.className = 'resource-card bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow';
-
-                              const h3 = document.createElement('h3');
-                              h3.className = 'text-lg font-medium mb-4 text-center capitalize text-black';
-                              h3.textContent = name.replace(/[-_]/g, ' ');
-                             card.appendChild(h3);
-
-                             const flex = document.createElement('div');
-                             flex.className = 'flex flex-wrap gap-2 justify-center';
-
-                             if (files.pdf) {
-                                 const base64 = files.pdf.split(',')[1];
-                                 const mimeType = 'application/pdf';
-                                 const blob = new Blob([Uint8Array.from(atob(base64), c => c.charCodeAt(0))], { type: mimeType });
-                                 const url = URL.createObjectURL(blob);
-                                 const a = document.createElement('a');
-                                 a.href = url;
-                                 a.download = name.replace(/[-_]/g, ' ') + '.pdf';
-                                 a.className = 'inline-flex items-center px-3 py-2 text-sm font-medium text-blue-700 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors';
-                                 a.title = 'Descargar PDF';
-                                 a.textContent = 'PDF';
-                                 flex.appendChild(a);
-                             }
-
-                             if (files.mscz) {
-                                 const base64 = files.mscz.split(',')[1];
-                                 const mimeType = 'application/octet-stream';
-                                 const blob = new Blob([Uint8Array.from(atob(base64), c => c.charCodeAt(0))], { type: mimeType });
-                                 const url = URL.createObjectURL(blob);
-                                 const a = document.createElement('a');
-                                 a.href = url;
-                                 a.download = name.replace(/[-_]/g, ' ') + '.mscz';
-                                 a.className = 'inline-flex items-center px-3 py-2 text-sm font-medium text-green-700 bg-green-50 rounded-md hover:bg-green-100 transition-colors';
-                                 a.title = 'Descargar archivo MSCZ (MuseScore)';
-                                 a.textContent = 'MSCZ';
-                                 flex.appendChild(a);
-                             }
-
-                             if (files.ogg) {
-                                 const audioDiv = document.createElement('div');
-                                 audioDiv.className = 'audio-preview mt-3';
-                                 const audio = document.createElement('audio');
-                                 audio.controls = true;
-                                 audio.className = 'audio-player';
-                                 audio.preload = 'none';
-                                 const source = document.createElement('source');
-                                 source.src = files.ogg;
-                                 source.type = 'audio/ogg';
-                                 audio.appendChild(source);
-                                 audio.appendChild(document.createTextNode('Tu navegador no soporta reproducción de audio.'));
-                                 audioDiv.appendChild(audio);
-                                 flex.appendChild(audioDiv);
-                             }
-
-                             card.appendChild(flex);
-
-                             const countDiv = document.createElement('div');
-                             countDiv.className = 'mt-4 text-xs text-gray-500 text-center';
-                             const count = Object.keys(files).length;
-                             countDiv.textContent = `${count} archivo${count !== 1 ? 's' : ''} disponible${count !== 1 ? 's' : ''}`;
-                             card.appendChild(countDiv);
-
-                             grid.appendChild(card);
-                         });
-
-                         catDiv.appendChild(grid);
-                     } else {
-                         const emptyDiv = document.createElement('div');
-                         emptyDiv.className = 'text-center py-8 text-muted';
-                         const p = document.createElement('p');
-                         p.className = 'text-sm';
-                         p.textContent = 'No hay recursos en esta categoría aún.';
-                         emptyDiv.appendChild(p);
-                         catDiv.appendChild(emptyDiv);
-                     }
-
-                     resourcesSection.appendChild(catDiv);
-                 });
+             if (!response.ok) {
+                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
              }
+
+             const resources = await response.json();
+             console.log('Resources loaded:', resources);
+
+             updateResources(resources);
+
+             if (loadingEl) loadingEl.style.display = 'none';
+
+         } catch (error) {
+             console.error('Error loading resources:', error);
+             if (loadingEl) loadingEl.style.display = 'none';
+             if (errorEl) {
+                 errorEl.style.display = 'block';
+                 errorEl.textContent = 'Error al cargar recursos. Inténtalo de nuevo más tarde.';
+             }
+         } finally {
+             isLoading = false;
+         }
+     }
+
+     function updateResources(resources) {
+         const categories = ['beginner', 'intermediate', 'advanced'];
+         const categoryTitles = {
+             beginner: 'Canciones para Principiantes',
+             intermediate: 'Canciones Intermedias',
+             advanced: 'Canciones Avanzadas'
+         };
+
+         categories.forEach(categoryKey => {
+             const categoryResources = resources[categoryKey] || {};
+             const categoryEl = document.getElementById(`category-${categoryKey}`);
+
+             if (!categoryEl) return;
+
+             const gridEl = categoryEl.querySelector('.resource-grid');
+             if (!gridEl) return;
+
+             // Clear existing content
+             gridEl.innerHTML = '';
+
+             const resourceNames = Object.keys(categoryResources);
+             if (resourceNames.length === 0) {
+                 gridEl.innerHTML = '<div class="col-span-full text-center py-8 text-muted"><p class="text-sm">No hay recursos en esta categoría aún.</p></div>';
+                 return;
+             }
+
+             resourceNames.forEach(name => {
+                 const files = categoryResources[name];
+                 const card = createResourceCard(name, files);
+                 gridEl.appendChild(card);
+             });
          });
      }
+
+     function createResourceCard(name, files) {
+         const card = document.createElement('div');
+         card.className = 'resource-card bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow';
+
+         const title = document.createElement('h3');
+         title.className = 'text-lg font-medium mb-4 text-center capitalize text-black';
+         title.textContent = name.replace(/[-_]/g, ' ');
+         card.appendChild(title);
+
+         const buttonContainer = document.createElement('div');
+         buttonContainer.className = 'flex flex-wrap gap-2 justify-center';
+
+         if (files.pdf) {
+             const pdfBtn = createDownloadButton('PDF', files.pdf, name, 'pdf', 'blue');
+             buttonContainer.appendChild(pdfBtn);
+         }
+
+         if (files.mscz) {
+             const msczBtn = createDownloadButton('MSCZ', files.mscz, name, 'mscz', 'green');
+             buttonContainer.appendChild(msczBtn);
+         }
+
+         if (files.ogg) {
+             const audioDiv = document.createElement('div');
+             audioDiv.className = 'audio-preview mt-3 w-full flex justify-center';
+             const audio = document.createElement('audio');
+             audio.controls = true;
+             audio.className = 'audio-player';
+             audio.preload = 'none';
+             audio.style.maxWidth = '200px';
+             audio.style.width = '100%';
+             audio.style.height = '40px';
+
+             const source = document.createElement('source');
+             source.src = files.ogg;
+             source.type = 'audio/ogg';
+             audio.appendChild(source);
+             audio.appendChild(document.createTextNode('Tu navegador no soporta reproducción de audio.'));
+
+             audioDiv.appendChild(audio);
+             buttonContainer.appendChild(audioDiv);
+         }
+
+         card.appendChild(buttonContainer);
+
+         const countDiv = document.createElement('div');
+         countDiv.className = 'mt-4 text-xs text-gray-500 text-center';
+         const count = Object.keys(files).length;
+         countDiv.textContent = `${count} archivo${count !== 1 ? 's' : ''} disponible${count !== 1 ? 's' : ''}`;
+         card.appendChild(countDiv);
+
+         return card;
+     }
+
+     function createDownloadButton(text, dataUrl, name, ext, color) {
+         const btn = document.createElement('a');
+         btn.href = dataUrl;
+         btn.download = `${name.replace(/[-_]/g, ' ')}.${ext}`;
+         btn.className = `inline-flex items-center px-3 py-2 text-sm font-medium text-${color}-700 bg-${color}-50 rounded-md hover:bg-${color}-100 transition-colors`;
+         btn.title = `Descargar ${ext.toUpperCase()}`;
+         btn.textContent = text;
+         return btn;
+     }
+
+     // Load resources when component mounts
+     document.addEventListener('DOMContentLoaded', () => {
+         loadResources();
+     });
  </script>
 
  <style>

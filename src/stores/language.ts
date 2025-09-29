@@ -3,8 +3,9 @@ import { atom } from 'nanostores';
 // Define supported languages
 export type Language = 'es' | 'en' | 'ru';
 
-// Create an atom for the current language, defaulting to 'es' or from localStorage
-export const languageStore = atom<Language>((typeof localStorage !== 'undefined' && (localStorage.getItem('language') as Language)) || 'es');
+// Create an atom for the current language, defaulting to 'es'
+// Note: localStorage access is handled in BaseLayout.astro to avoid SSR issues
+export const languageStore = atom<Language>('es');
 
 // Function to set language and persist to localStorage
 export const setLanguage = (lang: Language) => {
