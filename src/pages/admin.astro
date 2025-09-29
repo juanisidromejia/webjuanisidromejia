@@ -245,7 +245,7 @@ const { newsletters, subscribers } = newsletterData as { newsletters: Newsletter
                  <div class="mb-6">
                      <h4 class="font-medium mb-3">Desactivar Suscriptor</h4>
                      <div class="flex gap-3">
-                         <select id="subscriberSelector" class="flex-1 px-3 py-2 border border-main/30 rounded-md bg-transparent">
+                          <select id="subscriberSelector" class="flex-1 px-3 py-2 border border-main/30 rounded-md bg-transparent text-main">
                              <option value="">Seleccionar suscriptor...</option>
                              {subscribers.filter(s => s.active).map((subscriber) => (
                                  <option value={subscriber.id}>{subscriber.name} ({subscriber.email})</option>
@@ -602,7 +602,8 @@ const { newsletters, subscribers } = newsletterData as { newsletters: Newsletter
     <style>
         /* Fix select dropdown options contrast */
         #category option,
-        #songSelector option {
+        #songSelector option,
+        #subscriberSelector option {
             color: rgb(23 23 23); /* --color-text-main */
             background-color: rgb(242 241 236); /* --color-bg-main */
         }
@@ -611,13 +612,16 @@ const { newsletters, subscribers } = newsletterData as { newsletters: Newsletter
         #category option:hover,
         #category option:focus,
         #songSelector option:hover,
-        #songSelector option:focus {
+        #songSelector option:focus,
+        #subscriberSelector option:hover,
+        #subscriberSelector option:focus {
             background-color: rgb(234 233 225); /* --color-bg-muted */
         }
 
         /* Selected option styling */
         #category option:checked,
-        #songSelector option:checked {
+        #songSelector option:checked,
+        #subscriberSelector option:checked {
             background-color: rgb(23 23 23); /* --color-text-main */
             color: rgb(242 241 236); /* --color-bg-main */
         }
