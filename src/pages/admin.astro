@@ -122,12 +122,12 @@ const { newsletters, subscribers } = newsletterData as { newsletters: Newsletter
                   <form id="uploadForm" enctype="multipart/form-data" class="space-y-4">
                       <div>
                           <label for="category" class="block text-sm font-medium mb-1">Categoría</label>
-                          <select
-                              id="category"
-                              name="category"
-                              required
-                              class="w-full px-3 py-2 border border-main/30 rounded-md bg-transparent"
-                          >
+                           <select
+                               id="category"
+                               name="category"
+                               required
+                               class="w-full px-3 py-2 border border-main/30 rounded-md bg-transparent text-main"
+                           >
                               <option value="intermediate">Intermedio (Predeterminado)</option>
                               <option value="beginner">Principiante</option>
                               <option value="advanced">Avanzado</option>
@@ -173,7 +173,7 @@ const { newsletters, subscribers } = newsletterData as { newsletters: Newsletter
                   <div class="mb-6">
                       <h4 class="font-medium mb-3">Eliminar Canción</h4>
                       <div class="flex gap-3">
-                          <select id="songSelector" class="flex-1 px-3 py-2 border border-main/30 rounded-md bg-transparent">
+                           <select id="songSelector" class="flex-1 px-3 py-2 border border-main/30 rounded-md bg-transparent text-main">
                               <option value="">Seleccionar canción...</option>
                               <!-- Opciones cargadas dinámicamente -->
                           </select>
