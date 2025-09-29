@@ -79,16 +79,16 @@ const siteConfig: SiteConfig = {
     ],
     socialLinks: [
         {
-            text: 'Linendin',
-            href: 'https://linkedin.com/'
+            text: 'Facebook',
+            href: 'https://www.facebook.com/juanisidromejia/'
         },
         {
             text: 'Instagram',
-            href: 'https://instagram.com/'
+            href: 'https://www.instagram.com/juanisidromejia/'
         },
         {
-            text: 'Facebook',
-            href: 'https://Facebook.com/'
+            text: 'YouTube',
+            href: 'https://www.youtube.com/@JuanIsidroMejia'
         }
     ],
     hero: {
