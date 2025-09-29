@@ -598,4 +598,28 @@ const { newsletters, subscribers } = newsletterData as { newsletters: Newsletter
         // Cargar recursos al cargar la página
         loadResources();
     </script>
+
+    <style>
+        /* Fix select dropdown options contrast */
+        #category option,
+        #songSelector option {
+            color: rgb(23 23 23); /* --color-text-main */
+            background-color: rgb(242 241 236); /* --color-bg-main */
+        }
+
+        /* Ensure options are visible on hover/focus */
+        #category option:hover,
+        #category option:focus,
+        #songSelector option:hover,
+        #songSelector option:focus {
+            background-color: rgb(234 233 225); /* --color-bg-muted */
+        }
+
+        /* Selected option styling */
+        #category option:checked,
+        #songSelector option:checked {
+            background-color: rgb(23 23 23); /* --color-text-main */
+            color: rgb(242 241 236); /* --color-bg-main */
+        }
+    </style>
 </BaseLayout>
