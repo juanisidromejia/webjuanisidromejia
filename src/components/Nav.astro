@@ -66,7 +66,9 @@ const navLinks = [
     };
 
     // Subscribe to language changes
-    languageStore.subscribe(updateNav);
+    languageStore.subscribe((lang) => {
+        updateNav(lang).catch(console.error);
+    });
 </script>
 
 <style>

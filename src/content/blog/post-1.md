@@ -1,12 +1,18 @@
 ---
-title: Técnicas Fundamentales para Aprender Guitarra Clásica
-excerpt: Una guía completa para principiantes que quieren aprender a tocar la guitarra clásica. Descubre las técnicas básicas, posturas correctas y consejos para desarrollar una buena técnica desde el inicio.
+title: 'Técnicas Fundamentales para Aprender Guitarra Clásica'
+title_es: 'Técnicas Fundamentales para Aprender Guitarra Clásica'
+title_en: 'Fundamental Techniques for Learning Classical Guitar'
+title_ru: 'Основные техники изучения классической гитары'
+description: 'Una guía completa para principiantes'
+description_es: 'Una guía completa para principiantes que quieren aprender a tocar la guitarra clásica. Descubre las técnicas básicas, posturas correctas y consejos para desarrollar una buena técnica desde el inicio.'
+description_en: 'A complete guide for beginners who want to learn to play classical guitar. Discover basic techniques, correct postures, and tips to develop good technique from the start.'
+description_ru: 'Полное руководство для начинающих, желающих научиться играть на классической гитаре. Откройте для себя основные техники, правильные позы и советы по развитию хорошей техники с самого начала.'
 publishDate: 'Dec 10 2024'
+isFeatured: false
 tags:
   - Guitarra
   - Técnica
   - Principiantes
-locale: 'es'
 seo:
   image:
     src: '/post-1.jpg'
