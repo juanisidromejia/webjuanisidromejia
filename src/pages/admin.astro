@@ -604,13 +604,14 @@ const { newsletters, subscribers } = newsletterData as { newsletters: Newsletter
         #category option,
         #songSelector option,
         #subscriberSelector option {
-            color: rgb(23 23 23) !important; /* --color-text-main */
-            background-color: rgb(242 241 236) !important; /* --color-bg-main */
+            color: rgb(var(--color-text-main)) !important;
+            background-color: rgb(var(--color-bg-main)) !important;
         }
 
         /* Specific styling for song selector to fix contrast */
         #songSelector option {
             background-color: rgb(173, 216, 230) !important; /* light blue background */
+            color: rgb(23, 23, 23) !important; /* dark text for contrast */
         }
 
         #songSelector option:hover,
@@ -619,7 +620,7 @@ const { newsletters, subscribers } = newsletterData as { newsletters: Newsletter
         }
 
         #songSelector option:checked {
-            background-color: rgb(23 23 23) !important; /* dark background for selected */
+            background-color: rgb(23, 23, 23) !important; /* dark background for selected */
             color: rgb(173, 216, 230) !important; /* light blue text for selected */
         }
 
@@ -628,14 +629,14 @@ const { newsletters, subscribers } = newsletterData as { newsletters: Newsletter
         #category option:focus,
         #subscriberSelector option:hover,
         #subscriberSelector option:focus {
-            background-color: rgb(234 233 225) !important; /* --color-bg-muted */
+            background-color: rgb(var(--color-bg-muted)) !important;
         }
 
         /* Selected option styling */
         #category option:checked,
         #subscriberSelector option:checked {
-            background-color: rgb(23 23 23) !important; /* --color-text-main */
-            color: rgb(242 241 236) !important; /* --color-bg-main */
+            background-color: rgb(var(--color-text-main)) !important;
+            color: rgb(var(--color-bg-main)) !important;
         }
     </style>
 </BaseLayout>
