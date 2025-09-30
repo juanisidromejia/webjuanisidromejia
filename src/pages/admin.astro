@@ -608,11 +608,24 @@ const { newsletters, subscribers } = newsletterData as { newsletters: Newsletter
             background-color: rgb(242 241 236) !important; /* --color-bg-main */
         }
 
+        /* Specific styling for song selector to fix contrast */
+        #songSelector option {
+            background-color: rgb(173, 216, 230) !important; /* light blue background */
+        }
+
+        #songSelector option:hover,
+        #songSelector option:focus {
+            background-color: rgb(135, 206, 235) !important; /* lighter blue on hover */
+        }
+
+        #songSelector option:checked {
+            background-color: rgb(23 23 23) !important; /* dark background for selected */
+            color: rgb(173, 216, 230) !important; /* light blue text for selected */
+        }
+
         /* Ensure options are visible on hover/focus */
         #category option:hover,
         #category option:focus,
-        #songSelector option:hover,
-        #songSelector option:focus,
         #subscriberSelector option:hover,
         #subscriberSelector option:focus {
             background-color: rgb(234 233 225) !important; /* --color-bg-muted */
@@ -620,7 +633,6 @@ const { newsletters, subscribers } = newsletterData as { newsletters: Newsletter
 
         /* Selected option styling */
         #category option:checked,
-        #songSelector option:checked,
         #subscriberSelector option:checked {
             background-color: rgb(23 23 23) !important; /* --color-text-main */
             color: rgb(242 241 236) !important; /* --color-bg-main */
