@@ -54,45 +54,54 @@ const { resources = {} } = Astro.props;
 
  </div>
 
- <script>
-     let isLoading = false;
+  <script>
+      let isLoading = false;
+      let retryCount = 0;
+      const maxRetries = 3;
 
-     async function loadResources() {
-         if (isLoading) return;
-         isLoading = true;
+      async function loadResources() {
+          if (isLoading) return;
+          isLoading = true;
 
-         const loadingEl = document.getElementById('resources-loading');
-         const errorEl = document.getElementById('resources-error');
+          const loadingEl = document.getElementById('resources-loading');
+          const errorEl = document.getElementById('resources-error');
 
-         try {
-             if (loadingEl) loadingEl.style.display = 'block';
-             if (errorEl) errorEl.style.display = 'none';
+          try {
+              if (loadingEl) loadingEl.style.display = 'block';
+              if (errorEl) errorEl.style.display = 'none';
 
-             console.log('Loading resources...');
-             const response = await fetch('/api/resources');
+              console.log('Loading resources... Starting fetch to /api/resources');
+              const response = await fetch('/api/resources');
+              console.log('Fetch response received:', response.status, response.statusText);
 
-             if (!response.ok) {
-                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-             }
+              if (!response.ok) {
+                  throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+              }
 
-             const resources = await response.json();
-             console.log('Resources loaded:', resources);
+              const resources = await response.json();
+              console.log('Resources parsed successfully:', Object.keys(resources));
 
-             updateResources(resources);
+              updateResources(resources);
 
-             if (loadingEl) loadingEl.style.display = 'none';
+              if (loadingEl) loadingEl.style.display = 'none';
 
-         } catch (error) {
-             console.error('Error loading resources:', error);
-             if (loadingEl) loadingEl.style.display = 'none';
-             if (errorEl) {
-                 errorEl.style.display = 'block';
-                 errorEl.textContent = 'Error al cargar recursos. Inténtalo de nuevo más tarde.';
-             }
-         } finally {
-             isLoading = false;
-         }
-     }
+          } catch (error) {
+              console.error('Detailed error loading resources:', error);
+              if (loadingEl) loadingEl.style.display = 'none';
+              if (retryCount < maxRetries) {
+                  retryCount++;
+                  console.log(`Retrying loadResources in 2s (attempt ${retryCount}/${maxRetries})`);
+                  setTimeout(() => loadResources(), 2000);
+              } else {
+                  if (errorEl) {
+                      errorEl.style.display = 'block';
+                      errorEl.innerHTML = '<p>Error al cargar recursos después de varios intentos.</p><button onclick="loadResources()" class="mt-2 px-4 py-2 bg-blue-600 text-white rounded">Reintentar</button>';
+                  }
+              }
+          } finally {
+              isLoading = false;
+          }
+      }
 
      function updateResources(resources) {
          const categories = ['beginner', 'intermediate', 'advanced'];
@@ -213,10 +222,10 @@ const { resources = {} } = Astro.props;
           return btn;
       }
 
-     // Load resources when component mounts
-     document.addEventListener('DOMContentLoaded', () => {
-         loadResources();
-     });
+      // Load resources when page loads
+      document.addEventListener('astro:page-load', () => {
+          loadResources();
+      });
  </script>
 
  <style>

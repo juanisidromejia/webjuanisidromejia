@@ -3,8 +3,10 @@ import { getStore } from '@netlify/blobs';
 export const prerender = false;
 
 export async function GET() {
+    console.log('API /api/resources called');
     try {
         const store = getStore('resources');
+        console.log('Blobs store initialized');
         let categorizedResources: Record<string, Record<string, Record<string, string>>> = {
             beginner: {},
             intermediate: {},
@@ -12,9 +14,12 @@ export async function GET() {
         };
 
         try {
+            console.log('Fetching data from blobs');
             const data = await store.get('data');
             if (data) {
+                console.log('Data retrieved from blobs, parsing JSON');
                 const resourcesData = JSON.parse(data);
+                console.log('Resources data parsed, categories:', Object.keys(resourcesData));
                 // Convertir base64 a data URLs
                 for (const category in resourcesData) {
                     for (const songName in resourcesData[category]) {
@@ -34,11 +39,14 @@ export async function GET() {
                         });
                     categorizedResources[category] = sortedCategory;
                 }
+            } else {
+                console.log('No data in blobs, returning empty resources');
             }
         } catch (error) {
             console.error('Error reading from blobs:', error);
         }
 
+        console.log('Returning categorized resources');
         return new Response(JSON.stringify(categorizedResources), {
             status: 200,
             headers: {
@@ -46,7 +54,7 @@ export async function GET() {
             }
         });
     } catch (error) {
-        console.error('Error reading resources:', error);
+        console.error('Error in GET handler:', error);
         return new Response(JSON.stringify({ error: 'Error al leer recursos' }), {
             status: 500,
             headers: {
