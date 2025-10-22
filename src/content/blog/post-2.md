@@ -67,7 +67,109 @@ El mejor camino es combinar ambas fortalezas:
 
 La IA es una herramienta poderosa que facilita la creación de recursos en línea, pero los fundamentos sólidos siguen siendo la base del éxito duradero en el desarrollo de software y la educación tecnológica.
 
-¡No te limites a usar la IA como muleta, conviértela en tu aliada inteligente!</content>
+¡No te limites a usar la IA como muleta, conviértela en tu aliada inteligente!
+
+## English
+
+![A person working with AI and code](/post-2.jpg)
+
+Artificial intelligence has revolutionized the way we create online educational resources. Tools like ChatGPT, GitHub Copilot, and other AI platforms can generate code, explain complex concepts, and even create complete content in minutes.
+
+## The Ease of AI
+
+With a few prompts, AI can:
+
+- Generate functional code for web projects
+- Create detailed explanations of algorithms
+- Design attractive user interfaces
+- Translate content into multiple languages
+
+This has democratized access to creating technical resources, allowing people without deep programming experience to contribute to the educational ecosystem.
+
+## But... Why Learn the Basics?
+
+Despite these advances, understanding programming fundamentals remains essential:
+
+### 1. **Deep Understanding**
+
+AI can generate code, but understanding _why_ that code works requires knowledge of the underlying principles.
+
+### 2. **Debugging and Maintenance**
+
+When AI-generated code doesn't work as expected, you need to know how to identify and fix the problems.
+
+### 3. **Optimization**
+
+AI can create functional code, but optimized code requires understanding of efficient algorithms and best practices.
+
+### 4. **Innovation**
+
+The fundamentals allow you to combine concepts creatively, something AI can't yet do intuitively.
+
+## A Balanced Approach
+
+The best path is to combine both strengths:
+
+1. **Learn the fundamentals:** HTML, CSS, JavaScript, basic algorithms
+2. **Use AI as a tool:** To speed up development and explore new ideas
+3. **Practice integration:** Combine your knowledge with AI capabilities
+
+## Conclusion
+
+AI is a powerful tool that facilitates the creation of online resources, but solid fundamentals remain the basis for lasting success in software development and technological education.
+
+Don't limit yourself to using AI as a crutch, turn it into your intelligent ally!
+
+## Русский
+
+![Человек, работающий с ИИ и кодом](/post-2.jpg)
+
+Искусственный интеллект революционизировал способ создания онлайн-образовательных ресурсов. Такие инструменты, как ChatGPT, GitHub Copilot и другие платформы ИИ, могут генерировать код, объяснять сложные концепции и даже создавать полный контент за минуты.
+
+## Легкость ИИ
+
+С несколькими подсказками ИИ может:
+
+- Генерировать функциональный код для веб-проектов
+- Создавать подробные объяснения алгоритмов
+- Проектировать привлекательные пользовательские интерфейсы
+- Переводить контент на несколько языков
+
+Это демократизировало доступ к созданию технических ресурсов, позволяя людям без глубокого опыта программирования вносить вклад в образовательную экосистему.
+
+## Но... Почему учить основы?
+
+Несмотря на эти достижения, понимание основ программирования остается необходимым:
+
+### 1. **Глубокое понимание**
+
+ИИ может генерировать код, но понимание _почему_ этот код работает требует знания основных принципов.
+
+### 2. **Отладка и обслуживание**
+
+Когда код, сгенерированный ИИ, не работает как ожидалось, вам нужно знать, как идентифицировать и исправлять проблемы.
+
+### 3. **Оптимизация**
+
+ИИ может создавать функциональный код, но оптимизированный код требует понимания эффективных алгоритмов и лучших практик.
+
+### 4. **Инновации**
+
+Основы позволяют вам творчески комбинировать концепции, что ИИ пока не может делать интуитивно.
+
+## Сбалансированный подход
+
+Лучший путь - сочетать обе сильные стороны:
+
+1. **Изучайте основы:** HTML, CSS, JavaScript, базовые алгоритмы
+2. **Используйте ИИ как инструмент:** Для ускорения разработки и изучения новых идей
+3. **Практикуйте интеграцию:** Комбинируйте свои знания с возможностями ИИ
+
+## Заключение
+
+ИИ - мощный инструмент, облегчающий создание онлайн-ресурсов, но прочные основы остаются основой для длительного успеха в разработке программного обеспечения и технологическом образовании.
+
+Не ограничивайтесь использованием ИИ как костыля, превратите его в своего умного союзника!</content>
 </xai:function_call">
 
 <xai:function_call name="bash">

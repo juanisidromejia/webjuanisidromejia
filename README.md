@@ -1,27 +1,9 @@
-# Dante - Astro & Tailwind CSS Theme by justgoodui.com
-
-Dante is a single-author blog and portfolio theme for Astro.js. Featuring a
-minimal, slick, responsive and content-focused design. For more Astro.js
-themes please check [justgoodui.com](https://justgoodui.com/).
-
-![Dante Astro.js Theme](public/dante-preview.jpg)
-
-## Plan para actualizar README.md
-
-### Análisis actual
-
-El README.md actual es genérico del tema "Dante" y no refleja las
-personalizaciones realizadas para el portfolio de Juan Isidro Mejía.
-
-### Contenido recomendado para el nuevo README.md (en inglés)
-
 # Juan Isidro Mejía - Classical Guitarist & Music Conductor Portfolio
 
 A multilingual portfolio website built with Astro.js, showcasing the work of
 Juan Isidro Mejía, a dedicated classical guitarist and music conductor
 focused on helping young musicians develop their skills.
 
-![Portfolio Preview](public/dante-preview.jpg)
 
 ## 🌟 Features
 
@@ -31,7 +13,7 @@ focused on helping young musicians develop their skills.
 - ✅ **Project Portfolio**: Showcase of educational projects and case
   studies
 - ✅ **Blog System**: Multilingual blog posts about music education
-- ✅ **Music Scores**: Interactive score viewer and resources
+- ✅ **Music Scores**: Interactive score viewer and resources (comming soon)
 - ✅ **Contact & Newsletter**: Subscription system and contact forms
 - ✅ **SEO Optimized**: OpenGraph, canonical URLs, sitemap, RSS feed
 - ✅ **Performance Focused**: Fast loading with Astro.js

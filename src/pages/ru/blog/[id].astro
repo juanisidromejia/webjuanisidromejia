@@ -9,6 +9,10 @@ import PostPreview from '../../../components/PostPreview.astro';
 import Subscribe from '../../../components/Subscribe.astro';
 import { sortItemsByDateDesc } from '../../../utils/data-utils';
 import { slugify } from '../../../utils/common-utils';
+import { remark } from 'remark';
+import remarkHtml from 'remark-html';
+
+const localeMap = { es: 'Español', en: 'English', ru: 'Русский' };
 
 export async function getStaticPaths() {
     const allPosts = await getCollection('blog');
@@ -32,7 +36,12 @@ const { title, publishDate, updatedDate, excerpt, tags = [], seo } = post.data;
 const locale = Astro.currentLocale || 'es';
 const displayTitle = (post.data as any)[`title_${locale}`] || post.data.title;
 const displayDescription = (post.data as any)[`description_${locale}`] || post.data.description;
-const { Content } = await render(post);
+const sectionName = localeMap[locale];
+const sectionRegex = new RegExp(`## ${sectionName}\\n([\\s\\S]*?)(?=\\n##|$)`, 'i');
+const match = post.body.match(sectionRegex);
+const filteredBody = match ? match[1] : (locale === 'es' ? post.body : (locale === 'en' ? 'Content not available in this language' : 'Содержимое недоступно на этом языке'));
+const processed = await remark().use(remarkHtml).process(filteredBody);
+const html = processed.toString();
 ---
 
 <BaseLayout title={seo?.title ?? title} description={seo?.description ?? excerpt} image={seo?.image} pageType="article" showHeader={false}>
@@ -53,9 +62,7 @@ const { Content } = await render(post);
                 }
             </div>
         </header>
-        <div class="max-w-none prose prose-dante sm:prose-lg">
-            <Content />
-        </div>
+        <div class="max-w-none prose prose-dante sm:prose-lg" set:html={html}></div>
         <div class="mt-8 flex flex-wrap items-center gap-6 text-sm justify-between sm:mt-12 sm:text-base">
             {
                 tags.length > 0 && (
