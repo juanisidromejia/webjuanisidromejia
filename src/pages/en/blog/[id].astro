@@ -29,13 +29,16 @@ type Props = { post: CollectionEntry<'blog'>; prevPost: CollectionEntry<'blog'>;
 const { href } = Astro.url;
 const { post, prevPost, nextPost } = Astro.props;
 const { title, publishDate, updatedDate, excerpt, tags = [], seo } = post.data;
+const locale = Astro.currentLocale || 'es';
+const displayTitle = (post.data as any)[`title_${locale}`] || post.data.title;
+const displayDescription = (post.data as any)[`description_${locale}`] || post.data.description;
 const { Content } = await render(post);
 ---
 
-<BaseLayout title={seo?.title ?? title} description={seo?.description ?? excerpt} image={seo?.image} pageType="article" showHeader={false}>
+<BaseLayout title={seo?.title ?? displayTitle} description={seo?.description ?? displayDescription} image={seo?.image} pageType="article" showHeader={false}>
     <article class="mb-16 sm:mb-24">
         <header class="mb-8">
-            <h1 class="text-3xl leading-tight font-serif font-medium sm:text-5xl sm:leading-tight">{title}</h1>
+            <h1 class="text-3xl leading-tight font-serif font-medium sm:text-5xl sm:leading-tight">{displayTitle}</h1>
             <div class="mt-4 text-sm">
                 <FormattedDate date={publishDate} />
                 {

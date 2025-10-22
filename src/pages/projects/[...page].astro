@@ -21,11 +21,6 @@ type Props = { page: Page<CollectionEntry<'projects'>> };
 const { page } = Astro.props;
 const portfolio = page.data;
 const translations = await getTranslations('es');
-const allTranslations = {
-    es: await getTranslations('es'),
-    en: await getTranslations('en'),
-    ru: await getTranslations('ru')
-};
 ---
 
 <BaseLayout
@@ -39,20 +34,4 @@ const allTranslations = {
     <Pagination page={page} class="my-16 sm:my-24" />
 </BaseLayout>
 
-<script is:inline define:vars={{ allTranslations }}>
-    const updatePageContent = (lang) => {
-        const translations = allTranslations[lang] || allTranslations.es;
-        const titleEl = document.getElementById('projects-title');
-        if (titleEl) titleEl.textContent = translations.projects_title;
-        // Update document title if needed
-        document.title = translations.projects_title;
-    };
 
-    // Listen to language changes
-    document.addEventListener('languageChange', (e) => {
-        updatePageContent(e.detail);
-    });
-
-    // Initial update
-    updatePageContent(window.currentLang);
-</script>

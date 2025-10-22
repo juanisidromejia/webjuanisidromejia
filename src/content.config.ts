@@ -61,7 +61,7 @@ const projects = defineCollection({
 });
 
 const translations = defineCollection({
-    loader: glob({ pattern: '**/*.md', base: './src/translations' }),
+    loader: glob({ pattern: '*.md', base: './src/translations' }),
     schema: z.object({
         title: z.string()
     })

@@ -1,5 +1,5 @@
 ---
-export const prerender = false;
+export const prerender = true;
 
 import { type CollectionEntry, getCollection, render } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
@@ -10,7 +10,7 @@ import { getTranslations, t } from '../../../utils/i18n';
 
 export async function getStaticPaths() {
     const allProjects = await getCollection('projects');
-    const projects = allProjects.filter(p => p.data.locale === 'ru').sort(sortItemsByDateDesc);
+    const projects = allProjects.sort(sortItemsByDateDesc);
     const projectCount = projects.length;
     return projects.map((project, index) => ({
         params: { id: project.id.replace(/\..*$/, '') },
@@ -25,9 +25,11 @@ export async function getStaticPaths() {
 type Props = { project: CollectionEntry<'projects'>; prevProject: CollectionEntry<'projects'>; nextProject: CollectionEntry<'projects'> };
 
 const { project, prevProject, nextProject } = Astro.props;
-const { title, description, seo } = project.data;
-const { Content } = await render(project);
 const currentLocale = 'ru';
+const title = (project.data as any)[`title_${currentLocale}`] || project.data.title_es || project.data.title;
+const description = (project.data as any)[`description_${currentLocale}`] || project.data.description_es || project.data.description;
+const { seo } = project.data;
+const { Content } = await render(project);
 const translations = await getTranslations(currentLocale);
 
 // Recursos se cargan del lado del cliente

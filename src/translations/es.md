@@ -30,6 +30,14 @@ view_next: Ver Siguiente
 blog_title: Blog
 read_more: Leer Más
 
+# Tags
+
+all_tags_title: Todas las Etiquetas
+all_tags_description: Explora el directorio de etiquetas para una navegación fácil y descubrimiento. Encuentra una amplia gama de temas, artículos e ideas organizados por etiquetas, facilitando localizar el contenido que más te interesa.
+view_tag_archive: Ver Archivo de Etiqueta
+posts_tagged: Posts Etiquetados
+read_post: Leer Post
+
 # Footer
 
 subscribe_title: Suscríbete a mi Newsletter Musical

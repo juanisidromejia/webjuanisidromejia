@@ -30,6 +30,14 @@ view_next: View Next
 blog_title: Blog
 read_more: Read More
 
+# Tags
+
+all_tags_title: All Tags
+all_tags_description: Explore tag directory for easy navigation and discovery. Find a wide range of topics, articles, and insights organized by tags, making it effortless to locate the content that interests you most.
+view_tag_archive: View Tag Archive
+posts_tagged: Posts Tagged
+read_post: Read Post
+
 # Footer
 
 subscribe_title: Subscribe to My Musical Newsletter

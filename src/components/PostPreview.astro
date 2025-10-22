@@ -2,19 +2,22 @@
 import { type CollectionEntry } from 'astro:content';
 import ArrowRight from '../icons/ArrowRight.astro';
 import FormattedDate from './FormattedDate.astro';
+import { getTranslations, t } from '../utils/i18n';
 
 type Props = { post: CollectionEntry<'blog'>; class?: string; headingLevel?: 'h2' | 'h3' };
 
 const { post, class: className, headingLevel = 'h2' } = Astro.props;
 const currentLocale = Astro.currentLocale || 'es';
-const title = post.data[`title_${currentLocale}`] || post.data.title_es || post.data.title;
-const description = post.data[`description_${currentLocale}`] || post.data.description_es || post.data.description;
+const title = (post.data as any)[`title_${currentLocale}`] || post.data.title_es || post.data.title;
+const description = (post.data as any)[`description_${currentLocale}`] || post.data.description_es || post.data.description;
 const { publishDate, updatedDate } = post.data;
 const excerpt = description; // Use description as excerpt
 const TitleTag = headingLevel;
+const translations = await getTranslations(currentLocale);
+const localePrefix = currentLocale && currentLocale !== 'es' ? `/${currentLocale}` : '';
 ---
 
-<a class:list={['flex justify-between items-start gap-8 group', className]} href={`/blog/${post.id}/`}>
+<a class:list={['flex justify-between items-start gap-8 group', className]} href={`${localePrefix}/blog/${post.id}/`}>
     <div class="grow">
         <TitleTag
             class="text-xl leading-tight font-serif font-medium group-hover:underline group-hover:decoration-dashed group-hover:underline-offset-4 group-hover:decoration-1 sm:text-2xl"
@@ -37,6 +40,6 @@ const TitleTag = headingLevel;
         {description && <div class="mt-3 text-sm leading-normal">{description}</div>}
     </div>
     <div class="hidden font-serif italic opacity-0 transition group-hover:opacity-100 sm:inline-flex sm:gap-1 sm:items-center sm:shrink-0">
-        Read Post <ArrowRight class="fill-current w-4 h-4" />
+        {t('read_post', translations)} <ArrowRight class="fill-current w-4 h-4" />
     </div>
 </a>

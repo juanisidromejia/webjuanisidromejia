@@ -3,9 +3,8 @@ import NavLink from './NavLink.astro';
 import ThemeToggle from './ThemeToggle.astro';
 import LanguageSelector from './LanguageSelector.astro';
 import { getTranslations } from '../utils/i18n';
-import { languageStore } from '../stores/language';
 
-const currentLang = languageStore.get();
+const currentLang = Astro.currentLocale || 'es';
 const translations = await getTranslations(currentLang);
 
 const navLinks = [
@@ -49,36 +48,6 @@ const navLinks = [
     </div>
 </nav>
 
-<script>
-    // Translations
-    const translations = {
-        es: { home: 'Inicio', resources: 'Recursos', blog: 'Blog', tags: 'Etiquetas' },
-        en: { home: 'Home', resources: 'Resources', blog: 'Blog', tags: 'Tags' },
-        ru: { home: 'Главная', resources: 'Ресурсы', blog: 'Блог', tags: 'Теги' }
-    };
-
-    // Function to update nav links
-    const updateNav = (lang: string) => {
-        console.log('Updating nav for language:', lang);
-        const trans = translations[lang as keyof typeof translations];
-        const navItems = document.querySelectorAll('.menu a');
-        const keys = ['home', 'resources', 'blog', 'tags'];
-        navItems.forEach((item, index) => {
-            if (keys[index] && trans[keys[index] as keyof typeof trans]) {
-                item.textContent = trans[keys[index] as keyof typeof trans];
-            }
-        });
-    };
-
-    // Listen to language changes
-    document.addEventListener('languageChange', (e: any) => {
-        console.log('Language changed to:', e.detail);
-        updateNav(e.detail);
-    });
-
-    // Initial update
-    updateNav((window as any).currentLang);
-</script>
 
 <style>
     @media (max-width: 767px) {
@@ -127,18 +96,3 @@ const navLinks = [
     }
 </style>
 
-<script>
-    function menuToggle() {
-        const menu = document.querySelector('.menu');
-        const menuToggleBtn = document.querySelector('.menu-toggle');
-        menuToggleBtn?.addEventListener('click', () => {
-            const isMenuExpanded = menuToggleBtn.getAttribute('aria-expanded') === 'true';
-            menuToggleBtn.classList.toggle('is-active');
-            menuToggleBtn.setAttribute('aria-expanded', isMenuExpanded ? 'false' : 'true');
-            menuToggleBtn.setAttribute('aria-label', isMenuExpanded ? 'Open Menu' : 'Close Menu');
-            menu?.classList.toggle('is-visible');
-        });
-    }
-    menuToggle();
-    document.addEventListener('astro:after-swap', menuToggle);
-</script>

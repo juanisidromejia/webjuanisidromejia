@@ -12,7 +12,7 @@ import { getTranslations, t } from '../../../utils/i18n';
 
 export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
     const allProjects = await getCollection('projects');
-    const projects = allProjects.filter(p => p.data.locale === 'ru').sort(sortItemsByDateDesc);
+    const projects = allProjects.sort(sortItemsByDateDesc);
     return paginate(projects, { pageSize: siteConfig.projectsPerPage || 6 });
 }
 

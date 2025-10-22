@@ -39,44 +39,4 @@ const hero = {
     )
 }
 
-<!-- Dynamic language switching script -->
-<script>
-    import { marked } from 'marked';
 
-    async function updateHeroContent(lang) {
-        try {
-            const response = await fetch(`/api/translations/${lang}`);
-            if (!response.ok) {
-                console.error('Failed to fetch translations:', response.status);
-                return;
-            }
-
-            const translations = await response.json();
-
-            // Update DOM elements
-            const titleEl = document.getElementById('hero-title');
-            const subtitleEl = document.getElementById('hero-subtitle');
-            const textEl = document.getElementById('hero-text');
-
-            if (titleEl && translations.hero_title) {
-                titleEl.textContent = translations.hero_title;
-            }
-
-            if (subtitleEl && translations.hero_subtitle) {
-                subtitleEl.textContent = translations.hero_subtitle;
-            }
-
-            if (textEl && translations.hero_text) {
-                textEl.innerHTML = marked.parse(translations.hero_text);
-            }
-        } catch (error) {
-            console.error('Error updating hero content:', error);
-        }
-    }
-
-    // Listen for language changes
-    document.addEventListener('languageChange', (e) => {
-        const newLang = e.detail;
-        updateHeroContent(newLang);
-    });
-</script>

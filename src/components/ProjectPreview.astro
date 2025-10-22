@@ -6,8 +6,8 @@ type Props = { project: CollectionEntry<'projects'>; class?: string; headingLeve
 
 const { project, class: className, headingLevel = 'h2' } = Astro.props;
 const currentLocale = Astro.currentLocale || 'es';
-const title = project.data[`title_${currentLocale}`] || project.data.title_es || project.data.title;
-const description = project.data[`description_${currentLocale}`] || project.data.description_es || project.data.description;
+const title = (project.data as any)[`title_${currentLocale}`] || project.data.title_es || project.data.title;
+const description = (project.data as any)[`description_${currentLocale}`] || project.data.description_es || project.data.description;
 const TitleTag = headingLevel;
 const localePrefix = currentLocale && currentLocale !== 'es' ? `/${currentLocale}` : '';
 const projectId = project.id.replace(/\..*$/, ''); // Remove locale suffix from id

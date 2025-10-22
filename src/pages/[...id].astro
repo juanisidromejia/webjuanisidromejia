@@ -19,7 +19,7 @@ type Props = { page: CollectionEntry<'pages'> };
 
 const { page } = Astro.props;
 const currentLocale = Astro.currentLocale || 'es';
-const title = page.data[`title_${currentLocale}`] || page.data.title_es || page.data.title;
+const title = page.data.title;
 const { seo } = page.data;
 const { Content } = await render(page);
 

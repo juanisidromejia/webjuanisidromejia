@@ -16,7 +16,7 @@ const posts = (await getCollection('blog')).sort(sortItemsByDateDesc);
 const featuredPosts = posts.filter(({ data }) => data.isFeatured);
 
 const allProjects = await getCollection('projects');
-const projects = allProjects.filter(p => p.data.locale === currentLocale).sort(sortItemsByDateDesc);
+const projects = allProjects.sort(sortItemsByDateDesc);
 const featuredProjects = projects.filter(({ data }) => data.isFeatured);
 ---
 

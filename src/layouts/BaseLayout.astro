@@ -34,3 +34,40 @@ const currentLocale = Astro.currentLocale || 'es';
         </div>
     </body>
 </html>
+
+<script>
+    document.addEventListener('astro:page-load', () => {
+        const locales = ['es', 'en', 'ru'];
+        locales.forEach(lang => {
+            const btn = document.getElementById(`lang-${lang}`);
+            if (btn) {
+                btn.addEventListener('click', () => {
+                    console.log('Language button clicked:', lang);
+                    localStorage.setItem('language', lang);
+                    // Navigate to translated path
+                    const currentPath = window.location.pathname;
+                    let newPath = currentPath;
+                    // Detect current locale
+                    let currentLocale = 'es';
+                    if (currentPath.startsWith('/en/') || currentPath === '/en') {
+                        currentLocale = 'en';
+                    } else if (currentPath.startsWith('/ru/') || currentPath === '/ru') {
+                        currentLocale = 'ru';
+                    }
+                    if (lang === currentLocale) return; // Already on it
+                    if (currentLocale === 'es') {
+                        newPath = lang === 'es' ? currentPath : `/${lang}${currentPath}`;
+                    } else {
+                        if (lang === 'es') {
+                            newPath = currentPath.replace(`/${currentLocale}`, '');
+                            if (newPath === '') newPath = '/';
+                        } else {
+                            newPath = currentPath.replace(`/${currentLocale}`, `/${lang}`);
+                        }
+                    }
+                    window.location.href = newPath;
+                });
+            }
+        });
+    });
+</script>
