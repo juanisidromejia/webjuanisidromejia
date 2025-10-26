@@ -96,3 +96,42 @@ const navLinks = [
     }
 </style>
 
+<script>
+document.addEventListener('astro:page-load', () => {
+    const menuToggle = document.querySelector('.menu-toggle');
+    const menu = document.querySelector('#menu-items');
+
+    if (menuToggle && menu) {
+        const toggleMenu = () => {
+            const isActive = menuToggle.classList.contains('is-active');
+            menuToggle.classList.toggle('is-active');
+            menu.classList.toggle('is-visible');
+            menuToggle.setAttribute('aria-expanded', !isActive);
+        };
+
+        menuToggle.addEventListener('click', (e) => {
+            e.stopPropagation(); // Evitar que el clic en el botón cierre el menú inmediatamente
+            toggleMenu();
+        });
+
+        // Cerrar menú al hacer clic en un enlace
+        menu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                menuToggle.classList.remove('is-active');
+                menu.classList.remove('is-visible');
+                menuToggle.setAttribute('aria-expanded', 'false');
+            });
+        });
+
+        // Cerrar menú al hacer clic fuera
+        document.addEventListener('click', (e) => {
+            if (!menu.contains(e.target) && !menuToggle.contains(e.target)) {
+                menuToggle.classList.remove('is-active');
+                menu.classList.remove('is-visible');
+                menuToggle.setAttribute('aria-expanded', 'false');
+            }
+        });
+    }
+});
+</script>
+
