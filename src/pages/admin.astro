@@ -407,11 +407,14 @@ const { newsletters, subscribers } = newsletterData as { newsletters: Newsletter
         // Cargar recursos musicales
         async function loadResources() {
             try {
-                const response = await fetch('/api/resources');
+                const response = await fetch('/api/resources?t=' + Date.now());
                 if (response.ok) {
                     const resources = await response.json();
                     populateSongSelector(resources);
                     updateCategoryCounts(resources);
+                    // Forzar actualización del selector
+                    const songSelector = document.getElementById('songSelector') as HTMLSelectElement;
+                    if (songSelector) songSelector.dispatchEvent(new Event('change'));
                 }
             } catch (error) {
                 console.error('Error loading resources:', error);
@@ -515,6 +518,9 @@ const { newsletters, subscribers } = newsletterData as { newsletters: Newsletter
                     messageDiv.className = 'p-3 bg-green-100 text-green-800 rounded-md';
                     messageDiv.textContent = result.message;
                     messageDiv.classList.remove('hidden');
+
+                    // Esperar un poco para que Blobs se actualice
+                    await new Promise(resolve => setTimeout(resolve, 500));
 
                     // Recargar recursos
                     loadResources();
