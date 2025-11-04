@@ -97,7 +97,7 @@ export async function POST({ request }: APIContext) {
 
             // Sanitizar nombre de archivo
             const sanitizedName = fileName.replace(/[^a-zA-Z0-9._\-\(\)]/g, '_');
-            const baseName = sanitizedName.replace(/\.(pdf|mscz|ogg)$/i, '');
+            const baseName = sanitizedName.replace(/\.(pdf|mscz|ogg|mp3)$/i, '');
             const ext = fileExt.slice(1); // sin punto
 
             // Leer el contenido del archivo
