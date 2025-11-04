@@ -23,10 +23,17 @@ export async function POST({ request, cookies }) {
         }
 
         // Validar categoría
-        const validCategories = ['beginner', 'intermediate', 'advanced'];
+        const validCategories = [
+            'ensamble_principiante',
+            'ensamble_intermedio',
+            'ensamble_avanzado',
+            'solista_principiante',
+            'solista_intermedio',
+            'solista_avanzado'
+        ];
         if (!validCategories.includes(category)) {
             return new Response(JSON.stringify({ error: 'Categoría inválida' }), {
-                status: 400,
+                status: 401,
                 headers: { 'Content-Type': 'application/json' }
             });
         }
@@ -34,10 +41,20 @@ export async function POST({ request, cookies }) {
         // Cargar datos desde Netlify Blobs
         const store = getStore('resources');
         let resourcesData = {
-            beginner: {},
-            intermediate: {},
-            advanced: {}
+            ensamble: {
+                principiante: {},
+                intermedio: {},
+                avanzado: {}
+            },
+            solista: {
+                principiante: {},
+                intermedio: {},
+                avanzado: {}
+            }
         };
+
+        // Parsear categoría
+        const [mainCategory, subCategory] = category.split('_');
 
         try {
             const data = await store.get('data');
@@ -51,7 +68,7 @@ export async function POST({ request, cookies }) {
             });
         }
 
-        if (!resourcesData[category] || !resourcesData[category][songName]) {
+        if (!resourcesData[mainCategory] || !resourcesData[mainCategory][subCategory] || !resourcesData[mainCategory][subCategory][songName]) {
             return new Response(JSON.stringify({ error: 'Canción no encontrada en esta categoría' }), {
                 status: 404,
                 headers: { 'Content-Type': 'application/json' }
@@ -59,7 +76,7 @@ export async function POST({ request, cookies }) {
         }
 
         // Eliminar la canción
-        delete resourcesData[category][songName];
+        delete resourcesData[mainCategory][subCategory][songName];
 
         // Guardar datos actualizados
         await store.set('data', JSON.stringify(resourcesData));

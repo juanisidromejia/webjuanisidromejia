@@ -7,10 +7,17 @@ export async function POST({ request }: APIContext) {
     try {
         const formData = await request.formData();
         const files = formData.getAll('files');
-        const category = (formData.get('category') as string) || 'intermediate';
+        const category = (formData.get('category') as string) || 'ensamble_intermedio';
 
         // Validar categoría
-        const validCategories = ['beginner', 'intermediate', 'advanced'];
+        const validCategories = [
+            'ensamble_principiante',
+            'ensamble_intermedio',
+            'ensamble_avanzado',
+            'solista_principiante',
+            'solista_intermedio',
+            'solista_avanzado'
+        ];
         if (!validCategories.includes(category)) {
             return new Response(JSON.stringify({ error: 'Categoría inválida' }), {
                 status: 400,
@@ -27,11 +34,32 @@ export async function POST({ request }: APIContext) {
 
         // Cargar datos existentes desde Netlify Blobs
         const store = getStore('resources');
-        let resourcesData: Record<string, Record<string, Record<string, string>>> = {
-            beginner: {},
-            intermediate: {},
-            advanced: {}
+        let resourcesData: Record<string, Record<string, Record<string, Record<string, string>>>> = {
+            ensamble: {
+                principiante: {},
+                intermedio: {},
+                avanzado: {}
+            },
+            solista: {
+                principiante: {},
+                intermedio: {},
+                avanzado: {}
+            }
         };
+
+        // Parsear categoría
+        const [mainCategory, subCategory] = category.split('_');
+        if (
+            !mainCategory ||
+            !subCategory ||
+            !['ensamble', 'solista'].includes(mainCategory) ||
+            !['principiante', 'intermedio', 'avanzado'].includes(subCategory)
+        ) {
+            return new Response(JSON.stringify({ error: 'Categoría inválida' }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
 
         try {
             const data = await store.get('data');
@@ -43,7 +71,7 @@ export async function POST({ request }: APIContext) {
         }
 
         let uploadedCount = 0;
-        const allowedExtensions = ['.pdf', '.mscz', '.ogg'];
+        const allowedExtensions = ['.pdf', '.mscz', '.ogg', '.mp3'];
         const errors = [];
 
         for (const file of files) {
@@ -78,10 +106,10 @@ export async function POST({ request }: APIContext) {
             const base64 = buffer.toString('base64');
 
             // Guardar en la estructura de datos
-            if (!resourcesData[category][baseName]) {
-                resourcesData[category][baseName] = {};
+            if (!resourcesData[mainCategory][subCategory][baseName]) {
+                resourcesData[mainCategory][subCategory][baseName] = {};
             }
-            resourcesData[category][baseName][ext] = base64;
+            resourcesData[mainCategory][subCategory][baseName][ext] = base64;
 
             uploadedCount++;
         }

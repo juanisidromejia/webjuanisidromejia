@@ -123,15 +123,18 @@ const { newsletters, subscribers } = newsletterData as { newsletters: Newsletter
                       <div>
                           <label for="category" class="block text-sm font-medium mb-1">Categoría</label>
                            <select
-                               id="category"
-                               name="category"
-                               required
-                               class="w-full px-3 py-2 border border-main/30 rounded-md bg-transparent text-main"
-                           >
-                              <option value="intermediate">Intermedio (Predeterminado)</option>
-                              <option value="beginner">Principiante</option>
-                              <option value="advanced">Avanzado</option>
-                          </select>
+                                id="category"
+                                name="category"
+                                required
+                                class="w-full px-3 py-2 border border-main/30 rounded-md bg-transparent text-main"
+                            >
+                               <option value="ensamble_intermedio">Ensamble - Intermedio (Predeterminado)</option>
+                               <option value="ensamble_principiante">Ensamble - Principiante</option>
+                               <option value="ensamble_avanzado">Ensamble - Avanzado</option>
+                               <option value="solista_principiante">Solista - Principiante</option>
+                               <option value="solista_intermedio">Solista - Intermedio</option>
+                               <option value="solista_avanzado">Solista - Avanzado</option>
+                           </select>
                           <p class="text-xs text-muted mt-1">
                               Selecciona la categoría de dificultad para las canciones.
                           </p>
@@ -145,7 +148,7 @@ const { newsletters, subscribers } = newsletterData as { newsletters: Newsletter
                               id="files"
                               name="files"
                               multiple
-                              accept=".pdf,.mscz,.ogg"
+                               accept=".pdf,.mscz,.ogg,.mp3"
                               required
                               class="w-full px-3 py-2 border border-main/30 rounded-md bg-transparent file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-main file:text-white hover:file:bg-main/80"
                           />
@@ -186,21 +189,33 @@ const { newsletters, subscribers } = newsletterData as { newsletters: Newsletter
                       </p>
                   </div>
 
-                  <!-- Estado de categorías -->
-                  <div class="grid grid-cols-3 gap-4 text-center">
-                      <div class="p-3 bg-green-50 rounded">
-                          <div class="font-medium text-green-800">Canciones para Principiantes</div>
-                          <div class="text-sm text-green-600" id="beginner-count">0 canciones</div>
-                      </div>
-                      <div class="p-3 bg-blue-50 rounded">
-                          <div class="font-medium text-blue-800">Canciones Intermedias</div>
-                          <div class="text-sm text-blue-600" id="intermediate-count">0 canciones</div>
-                      </div>
-                      <div class="p-3 bg-purple-50 rounded">
-                          <div class="font-medium text-purple-800">Canciones Avanzadas</div>
-                          <div class="text-sm text-purple-600" id="advanced-count">0 canciones</div>
-                      </div>
-                  </div>
+                   <!-- Estado de categorías -->
+                   <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-center">
+                       <div class="p-3 bg-green-50 rounded">
+                           <div class="font-medium text-green-800">Ensamble Principiante</div>
+                           <div class="text-sm text-green-600" id="ensamble-principiante-count">0 canciones</div>
+                       </div>
+                       <div class="p-3 bg-blue-50 rounded">
+                           <div class="font-medium text-blue-800">Ensamble Intermedio</div>
+                           <div class="text-sm text-blue-600" id="ensamble-intermedio-count">0 canciones</div>
+                       </div>
+                       <div class="p-3 bg-purple-50 rounded">
+                           <div class="font-medium text-purple-800">Ensamble Avanzado</div>
+                           <div class="text-sm text-purple-600" id="ensamble-avanzado-count">0 canciones</div>
+                       </div>
+                       <div class="p-3 bg-yellow-50 rounded">
+                           <div class="font-medium text-yellow-800">Solista Principiante</div>
+                           <div class="text-sm text-yellow-600" id="solista-principiante-count">0 canciones</div>
+                       </div>
+                       <div class="p-3 bg-red-50 rounded">
+                           <div class="font-medium text-red-800">Solista Intermedio</div>
+                           <div class="text-sm text-red-600" id="solista-intermedio-count">0 canciones</div>
+                       </div>
+                       <div class="p-3 bg-indigo-50 rounded">
+                           <div class="font-medium text-indigo-800">Solista Avanzado</div>
+                           <div class="text-sm text-indigo-600" id="solista-avanzado-count">0 canciones</div>
+                       </div>
+                   </div>
               </div>
 
               <!-- Lista de newsletters -->
@@ -430,23 +445,30 @@ const { newsletters, subscribers } = newsletterData as { newsletters: Newsletter
                 songSelector.remove(1);
             }
 
-            const categories = ['beginner', 'intermediate', 'advanced'];
+            const mainCategories = ['ensamble', 'solista'];
+            const subCategories = ['principiante', 'intermedio', 'avanzado'];
             const categoryLabels: Record<string, string> = {
-                beginner: 'Principiante',
-                intermediate: 'Intermedio',
-                advanced: 'Avanzado'
+                ensamble_principiante: 'Ensamble - Principiante',
+                ensamble_intermedio: 'Ensamble - Intermedio',
+                ensamble_avanzado: 'Ensamble - Avanzado',
+                solista_principiante: 'Solista - Principiante',
+                solista_intermedio: 'Solista - Intermedio',
+                solista_avanzado: 'Solista - Avanzado'
             };
 
-            categories.forEach(category => {
-                const categoryResources = resources[category] || {};
-                const resourceNames = Object.keys(categoryResources);
+            mainCategories.forEach(mainCat => {
+                subCategories.forEach(subCat => {
+                    const categoryKey = `${mainCat}_${subCat}`;
+                    const categoryResources = resources[mainCat]?.[subCat] || {};
+                    const resourceNames = Object.keys(categoryResources);
 
-                resourceNames.forEach(songName => {
-                    const option = document.createElement('option');
-                    option.value = songName;
-                    option.textContent = `${songName.replace(/[-_]/g, ' ')} (${categoryLabels[category]})`;
-                    option.dataset.category = category;
-                    songSelector.appendChild(option);
+                    resourceNames.forEach(songName => {
+                        const option = document.createElement('option');
+                        option.value = songName;
+                        option.textContent = `${songName.replace(/[-_]/g, ' ')} (${categoryLabels[categoryKey]})`;
+                        option.dataset.category = categoryKey;
+                        songSelector.appendChild(option);
+                    });
                 });
             });
 
@@ -455,20 +477,27 @@ const { newsletters, subscribers } = newsletterData as { newsletters: Newsletter
         }
 
         function updateCategoryCounts(resources: any) {
-            const categories = ['beginner', 'intermediate', 'advanced'];
+            const mainCategories = ['ensamble', 'solista'];
+            const subCategories = ['principiante', 'intermedio', 'avanzado'];
             const countElements: Record<string, HTMLElement> = {
-                beginner: document.getElementById('beginner-count')!,
-                intermediate: document.getElementById('intermediate-count')!,
-                advanced: document.getElementById('advanced-count')!
+                ensamble_principiante: document.getElementById('ensamble-principiante-count')!,
+                ensamble_intermedio: document.getElementById('ensamble-intermedio-count')!,
+                ensamble_avanzado: document.getElementById('ensamble-avanzado-count')!,
+                solista_principiante: document.getElementById('solista-principiante-count')!,
+                solista_intermedio: document.getElementById('solista-intermedio-count')!,
+                solista_avanzado: document.getElementById('solista-avanzado-count')!
             };
 
-            categories.forEach(category => {
-                const categoryResources = resources[category] || {};
-                const songCount = Object.keys(categoryResources).length;
-                const element = countElements[category];
-                if (element) {
-                    element.textContent = `${songCount} canción${songCount !== 1 ? 'es' : ''}`;
-                }
+            mainCategories.forEach(mainCat => {
+                subCategories.forEach(subCat => {
+                    const categoryKey = `${mainCat}_${subCat}`;
+                    const categoryResources = resources[mainCat]?.[subCat] || {};
+                    const songCount = Object.keys(categoryResources).length;
+                    const element = countElements[categoryKey];
+                    if (element) {
+                        element.textContent = `${songCount} canción${songCount !== 1 ? 'es' : ''}`;
+                    }
+                });
             });
         }
 

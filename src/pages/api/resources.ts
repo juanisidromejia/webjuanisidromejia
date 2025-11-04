@@ -7,10 +7,17 @@ export async function GET() {
     try {
         const store = getStore('resources');
         console.log('Blobs store initialized');
-        let categorizedResources: Record<string, Record<string, Record<string, string>>> = {
-            beginner: {},
-            intermediate: {},
-            advanced: {}
+        let categorizedResources: Record<string, Record<string, Record<string, Record<string, string>>>> = {
+            ensamble: {
+                principiante: {},
+                intermedio: {},
+                avanzado: {}
+            },
+            solista: {
+                principiante: {},
+                intermedio: {},
+                avanzado: {}
+            }
         };
 
         try {
@@ -21,23 +28,34 @@ export async function GET() {
                 const resourcesData = JSON.parse(data);
                 console.log('Resources data parsed, categories:', Object.keys(resourcesData));
                 // Convertir base64 a data URLs
-                for (const category in resourcesData) {
-                    for (const songName in resourcesData[category]) {
-                        for (const ext in resourcesData[category][songName]) {
-                            const base64 = resourcesData[category][songName][ext];
-                            const mimeType = ext === 'pdf' ? 'application/pdf' : ext === 'mscz' ? 'application/octet-stream' : 'audio/ogg';
-                            categorizedResources[category][songName] = categorizedResources[category][songName] || {};
-                            categorizedResources[category][songName][ext] = `data:${mimeType};base64,${base64}`;
+                for (const mainCategory in resourcesData) {
+                    for (const subCategory in resourcesData[mainCategory]) {
+                        for (const songName in resourcesData[mainCategory][subCategory]) {
+                            for (const ext in resourcesData[mainCategory][subCategory][songName]) {
+                                const base64 = resourcesData[mainCategory][subCategory][songName][ext];
+                                const mimeType =
+                                    ext === 'pdf'
+                                        ? 'application/pdf'
+                                        : ext === 'mscz'
+                                          ? 'application/octet-stream'
+                                          : ext === 'ogg'
+                                            ? 'audio/ogg'
+                                            : 'audio/mpeg';
+                                if (!categorizedResources[mainCategory][subCategory][songName]) {
+                                    categorizedResources[mainCategory][subCategory][songName] = {};
+                                }
+                                categorizedResources[mainCategory][subCategory][songName][ext] = `data:${mimeType};base64,${base64}`;
+                            }
                         }
+                        // Ordenar alfabéticamente subcategoría
+                        const sortedSub: Record<string, Record<string, string>> = {};
+                        Object.keys(categorizedResources[mainCategory][subCategory])
+                            .sort()
+                            .forEach((key) => {
+                                sortedSub[key] = categorizedResources[mainCategory][subCategory][key];
+                            });
+                        categorizedResources[mainCategory][subCategory] = sortedSub;
                     }
-                    // Ordenar alfabéticamente
-                    const sortedCategory: Record<string, Record<string, string>> = {};
-                    Object.keys(categorizedResources[category])
-                        .sort()
-                        .forEach((key) => {
-                            sortedCategory[key] = categorizedResources[category][key];
-                        });
-                    categorizedResources[category] = sortedCategory;
                 }
             } else {
                 console.log('No data in blobs, returning empty resources');

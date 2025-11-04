@@ -21,32 +21,72 @@ const { resources = {} } = Astro.props;
         <p class="text-sm">Error al cargar recursos.</p>
     </div>
 
-    <!-- Beginner category -->
-    <div id="category-beginner" class="category-section mb-12">
-        <h3 class="text-2xl font-serif font-medium mb-8 text-center">Canciones para Principiantes</h3>
-        <div class="resource-grid grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <div class="col-span-full text-center py-8 text-muted">
-                <p class="text-sm">Cargando recursos...</p>
+    <!-- Ensamble section -->
+    <div class="main-category-section mb-16">
+        <h2 class="text-3xl font-serif font-medium mb-12 text-center">Canciones para Ensamble Estudiantil</h2>
+
+        <!-- Ensamble Principiante -->
+        <div id="category-ensamble_principiante" class="category-section mb-12">
+            <h3 class="text-2xl font-serif font-medium mb-8 text-center">Principiante</h3>
+            <div class="resource-grid grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div class="col-span-full text-center py-8 text-muted">
+                    <p class="text-sm">Cargando recursos...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ensamble Intermedio -->
+        <div id="category-ensamble_intermedio" class="category-section mb-12">
+            <h3 class="text-2xl font-serif font-medium mb-8 text-center">Intermedio</h3>
+            <div class="resource-grid grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div class="col-span-full text-center py-8 text-muted">
+                    <p class="text-sm">Cargando recursos...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ensamble Avanzado -->
+        <div id="category-ensamble_avanzado" class="category-section mb-12">
+            <h3 class="text-2xl font-serif font-medium mb-8 text-center">Avanzado</h3>
+            <div class="resource-grid grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div class="col-span-full text-center py-8 text-muted">
+                    <p class="text-sm">Cargando recursos...</p>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Intermediate category -->
-    <div id="category-intermediate" class="category-section mb-12">
-        <h3 class="text-2xl font-serif font-medium mb-8 text-center">Canciones Intermedias</h3>
-        <div class="resource-grid grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <div class="col-span-full text-center py-8 text-muted">
-                <p class="text-sm">Cargando recursos...</p>
+    <!-- Solista section -->
+    <div class="main-category-section mb-16">
+        <h2 class="text-3xl font-serif font-medium mb-12 text-center">Arreglos para Guitarra Solista</h2>
+
+        <!-- Solista Principiante -->
+        <div id="category-solista_principiante" class="category-section mb-12">
+            <h3 class="text-2xl font-serif font-medium mb-8 text-center">Principiante</h3>
+            <div class="resource-grid grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div class="col-span-full text-center py-8 text-muted">
+                    <p class="text-sm">Cargando recursos...</p>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Advanced category -->
-    <div id="category-advanced" class="category-section mb-12">
-        <h3 class="text-2xl font-serif font-medium mb-8 text-center">Canciones Avanzadas</h3>
-        <div class="resource-grid grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <div class="col-span-full text-center py-8 text-muted">
-                <p class="text-sm">Cargando recursos...</p>
+        <!-- Solista Intermedio -->
+        <div id="category-solista_intermedio" class="category-section mb-12">
+            <h3 class="text-2xl font-serif font-medium mb-8 text-center">Intermedio</h3>
+            <div class="resource-grid grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div class="col-span-full text-center py-8 text-muted">
+                    <p class="text-sm">Cargando recursos...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Solista Avanzado -->
+        <div id="category-solista_avanzado" class="category-section mb-12">
+            <h3 class="text-2xl font-serif font-medium mb-8 text-center">Avanzado</h3>
+            <div class="resource-grid grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div class="col-span-full text-center py-8 text-muted">
+                    <p class="text-sm">Cargando recursos...</p>
+                </div>
             </div>
         </div>
     </div>
@@ -103,48 +143,64 @@ const { resources = {} } = Astro.props;
           }
       }
 
-     function updateResources(resources) {
-         const categories = ['beginner', 'intermediate', 'advanced'];
-         const categoryTitles = {
-             beginner: 'Canciones para Principiantes',
-             intermediate: 'Canciones Intermedias',
-             advanced: 'Canciones Avanzadas'
-         };
+      function updateResources(resources: any) {
+          const mainCategories = ['ensamble', 'solista'];
+          const subCategories = ['principiante', 'intermedio', 'avanzado'];
+          const categoryPrefixes = {
+              ensamble_principiante: 'Canciones para ensamble estudiantil',
+              ensamble_intermedio: 'Canciones para ensamble estudiantil',
+              ensamble_avanzado: 'Canciones para ensamble estudiantil',
+              solista_principiante: 'Arreglos para guitarra solista',
+              solista_intermedio: 'Arreglos para guitarra solista',
+              solista_avanzado: 'Arreglos para guitarra solista'
+          };
 
-         categories.forEach(categoryKey => {
-             const categoryResources = resources[categoryKey] || {};
-             const categoryEl = document.getElementById(`category-${categoryKey}`);
+          mainCategories.forEach(mainCat => {
+              subCategories.forEach(subCat => {
+                  const categoryKey = `${mainCat}_${subCat}`;
+                  const categoryResources = resources[mainCat]?.[subCat] || {};
+                  const categoryEl = document.getElementById(`category-${categoryKey}`);
 
-             if (!categoryEl) return;
+                  if (!categoryEl) return;
 
-             const gridEl = categoryEl.querySelector('.resource-grid');
-             if (!gridEl) return;
+                  const gridEl = categoryEl.querySelector('.resource-grid');
+                  if (!gridEl) return;
 
-             // Clear existing content
-             gridEl.innerHTML = '';
+                  // Clear existing content
+                  gridEl.innerHTML = '';
 
-             const resourceNames = Object.keys(categoryResources);
-             if (resourceNames.length === 0) {
-                 gridEl.innerHTML = '<div class="col-span-full text-center py-8 text-muted"><p class="text-sm">No hay recursos en esta categoría aún.</p></div>';
-                 return;
-             }
+                  const resourceNames = Object.keys(categoryResources);
+                  if (resourceNames.length === 0) {
+                      gridEl.innerHTML = '<div class="col-span-full text-center py-8 text-muted"><p class="text-sm">No hay recursos en esta categoría aún.</p></div>';
+                      return;
+                  }
 
-             resourceNames.forEach(name => {
-                 const files = categoryResources[name];
-                 const card = createResourceCard(name, files);
-                 gridEl.appendChild(card);
-             });
-         });
-     }
+                  resourceNames.forEach(name => {
+                      const files = categoryResources[name];
+                      const card = createResourceCard(name, files, categoryKey);
+                      gridEl.appendChild(card);
+                  });
+              });
+          });
+      }
 
-     function createResourceCard(name, files) {
-         const card = document.createElement('div');
-         card.className = 'resource-card bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow';
+      function createResourceCard(name: string, files: any, categoryKey: string) {
+          const card = document.createElement('div');
+          card.className = 'resource-card bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow';
 
-         const title = document.createElement('h3');
-         title.className = 'text-lg font-medium mb-4 text-center capitalize text-black';
-         title.textContent = name.replace(/[-_]/g, ' ');
-         card.appendChild(title);
+          const categoryPrefixes = {
+              ensamble_principiante: 'Canciones para ensamble estudiantil',
+              ensamble_intermedio: 'Canciones para ensamble estudiantil',
+              ensamble_avanzado: 'Canciones para ensamble estudiantil',
+              solista_principiante: 'Arreglos para guitarra solista',
+              solista_intermedio: 'Arreglos para guitarra solista',
+              solista_avanzado: 'Arreglos para guitarra solista'
+          };
+
+          const title = document.createElement('h3');
+          title.className = 'text-lg font-medium mb-4 text-center capitalize text-black';
+          title.textContent = `${categoryPrefixes[categoryKey]}: ${name.replace(/[-_]/g, ' ')}`;
+          card.appendChild(title);
 
          const buttonContainer = document.createElement('div');
          buttonContainer.className = 'flex flex-wrap gap-2 justify-center';
@@ -159,26 +215,47 @@ const { resources = {} } = Astro.props;
              buttonContainer.appendChild(msczBtn);
          }
 
-         if (files.ogg) {
-             const audioDiv = document.createElement('div');
-             audioDiv.className = 'audio-preview mt-3 w-full flex justify-center';
-             const audio = document.createElement('audio');
-             audio.controls = true;
-             audio.className = 'audio-player';
-             audio.preload = 'none';
-             audio.style.maxWidth = '200px';
-             audio.style.width = '100%';
-             audio.style.height = '40px';
+          if (files.ogg) {
+              const audioDiv = document.createElement('div');
+              audioDiv.className = 'audio-preview mt-3 w-full flex justify-center';
+              const audio = document.createElement('audio');
+              audio.controls = true;
+              audio.className = 'audio-player';
+              audio.preload = 'none';
+              audio.style.maxWidth = '200px';
+              audio.style.width = '100%';
+              audio.style.height = '40px';
 
-             const source = document.createElement('source');
-             source.src = files.ogg;
-             source.type = 'audio/ogg';
-             audio.appendChild(source);
-             audio.appendChild(document.createTextNode('Tu navegador no soporta reproducción de audio.'));
+              const source = document.createElement('source');
+              source.src = files.ogg;
+              source.type = 'audio/ogg';
+              audio.appendChild(source);
+              audio.appendChild(document.createTextNode('Tu navegador no soporta reproducción de audio.'));
 
-             audioDiv.appendChild(audio);
-             buttonContainer.appendChild(audioDiv);
-         }
+              audioDiv.appendChild(audio);
+              buttonContainer.appendChild(audioDiv);
+          }
+
+          if (files.mp3) {
+              const audioDiv = document.createElement('div');
+              audioDiv.className = 'audio-preview mt-3 w-full flex justify-center';
+              const audio = document.createElement('audio');
+              audio.controls = true;
+              audio.className = 'audio-player';
+              audio.preload = 'none';
+              audio.style.maxWidth = '200px';
+              audio.style.width = '100%';
+              audio.style.height = '40px';
+
+              const source = document.createElement('source');
+              source.src = files.mp3;
+              source.type = 'audio/mpeg';
+              audio.appendChild(source);
+              audio.appendChild(document.createTextNode('Tu navegador no soporta reproducción de audio.'));
+
+              audioDiv.appendChild(audio);
+              buttonContainer.appendChild(audioDiv);
+          }
 
          card.appendChild(buttonContainer);
 
@@ -191,7 +268,7 @@ const { resources = {} } = Astro.props;
          return card;
      }
 
-      function createDownloadButton(text, dataUrl, name, ext, color) {
+       function createDownloadButton(text: string, dataUrl: string, name: string, ext: string, color: string) {
           const btn = document.createElement('a');
           btn.href = dataUrl;
           btn.download = `${name.replace(/[-_]/g, ' ')}.${ext}`;
