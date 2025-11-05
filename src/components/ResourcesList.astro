@@ -147,12 +147,12 @@ const { resources = {} } = Astro.props;
           const mainCategories = ['ensamble', 'solista'];
           const subCategories = ['principiante', 'intermedio', 'avanzado'];
           const categoryPrefixes = {
-              ensamble_principiante: 'Canciones para ensamble estudiantil',
-              ensamble_intermedio: 'Canciones para ensamble estudiantil',
-              ensamble_avanzado: 'Canciones para ensamble estudiantil',
-              solista_principiante: 'Arreglos para guitarra solista',
-              solista_intermedio: 'Arreglos para guitarra solista',
-              solista_avanzado: 'Arreglos para guitarra solista'
+              ensamble_principiante: '',
+              ensamble_intermedio: '',
+              ensamble_avanzado: '',
+              solista_principiante: '',
+              solista_intermedio: '',
+              solista_avanzado: ''
           };
 
           mainCategories.forEach(mainCat => {
@@ -188,18 +188,9 @@ const { resources = {} } = Astro.props;
           const card = document.createElement('div');
           card.className = 'resource-card bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow';
 
-          const categoryPrefixes = {
-              ensamble_principiante: 'Canciones para ensamble estudiantil',
-              ensamble_intermedio: 'Canciones para ensamble estudiantil',
-              ensamble_avanzado: 'Canciones para ensamble estudiantil',
-              solista_principiante: 'Arreglos para guitarra solista',
-              solista_intermedio: 'Arreglos para guitarra solista',
-              solista_avanzado: 'Arreglos para guitarra solista'
-          };
-
           const title = document.createElement('h3');
           title.className = 'text-lg font-medium mb-4 text-center capitalize text-black';
-          title.textContent = `${categoryPrefixes[categoryKey]}: ${name.replace(/[-_]/g, ' ')}`;
+          title.textContent = name.replace(/[-_]/g, ' ');
           card.appendChild(title);
 
          const buttonContainer = document.createElement('div');
