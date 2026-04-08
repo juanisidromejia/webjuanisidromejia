@@ -12,7 +12,7 @@ import { slugify } from '../../utils/common-utils';
 import { remark } from 'remark';
 import remarkHtml from 'remark-html';
 
-const localeMap = { es: 'Español', en: 'English', ru: 'Русский' };
+const localeMap: Record<string, string> = { es: 'Español', en: 'English', ru: 'Русский' };
 
 export async function getStaticPaths() {
     const allPosts = await getCollection('blog');
@@ -36,8 +36,9 @@ const { title, publishDate, updatedDate, excerpt, tags = [], seo } = post.data;
 const locale = Astro.currentLocale || 'es';
 const sectionName = localeMap[locale];
 const sectionRegex = new RegExp(`## ${sectionName}\\n([\\s\\S]*?)(?=\\n##|$)`, 'i');
-const match = post.body.match(sectionRegex);
-const filteredBody = match ? match[1] : (locale === 'es' ? post.body : (locale === 'en' ? 'Content not available in this language' : 'Содержимое недоступно на этом языке'));
+const body = post.body ?? '';
+const match = body.match(sectionRegex);
+const filteredBody = match ? match[1] : (locale === 'es' ? body : (locale === 'en' ? 'Content not available in this language' : 'Содержимое недоступно на этом языке'));
 const processed = await remark().use(remarkHtml).process(filteredBody);
 const html = processed.toString();
 ---

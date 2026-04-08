@@ -27,7 +27,12 @@ export type TranslationKey =
     | 'about_title'
     | 'about_subtitle'
     | 'about_text'
-    | 'view_next';
+    | 'view_next'
+    | 'read_post'
+    | 'view_tag_archive'
+    | 'all_tags_title'
+    | 'all_tags_description'
+    | 'posts_tagged';
 
 export type Translations = Record<TranslationKey, string>;
 

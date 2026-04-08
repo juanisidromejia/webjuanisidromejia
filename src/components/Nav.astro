@@ -106,7 +106,7 @@ document.addEventListener('astro:page-load', () => {
             const isActive = menuToggle.classList.contains('is-active');
             menuToggle.classList.toggle('is-active');
             menu.classList.toggle('is-visible');
-            menuToggle.setAttribute('aria-expanded', !isActive);
+            menuToggle.setAttribute('aria-expanded', String(!isActive));
         };
 
         menuToggle.addEventListener('click', (e) => {
@@ -125,7 +125,7 @@ document.addEventListener('astro:page-load', () => {
 
         // Cerrar menú al hacer clic fuera
         document.addEventListener('click', (e) => {
-            if (!menu.contains(e.target) && !menuToggle.contains(e.target)) {
+            if (!menu.contains(e.target as Node) && !menuToggle.contains(e.target as Node)) {
                 menuToggle.classList.remove('is-active');
                 menu.classList.remove('is-visible');
                 menuToggle.setAttribute('aria-expanded', 'false');
