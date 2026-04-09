@@ -8,9 +8,10 @@ export const prerender = false;
 export async function POST({ request, cookies }: APIContext) {
     try {
         const data = await request.formData();
+        const username = data.get('username');
         const password = data.get('password');
 
-        if (!password || password !== process.env.ADMIN_PASSWORD) {
+        if (!username || !password || username !== process.env.ADMIN_USERNAME || password !== process.env.ADMIN_PASSWORD) {
             return new Response(null, {
                 status: 302,
                 headers: {
