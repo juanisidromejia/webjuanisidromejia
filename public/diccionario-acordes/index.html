@@ -227,6 +227,7 @@
                 major: 'Mayor',
                 minor: 'Menor',
                 7: '7',
+                '7s11': '7#11',
                 maj7: 'Maj7',
                 m7: 'm7',
                 dim: 'Dim',
@@ -330,7 +331,7 @@
             function initAvailableData() {
                 availableData = {
                     chord: {
-                        C: ['major', 'minor', '7', '7#11', 'maj7', 'm7'],
+                        C: ['major', 'minor', '7', '7s11', 'maj7', 'm7'],
                         G: ['major', 'minor', '7', 'maj7', 'm7']
                     },
                     scale: {
@@ -369,9 +370,10 @@
 
             function loadDiagram() {
                 const root = document.getElementById('root-select').value;
-                const type = document.getElementById('type-select').value;
-                const encodedType = encodeURIComponent(type);
+                let type = document.getElementById('type-select').value;
                 const dir = currentMode === 'chord' ? 'acordes' : 'escalas';
+                const fileType = type.replace('7s11', '7#11');
+                const encodedType = encodeURIComponent(fileType);
                 const path = `${dir}/${root}/${encodedType}/${currentPosition}.dgr`;
 
                 fetch(path)
@@ -392,7 +394,8 @@
             }
 
             function updatePositions(root, type) {
-                const encodedType = encodeURIComponent(type);
+                const fileType = type.replace('7s11', '7#11');
+                const encodedType = encodeURIComponent(fileType);
                 const dir = currentMode === 'chord' ? 'acordes' : 'escalas';
                 const basePath = `${dir}/${root}/${encodedType}/`;
 
