@@ -1,0 +1,986 @@
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Diagram-editor</title>
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+        <style>
+            :root {
+                --accent: #2ecc71;
+                --bg: #121212;
+            }
+            body {
+                font-family: 'Segoe UI', sans-serif;
+                background: var(--bg);
+                color: white;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                margin: 0;
+                padding: 10px;
+            }
+            .editor-card {
+                background: #1e1e1e;
+                padding: 20px;
+                border-radius: 15px;
+                width: 95%;
+                max-width: 950px;
+                position: relative;
+                border: 1px solid #333;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            }
+            .chord-header {
+                display: flex;
+                gap: 8px;
+                justify-content: center;
+                margin-bottom: 15px;
+                flex-wrap: wrap;
+                background: #252525;
+                padding: 10px;
+                border-radius: 10px;
+            }
+            #settings-panel {
+                display: none;
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                background: #2c2c2c;
+                padding: 20px;
+                border-radius: 12px;
+                border: 2px solid var(--accent);
+                z-index: 1000;
+                width: 300px;
+                box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+            .setting-group {
+                border-bottom: 1px solid #444;
+                padding: 10px 0;
+                margin-bottom: 5px;
+            }
+            .setting-row {
+                margin-bottom: 12px;
+                font-size: 11px;
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+            }
+            label {
+                display: block;
+                color: #aaa;
+                text-transform: uppercase;
+                font-weight: bold;
+                margin-bottom: 2px;
+            }
+            svg {
+                background: white;
+                border-radius: 8px;
+                margin: 15px auto;
+                display: block;
+                touch-action: none;
+            }
+            button,
+            select {
+                background: #333;
+                color: white;
+                border: none;
+                padding: 10px;
+                border-radius: 6px;
+                font-weight: bold;
+                cursor: pointer;
+                transition: 0.2s;
+            }
+            button:hover {
+                background: #444;
+            }
+            .btn-active {
+                background: var(--accent);
+                color: black;
+            }
+            input[type='range'],
+            input[type='text'] {
+                width: 100%;
+                accent-color: var(--accent);
+            }
+            input[type='text'] {
+                background: #111;
+                border: 1px solid #444;
+                color: white;
+                padding: 8px;
+                border-radius: 4px;
+            }
+            #copy-toast {
+                position: fixed;
+                bottom: 20px;
+                background: var(--accent);
+                color: black;
+                padding: 10px 20px;
+                border-radius: 20px;
+                opacity: 0;
+                transition: 0.3s;
+                pointer-events: none;
+            }
+
+            .back-btn {
+                position: fixed;
+                top: 16px;
+                right: 16px;
+                padding: 8px 16px;
+                background: rgba(10, 10, 10, 0.9);
+                border: 1px solid #444;
+                color: #888;
+                text-decoration: none;
+                border-radius: 6px;
+                font-size: 0.8rem;
+                font-weight: 500;
+                text-transform: lowercase;
+                letter-spacing: 1px;
+                transition: all 0.2s ease;
+                z-index: 9999;
+                backdrop-filter: blur(4px);
+            }
+
+            .back-btn:hover {
+                border-color: var(--accent);
+                color: var(--accent);
+                background: rgba(10, 10, 10, 1);
+            }
+        </style>
+    </head>
+    <body>
+        <div class="editor-card">
+            <div class="chord-header">
+                <select id="root-select" onchange="draw(false)">
+                    <option value="C">C</option>
+                    <option value="C#">C# / Db</option>
+                    <option value="D">D</option>
+                    <option value="D#">D# / Eb</option>
+                    <option value="E">E</option>
+                    <option value="F">F</option>
+                    <option value="F#">F# / Gb</option>
+                    <option value="G">G</option>
+                    <option value="G#">G# / Ab</option>
+                    <option value="A">A</option>
+                    <option value="A#">A# / Bb</option>
+                    <option value="B">B</option>
+                </select>
+                <button onclick="moveFretboard(-1)">◀</button>
+                <span
+                    id="fret-num-header"
+                    style="min-width: 45px; text-align: center; font-weight: bold; color: var(--accent); line-height: 35px; font-size: 1.2rem"
+                    >I</span
+                >
+                <button onclick="moveFretboard(1)">▶</button>
+                <button onclick="toggleView()" id="btn-view">Ver: Notas</button>
+                <button onclick="toggleLogic()" id="btn-logic" style="background: #9b59b6">Modo: Acorde</button>
+                <button onclick="toggleSettings()">⚙️</button>
+            </div>
+
+            <div id="settings-panel">
+                <button style="background: #e74c3c; width: 100%; margin-bottom: 15px" onclick="toggleSettings()">CERRAR X</button>
+
+                <div class="setting-group">
+                    <label>Mástil & Pantalla</label>
+                    <div class="setting-row">
+                        <select id="orient-mode" onchange="draw(false)">
+                            <option value="auto">Rotación: Auto</option>
+                            <option value="horiz">Fijo: Horizontal</option>
+                            <option value="vert">Fijo: Vertical</option>
+                        </select>
+                        <select id="fret-size" onchange="draw(false)">
+                            <option value="4">Vista: 4 Trastes</option>
+                            <option value="6" selected>Vista: 6 Trastes</option>
+                            <option value="12">Vista: 12 Trastes</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <label>Color del Mástil</label>
+                    <div class="setting-row">
+                        <select
+                            id="color-scheme"
+                            onchange="
+                                if (this.value === 'custom') {
+                                    return;
+                                }
+                                applyColorScheme(this.value);
+                            "
+                        >
+                            <option value="classic">Clásico (blanco)</option>
+                            <option value="bw">Blanco y Negro</option>
+                            <option value="dark">Oscuro</option>
+                            <option value="contrast">Alto Contraste</option>
+                            <option value="wood">Madera</option>
+                            <option value="custom">Custom</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <label>Personalizado</label>
+                    <div class="setting-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px">
+                        <div>
+                            <span style="font-size: 10px">Fondo</span>
+                            <input
+                                type="color"
+                                id="custom-bg"
+                                value="#ffffff"
+                                onchange="applyCustomColor('bg', this.value)"
+                                style="width: 100%; height: 28px; border: none; cursor: pointer"
+                            />
+                        </div>
+                        <div>
+                            <span style="font-size: 10px">Cuerdas</span>
+                            <input
+                                type="color"
+                                id="custom-strings"
+                                value="#444444"
+                                onchange="applyCustomColor('strings', this.value)"
+                                style="width: 100%; height: 28px; border: none; cursor: pointer"
+                            />
+                        </div>
+                        <div>
+                            <span style="font-size: 10px">Trastes</span>
+                            <input
+                                type="color"
+                                id="custom-frets"
+                                value="#bbbbbb"
+                                onchange="applyCustomColor('frets', this.value)"
+                                style="width: 100%; height: 28px; border: none; cursor: pointer"
+                            />
+                        </div>
+                        <div>
+                            <span style="font-size: 10px">Inlays</span>
+                            <input
+                                type="color"
+                                id="custom-inlays"
+                                value="#bbbbbb"
+                                onchange="applyCustomColor('inlays', this.value)"
+                                style="width: 100%; height: 28px; border: none; cursor: pointer"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <label>Grosor & Estilo</label>
+                    <div class="setting-row">
+                        <span>Cuerdas</span><input type="range" id="v-strings" min="1" max="8" step="0.5" value="2.5" oninput="draw(false)" />
+                        <span>Trastes</span><input type="range" id="v-fretw" min="1" max="10" step="1" value="2" oninput="draw(false)" /> <span>Inlays</span
+                        ><input type="range" id="v-inlays" min="0" max="1" step="0.1" value="0.6" oninput="draw(false)" />
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <label>Audio</label>
+                    <div class="setting-row">
+                        <span>Volumen</span><input type="range" id="v-vol" min="-40" max="5" step="1" value="-5" oninput="updateAudio()" />
+                        <span>Velocidad</span><input type="range" id="v-speed" min="0.05" max="0.5" step="0.05" value="0.15" />
+                    </div>
+                </div>
+
+                <div class="setting-row" style="flex-direction: row; justify-content: space-between; align-items: center">
+                    <span style="font-size: 11px; font-weight: bold; color: #aaa">Cejilla Automática</span>
+                    <input type="checkbox" id="barre-toggle" checked onchange="draw()" />
+                </div>
+            </div>
+
+            <svg id="guitar-svg"></svg>
+
+            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap">
+                <button onclick="clearDiagram()">Limpiar</button>
+                <button class="btn-active" onclick="playCurrent()">🎸 Tocar</button>
+                <button style="background: #3498db" onclick="copyToClipboard()">📋 Copiar</button>
+                <div style="position: relative; display: inline-block">
+                    <button style="background: #9b59b6" onclick="toggleDownloadMenu()">⬇️ Descargar ▾</button>
+                    <div
+                        id="download-menu"
+                        style="
+                            display: none;
+                            position: absolute;
+                            bottom: 100%;
+                            left: 0;
+                            background: #2c2c2c;
+                            border-radius: 6px;
+                            overflow: hidden;
+                            min-width: 140px;
+                            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+                        "
+                    >
+                        <label style="display: flex; align-items: center; gap: 6px; padding: 8px 10px; cursor: pointer; font-size: 12px; color: #ccc">
+                            <input type="checkbox" id="transparent-bg" style="accent-color: #00e5ff" />
+                            Fondo transparente
+                        </label>
+                        <button style="width: 100%; border-radius: 0; text-align: left" onclick="downloadPNG()">📷 PNG</button>
+                        <button style="width: 100%; border-radius: 0; text-align: left" onclick="downloadSVG()">📐 SVG</button>
+                        <button style="width: 100%; border-radius: 0; text-align: left" onclick="exportDGR()">💾 DGR</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="copy-toast">Imagen copiada</div>
+
+        <script>
+            const colorSchemes = {
+                classic: {
+                    bg: '#ffffff',
+                    strings: '#444444',
+                    frets: '#bbbbbb',
+                    inlays: '#bbbbbb',
+                    nut: '#000000',
+                    noteNormal: '#3498db',
+                    noteRoot: '#2ecc71',
+                    noteText: '#ffffff'
+                },
+                bw: {
+                    bg: '#ffffff',
+                    strings: '#000000',
+                    frets: '#000000',
+                    inlays: '#666666',
+                    nut: '#000000',
+                    noteNormal: '#000000',
+                    noteRoot: '#000000',
+                    noteText: '#ffffff'
+                },
+                dark: {
+                    bg: '#1e1e1e',
+                    strings: '#aaaaaa',
+                    frets: '#666666',
+                    inlays: '#888888',
+                    nut: '#888888',
+                    noteNormal: '#9b59b6',
+                    noteRoot: '#e74c3c',
+                    noteText: '#ffffff'
+                },
+                contrast: {
+                    bg: '#000000',
+                    strings: '#ffffff',
+                    frets: '#ffffff',
+                    inlays: '#cccccc',
+                    nut: '#ffffff',
+                    noteNormal: '#ffffff',
+                    noteRoot: '#ffffff',
+                    noteText: '#000000'
+                },
+                wood: {
+                    bg: '#f5deb3',
+                    strings: '#8b4513',
+                    frets: '#a0522d',
+                    inlays: '#deb887',
+                    nut: '#4a3728',
+                    noteNormal: '#8b4513',
+                    noteRoot: '#d4af37',
+                    noteText: '#ffffff'
+                }
+            };
+            let currentScheme = { ...colorSchemes.classic };
+
+            function applyColorScheme(scheme) {
+                if (colorSchemes[scheme]) {
+                    currentScheme = { ...colorSchemes[scheme] };
+                    document.getElementById('custom-bg').value = currentScheme.bg;
+                    document.getElementById('custom-strings').value = currentScheme.strings;
+                    document.getElementById('custom-frets').value = currentScheme.frets;
+                    document.getElementById('custom-inlays').value = currentScheme.inlays;
+                    localStorage.setItem('diagram-scheme', scheme);
+                    updateEditorCardBg();
+                    draw(false);
+                }
+            }
+
+            function updateEditorCardBg() {
+                const card = document.querySelector('.editor-card');
+                if (card) {
+                    card.style.background = currentScheme.bg;
+                    card.style.borderColor = currentScheme.frets;
+                }
+            }
+
+            function applyCustomColor(type, color) {
+                currentScheme[type] = color;
+                document.getElementById('color-scheme').value = 'custom';
+                localStorage.setItem('diagram-custom-' + type, color);
+                updateEditorCardBg();
+                draw(false);
+            }
+
+            function loadColorScheme() {
+                const saved = localStorage.getItem('diagram-scheme');
+                if (saved && colorSchemes[saved]) {
+                    document.getElementById('color-scheme').value = saved;
+                    currentScheme = { ...colorSchemes[saved] };
+                } else {
+                    currentScheme = { ...colorSchemes.classic };
+                }
+                document.getElementById('custom-bg').value = currentScheme.bg;
+                document.getElementById('custom-strings').value = currentScheme.strings;
+                document.getElementById('custom-frets').value = currentScheme.frets;
+                document.getElementById('custom-inlays').value = currentScheme.inlays;
+                updateEditorCardBg();
+            }
+
+            const svg = document.getElementById('guitar-svg');
+            let activeNotes = [[], [], [], [], [], []],
+                mutedStrings = Array(6).fill(false);
+            let enharmonicState = Array.from({ length: 6 }, () => ({}));
+            let startFret = 0,
+                viewMode = 'notes',
+                logicMode = 'chord';
+            let fretboardDims = {};
+
+            const sampler = new Tone.Sampler({
+                urls: { A2: 'A2.mp3', C3: 'C3.mp3', G3: 'G3.mp3' },
+                baseUrl: 'https://gleitz.github.io/midi-js-soundfonts/FluidR3_GM/acoustic_guitar_nylon-mp3/'
+            }).toDestination();
+
+            function romanize(n) {
+                const l = { X: 10, IX: 9, V: 5, IV: 4, I: 1 };
+                let r = '';
+                for (let i in l) {
+                    while (n >= l[i]) {
+                        r += i;
+                        n -= l[i];
+                    }
+                }
+                return r || 'I';
+            }
+
+            function getNoteName(s, f, alt = 0) {
+                const t = ['E', 'B', 'G', 'D', 'A', 'E'];
+                const sharps = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+                const flats = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
+                const idx = (sharps.indexOf(t[s]) + f) % 12;
+                return alt === 1 ? flats[idx] : sharps[idx];
+            }
+
+            function getInterval(note, root, alt = 0) {
+                const n = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+                const norm = note.replace('Db', 'C#').replace('Eb', 'D#').replace('Gb', 'F#').replace('Ab', 'G#').replace('Bb', 'A#');
+                const d = (n.indexOf(norm) - n.indexOf(root) + 12) % 12;
+                const std = ['R', 'b2', '2', 'b3', '3', '4', 'b5', '5', 'b6', '6', 'b7', '7'];
+                const enh = ['R', 'b9', '9', '#2', '10', '11', '#4', 'b13', '#5', '13', '#6', '7'];
+                return alt === 1 ? enh[d] : std[d];
+            }
+
+            function draw(partial = false) {
+                const orient = document.getElementById('orient-mode').value;
+                const isV = orient === 'auto' ? window.innerWidth < window.innerHeight : orient === 'vert';
+                const fCount = parseInt(document.getElementById('fret-size').value);
+                const vStr = document.getElementById('v-strings').value;
+                const vFw = document.getElementById('v-fretw').value;
+                const vIn = document.getElementById('v-inlays').value;
+
+                fretboardDims = { isV, fCount, vStr, vFw, vIn };
+
+                const headerEl = document.getElementById('fret-num-header');
+                if (startFret === 0) {
+                    headerEl.style.visibility = 'hidden';
+                } else {
+                    headerEl.style.visibility = 'visible';
+                    headerEl.textContent = romanize(startFret + 1);
+                }
+                const w = isV ? 240 : fCount * 55 + 150;
+                const h = isV ? fCount * 55 + 150 : 240;
+                svg.setAttribute('width', w);
+                svg.setAttribute('height', h);
+                svg.style.background = currentScheme.bg;
+
+                if (!partial) {
+                    svg.innerHTML = '';
+
+                    // Inlays
+                    [3, 5, 7, 9, 12, 15, 17, 19, 21].forEach((f) => {
+                        if (f > startFret && f <= startFret + fCount) {
+                            const p = 50 + (f - startFret) * 55 - 27;
+                            const dot = (cx, cy) => {
+                                const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                                c.setAttribute('cx', cx);
+                                c.setAttribute('cy', cy);
+                                c.setAttribute('r', 6);
+                                c.setAttribute('fill', currentScheme.inlays);
+                                c.setAttribute('opacity', vIn);
+                                svg.appendChild(c);
+                            };
+                            if (isV) f % 12 === 0 ? (dot(30 + 32 * 1.5, p), dot(30 + 32 * 3.5, p)) : dot(30 + 32 * 2.5, p);
+                            else f % 12 === 0 ? (dot(p, 30 + 32 * 1.5), dot(p, 30 + 32 * 3.5)) : dot(p, 30 + 32 * 2.5);
+                        }
+                    });
+
+                    // Trastes
+                    // Dibujar cejuela (traste 0) si startFret > 0
+                    if (startFret > 0) {
+                        const pNut = 50;
+                        const lNut = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                        if (isV) {
+                            lNut.setAttribute('x1', 30);
+                            lNut.setAttribute('y1', pNut);
+                            lNut.setAttribute('x2', 190);
+                            lNut.setAttribute('y2', pNut);
+                        } else {
+                            lNut.setAttribute('x1', pNut);
+                            lNut.setAttribute('y1', 30);
+                            lNut.setAttribute('x2', pNut);
+                            lNut.setAttribute('y2', 190);
+                        }
+                        lNut.setAttribute('stroke', currentScheme.nut);
+                        lNut.setAttribute('stroke-width', '2');
+                        lNut.setAttribute('stroke-dasharray', '5,5');
+                        svg.appendChild(lNut);
+                    }
+
+                    for (let i = 0; i <= fCount; i++) {
+                        const p = 50 + i * 55;
+                        const l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                        const isNut = startFret === 0 && i === 0;
+                        if (isV) {
+                            l.setAttribute('x1', 30);
+                            l.setAttribute('y1', p);
+                            l.setAttribute('x2', 190);
+                            l.setAttribute('y2', p);
+                        } else {
+                            l.setAttribute('x1', p);
+                            l.setAttribute('y1', 30);
+                            l.setAttribute('x2', p);
+                            l.setAttribute('y2', 190);
+                        }
+                        l.setAttribute('stroke', isNut ? currentScheme.nut : currentScheme.frets);
+                        l.setAttribute('stroke-width', isNut ? 8 : vFw);
+                        svg.appendChild(l);
+                    }
+
+                    // Número romano sobre el primer traste visible (solo si hay desplazamiento)
+                    if (startFret > 0) {
+                        const rn = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                        rn.textContent = romanize(startFret + 1);
+                        if (isV) {
+                            rn.setAttribute('x', 15);
+                            rn.setAttribute('y', 50 + 4);
+                        } else {
+                            rn.setAttribute('x', 50);
+                            rn.setAttribute('y', 20);
+                        }
+                        rn.setAttribute('text-anchor', 'middle');
+                        rn.setAttribute('fill', currentScheme.nut);
+                        rn.setAttribute('font-size', '16px');
+                        rn.setAttribute('font-weight', 'bold');
+                        svg.appendChild(rn);
+                    }
+
+                    // Cuerdas
+                    for (let i = 0; i < 6; i++) {
+                        const vIdx = isV ? 5 - i : i;
+                        const p = 30 + vIdx * 32;
+                        const l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                        if (isV) {
+                            l.setAttribute('x1', p);
+                            l.setAttribute('y1', 50);
+                            l.setAttribute('x2', p);
+                            l.setAttribute('y2', 50 + fCount * 55);
+                        } else {
+                            l.setAttribute('x1', 50);
+                            l.setAttribute('y1', p);
+                            l.setAttribute('x2', 50 + fCount * 55);
+                            l.setAttribute('y2', p);
+                        }
+                        l.setAttribute('stroke', currentScheme.strings);
+                        l.setAttribute('stroke-width', vStr);
+                        svg.appendChild(l);
+                    }
+
+                    // Click zone layer
+                    const clickLayer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                    clickLayer.id = 'click-layer';
+                    svg.appendChild(clickLayer);
+                }
+
+                // Update click zones
+                const clickLayer = svg.getElementById('click-layer');
+                if (clickLayer) clickLayer.innerHTML = '';
+
+                for (let s = 0; s < 6; s++) {
+                    // Siempre mostrar click zone para traste 0 (cejuela) - a la izquierda del mástil
+                    const vIdx0 = fretboardDims.isV ? 5 - s : s;
+                    let x0, y0;
+                    if (fretboardDims.isV) {
+                        x0 = 30 + vIdx0 * 32;
+                        y0 = 25;
+                    } else {
+                        x0 = 25;
+                        y0 = 30 + s * 32;
+                    }
+
+                    // Dibujar nota en cejuela si existe
+                    if (activeNotes[s] && activeNotes[s].includes(0)) {
+                        drawNote(s, 0, x0, y0);
+                    }
+
+                    // Dibujar X si la cuerda está muteada
+                    if (mutedStrings[s]) {
+                        const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                        txt.setAttribute('x', x0);
+                        txt.setAttribute('y', y0 + 6);
+                        txt.setAttribute('text-anchor', 'middle');
+                        txt.setAttribute('fill', '#e74c3c');
+                        txt.setAttribute('font-size', '18px');
+                        txt.setAttribute('font-weight', 'bold');
+                        txt.textContent = '✕';
+                        if (clickLayer) clickLayer.appendChild(txt);
+                    }
+
+                    // Click zone para cejuela
+                    const r0 = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                    r0.setAttribute('x', x0 - 15);
+                    r0.setAttribute('y', y0 - 15);
+                    r0.setAttribute('width', 30);
+                    r0.setAttribute('height', 30);
+                    r0.setAttribute('fill', 'transparent');
+                    r0.setAttribute('data-string', s);
+                    r0.setAttribute('data-fret', '0');
+                    r0.style.cursor = 'pointer';
+                    if (clickLayer) clickLayer.appendChild(r0);
+
+                    // Loop normal para notas dentro del viewport
+                    for (let f = 1; f <= fretboardDims.fCount; f++) {
+                        const actualF = f + startFret;
+
+                        const vIdx = fretboardDims.isV ? 5 - s : s;
+                        const relF = actualF - startFret;
+
+                        let x, y;
+                        if (fretboardDims.isV) {
+                            x = 30 + vIdx * 32;
+                            y = 50 + relF * 55 - 27;
+                        } else {
+                            x = 50 + relF * 55 - 27;
+                            y = 30 + s * 32;
+                        }
+
+                        if (activeNotes[s].includes(actualF)) drawNote(s, actualF, x, y);
+
+                        const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                        r.setAttribute('x', x - 15);
+                        r.setAttribute('y', y - 15);
+                        r.setAttribute('width', 30);
+                        r.setAttribute('height', 30);
+                        r.setAttribute('fill', 'transparent');
+                        r.setAttribute('data-string', s);
+                        r.setAttribute('data-fret', actualF);
+                        r.style.cursor = 'pointer';
+                        if (clickLayer) clickLayer.appendChild(r);
+                    }
+                }
+            }
+
+            function handleStringClick(s, actualF) {
+                if (actualF === 0) {
+                    if (activeNotes[s].includes(0)) {
+                        activeNotes[s] = [];
+                        mutedStrings[s] = true;
+                    } else if (mutedStrings[s]) {
+                        mutedStrings[s] = false;
+                    } else {
+                        activeNotes[s] = [0];
+                        mutedStrings[s] = false;
+                    }
+                } else {
+                    if (activeNotes[s].includes(actualF)) {
+                        if (!enharmonicState[s][actualF]) {
+                            enharmonicState[s][actualF] = 1;
+                        } else {
+                            delete enharmonicState[s][actualF];
+                            activeNotes[s] = activeNotes[s].filter((n) => n !== actualF);
+                        }
+                    } else {
+                        if (logicMode === 'chord') {
+                            activeNotes[s] = [actualF];
+                            enharmonicState[s] = { [actualF]: 0 };
+                        } else {
+                            activeNotes[s].push(actualF);
+                            enharmonicState[s][actualF] = 0;
+                        }
+                        mutedStrings[s] = false;
+                    }
+                }
+                draw(false);
+            }
+
+            // Event delegation - click simple
+            svg.addEventListener('click', (e) => {
+                const rect = e.target;
+                if (rect.tagName === 'rect' && rect.hasAttribute('data-string')) {
+                    const s = parseInt(rect.getAttribute('data-string'));
+                    const actualF = parseInt(rect.getAttribute('data-fret'));
+                    handleStringClick(s, actualF);
+                }
+            });
+
+            function handleStringClick(s, actualF) {
+                if (actualF === 0) {
+                    if (activeNotes[s].includes(0)) {
+                        activeNotes[s] = [];
+                        mutedStrings[s] = true;
+                    } else if (mutedStrings[s]) {
+                        mutedStrings[s] = false;
+                    } else {
+                        activeNotes[s] = [0];
+                        mutedStrings[s] = false;
+                    }
+                } else {
+                    if (activeNotes[s].includes(actualF)) {
+                        if (!enharmonicState[s][actualF]) {
+                            enharmonicState[s][actualF] = 1;
+                        } else {
+                            delete enharmonicState[s][actualF];
+                            activeNotes[s] = activeNotes[s].filter((n) => n !== actualF);
+                        }
+                    } else {
+                        if (logicMode === 'chord') {
+                            activeNotes[s] = [actualF];
+                            enharmonicState[s] = { [actualF]: 0 };
+                        } else {
+                            activeNotes[s].push(actualF);
+                            enharmonicState[s][actualF] = 0;
+                        }
+                        mutedStrings[s] = false;
+                    }
+                }
+                draw(false);
+            }
+
+            function drawNote(s, f, x, y) {
+                const root = document.getElementById('root-select').value;
+                const isAlt = enharmonicState[s][f] || 0;
+                const note = getNoteName(s, f, isAlt);
+                const label = viewMode === 'notes' ? note : getInterval(note, root, isAlt);
+                const isR = label === root || label === 'R';
+                const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                c.setAttribute('cx', x);
+                c.setAttribute('cy', y);
+                c.setAttribute('r', 13);
+                c.setAttribute('fill', isR ? currentScheme.noteRoot : currentScheme.noteNormal);
+                c.setAttribute('stroke', currentScheme.noteText);
+                c.setAttribute('stroke-width', 2);
+                g.appendChild(c);
+                const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                t.setAttribute('x', x);
+                t.setAttribute('y', y + 4);
+                t.setAttribute('text-anchor', 'middle');
+                t.setAttribute('fill', currentScheme.noteText);
+                t.setAttribute('font-size', '10px');
+                t.setAttribute('font-weight', 'bold');
+                t.textContent = label;
+                g.appendChild(t);
+                g.style.pointerEvents = 'none';
+                svg.appendChild(g);
+            }
+
+            function playCurrent() {
+                if (Tone.context.state !== 'running') Tone.start();
+                const now = Tone.now();
+                let speed = parseFloat(document.getElementById('v-speed').value);
+                if (logicMode === 'scale') speed = speed * 1.3;
+                const offsets = [64, 59, 55, 50, 45, 40];
+                let delay = 0;
+                [5, 4, 3, 2, 1, 0].forEach((s) => {
+                    if (!mutedStrings[s]) {
+                        activeNotes[s].forEach((f) => {
+                            sampler.triggerAttackRelease(Tone.Frequency(offsets[s] + f, 'midi'), '2n', now + delay);
+                            delay += speed;
+                        });
+                    }
+                });
+            }
+
+            function clearDiagram() {
+                activeNotes = [[], [], [], [], [], []];
+                mutedStrings.fill(false);
+                enharmonicState = Array.from({ length: 6 }, () => ({}));
+                draw();
+            }
+            function toggleView() {
+                viewMode = viewMode === 'notes' ? 'intervals' : 'notes';
+                document.getElementById('btn-view').textContent = 'Ver: ' + (viewMode === 'notes' ? 'Notas' : 'Intervalos');
+                draw();
+            }
+            function toggleLogic() {
+                logicMode = logicMode === 'chord' ? 'scale' : 'chord';
+                document.getElementById('btn-logic').textContent = 'Modo: ' + (logicMode === 'chord' ? 'Acorde' : 'Escala');
+                clearDiagram();
+            }
+            function moveFretboard(d) {
+                startFret = Math.max(0, startFret + d);
+                draw(false);
+            }
+            function toggleSettings() {
+                const s = document.getElementById('settings-panel');
+                s.style.display = s.style.display === 'block' ? 'none' : 'block';
+            }
+            function updateAudio() {
+                sampler.volume.value = document.getElementById('v-vol').value;
+            }
+
+            function showToast(msg) {
+                const t = document.getElementById('copy-toast');
+                t.textContent = msg;
+                t.style.opacity = 1;
+                setTimeout(() => (t.style.opacity = 0), 2000);
+            }
+
+            function copyToClipboard() {
+                const svgData = new XMLSerializer().serializeToString(svg);
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+                const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+                const url = URL.createObjectURL(svgBlob);
+                const transparent = document.getElementById('transparent-bg').checked;
+                img.onload = () => {
+                    canvas.width = svg.getAttribute('width') * 2;
+                    canvas.height = svg.getAttribute('height') * 2;
+                    if (!transparent) {
+                        ctx.fillStyle = currentScheme.bg;
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    }
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    canvas.toBlob((blob) => {
+                        navigator.clipboard
+                            .write([new ClipboardItem({ 'image/png': blob })])
+                            .then(() => showToast('Imagen copiada'))
+                            .catch(() => showToast('Error al copiar'));
+                        URL.revokeObjectURL(url);
+                    });
+                };
+                img.src = url;
+            }
+
+            function downloadPNG() {
+                const svgData = new XMLSerializer().serializeToString(svg);
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+                const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+                const url = URL.createObjectURL(svgBlob);
+                const root = document.getElementById('root-select').value;
+                const transparent = document.getElementById('transparent-bg').checked;
+                img.onload = () => {
+                    canvas.width = svg.getAttribute('width') * 2;
+                    canvas.height = svg.getAttribute('height') * 2;
+                    if (!transparent) {
+                        ctx.fillStyle = currentScheme.bg;
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    }
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    const a = document.createElement('a');
+                    a.download = `guitar-chord-${root}.png`;
+                    a.href = canvas.toDataURL('image/png');
+                    a.click();
+                    showToast('PNG descargado');
+                    URL.revokeObjectURL(url);
+                };
+                img.src = url;
+            }
+
+            function downloadSVG() {
+                const svgData = new XMLSerializer().serializeToString(svg);
+                const root = document.getElementById('root-select').value;
+                const transparent = document.getElementById('transparent-bg').checked;
+                let svgDataMod = svgData;
+                if (transparent) {
+                    svgDataMod = svgData.replace(/style="[^"]*background:[^"]*"[^>]*>/, 'style="background: transparent;">');
+                }
+                const blob = new Blob([svgDataMod], { type: 'image/svg+xml;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.download = `guitar-chord-${root}.svg`;
+                a.href = url;
+                a.click();
+                showToast('SVG descargado');
+                URL.revokeObjectURL(url);
+            }
+
+            function exportDGR() {
+                const root = document.getElementById('root-select').value;
+                const fCount = parseInt(document.getElementById('fret-size').value);
+                const orient = document.getElementById('orient-mode').value;
+                const isV = orient === 'auto' ? window.innerWidth < window.innerHeight : orient === 'vert';
+
+                const data = {
+                    v: '1',
+                    r: root,
+                    t: logicMode,
+                    f: startFret,
+                    vm: viewMode,
+                    d: {
+                        fc: fCount,
+                        ov: isV ? 'vert' : 'horiz',
+                        st: parseFloat(document.getElementById('v-strings').value),
+                        fw: parseInt(document.getElementById('v-fretw').value),
+                        io: parseFloat(document.getElementById('v-inlays').value)
+                    },
+                    s: activeNotes.map((notes, si) => ({
+                        n: notes,
+                        m: mutedStrings[si],
+                        e: enharmonicState[si] || {}
+                    }))
+                };
+
+                const json = JSON.stringify(data, null, 0);
+                const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.download = `chord-${root}.dgr`;
+                a.href = url;
+                a.click();
+                showToast('DGR exportado');
+                URL.revokeObjectURL(url);
+            }
+
+            function toggleDownloadMenu() {
+                const menu = document.getElementById('download-menu');
+                menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+            }
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                const menu = document.getElementById('download-menu');
+                if (menu && !e.target.closest('div[style*="position: relative"]')) {
+                    menu.style.display = 'none';
+                }
+            });
+
+            window.onload = () => {
+                loadColorScheme();
+                draw();
+            };
+            window.onresize = () => {
+                if (document.getElementById('orient-mode').value === 'auto') draw();
+            };
+
+            // Keyboard navigation
+            document.addEventListener('keydown', (e) => {
+                if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') return;
+                const fCount = parseInt(document.getElementById('fret-size').value);
+                const keys = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -1, ArrowDown: 1 };
+                if (keys[e.key]) {
+                    e.preventDefault();
+                    moveFretboard(keys[e.key]);
+                }
+                if (e.key === ' ' || e.key === 'Enter') {
+                    e.preventDefault();
+                    playCurrent();
+                }
+                if (e.key === 'v' || e.key === 'V') toggleView();
+                if (e.key === 'm' || e.key === 'M') toggleLogic();
+                if (e.key === 'Escape') {
+                    document.getElementById('settings-panel').style.display = 'none';
+                }
+                if (e.key === 'c' || e.key === 'C') clearDiagram();
+            });
+        </script>
+    </body>
+</html>

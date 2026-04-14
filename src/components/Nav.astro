@@ -9,6 +9,7 @@ const translations = await getTranslations(currentLang);
 
 const navLinks = [
     { text: translations.home, href: '/' },
+    { text: translations.tools_title || 'Tools', href: '/tools' },
     { text: translations.resources, href: '/projects' },
     { text: translations.blog, href: '/blog' },
     { text: translations.tags, href: '/tags' }

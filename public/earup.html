@@ -1,0 +1,2304 @@
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>EarUp - Entrenamiento Auditivo</title>
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/cjs/vexflow.js"></script>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600&display=swap');
+
+            :root {
+                --bg-primary: #0a0a0f;
+                --bg-secondary: #12121a;
+                --bg-tertiary: #1a1a24;
+                --bg-card: #14141c;
+                --text-primary: #e8e8ec;
+                --text-secondary: #8888a0;
+                --text-muted: #555566;
+                --accent-cyan: #00d4ff;
+                --accent-magenta: #ff006e;
+                --accent-gold: #ffd700;
+                --accent-green: #00ff88;
+                --accent-red: #ff4466;
+                --border-color: #2a2a3a;
+                --glow-cyan: 0 0 20px rgba(0, 212, 255, 0.3);
+                --glow-magenta: 0 0 20px rgba(255, 0, 110, 0.3);
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: 'Space Grotesk', sans-serif;
+                background: var(--bg-primary);
+                color: var(--text-primary);
+                min-height: 100vh;
+                background-image:
+                    radial-gradient(ellipse at 20% 20%, rgba(0, 212, 255, 0.05) 0%, transparent 50%),
+                    radial-gradient(ellipse at 80% 80%, rgba(255, 0, 110, 0.05) 0%, transparent 50%);
+            }
+
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 1rem;
+            }
+
+            header {
+                text-align: center;
+                margin-bottom: 1.5rem;
+                padding-bottom: 1rem;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            h1 {
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 1.5rem;
+                font-weight: 700;
+                letter-spacing: -0.05em;
+                background: linear-gradient(135deg, var(--accent-cyan), var(--accent-magenta));
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                margin-bottom: 0.25rem;
+            }
+
+            .subtitle {
+                color: var(--text-secondary);
+                font-size: 0.9rem;
+            }
+
+            .a4-reference {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 1rem;
+                margin-top: 1rem;
+                padding: 0.75rem 1.5rem;
+                background: var(--bg-tertiary);
+                border-radius: 8px;
+                border: 1px solid var(--border-color);
+            }
+
+            .a4-reference label {
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 0.85rem;
+                color: var(--text-secondary);
+            }
+
+            .a4-reference input {
+                font-family: 'JetBrains Mono', monospace;
+                width: 80px;
+                padding: 0.4rem 0.6rem;
+                background: var(--bg-secondary);
+                border: 1px solid var(--border-color);
+                border-radius: 4px;
+                color: var(--accent-gold);
+                font-size: 1rem;
+                text-align: center;
+            }
+
+            .a4-reference input:focus {
+                outline: none;
+                border-color: var(--accent-cyan);
+                box-shadow: var(--glow-cyan);
+            }
+
+            .modules-nav {
+                display: flex;
+                justify-content: center;
+                gap: 0.5rem;
+                margin-bottom: 1rem;
+                flex-wrap: wrap;
+            }
+
+            .module-btn {
+                padding: 0.75rem 1.5rem;
+                background: var(--bg-secondary);
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                color: var(--text-secondary);
+                font-family: 'Space Grotesk', sans-serif;
+                font-size: 0.9rem;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+
+            .module-btn:hover {
+                border-color: var(--accent-cyan);
+                color: var(--text-primary);
+            }
+
+            .module-btn.active {
+                background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(255, 0, 110, 0.1));
+                border-color: var(--accent-cyan);
+                color: var(--accent-cyan);
+                box-shadow: var(--glow-cyan);
+            }
+
+            .module {
+                display: none;
+            }
+
+            .module.active {
+                display: block;
+                animation: fadeIn 0.3s ease;
+            }
+
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .card {
+                background: var(--bg-card);
+                border: 1px solid var(--border-color);
+                border-radius: 12px;
+                padding: 1.25rem;
+                margin-bottom: 1rem;
+            }
+
+            .card-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 1rem;
+                flex-wrap: wrap;
+                gap: 0.75rem;
+            }
+
+            .card-title {
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 1.1rem;
+                color: var(--accent-cyan);
+            }
+
+            .score-display {
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 1.5rem;
+                color: var(--accent-gold);
+            }
+
+            .controls {
+                display: flex;
+                gap: 0.75rem;
+                flex-wrap: wrap;
+                margin-bottom: 1rem;
+                align-items: center;
+            }
+
+            .btn {
+                padding: 0.75rem 1.5rem;
+                border: none;
+                border-radius: 8px;
+                font-family: 'Space Grotesk', sans-serif;
+                font-size: 0.9rem;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .btn-primary {
+                background: linear-gradient(135deg, var(--accent-cyan), #0099cc);
+                color: var(--bg-primary);
+                font-weight: 600;
+            }
+
+            .btn-primary:hover {
+                box-shadow: var(--glow-cyan);
+                transform: translateY(-2px);
+            }
+
+            .btn-secondary {
+                background: var(--bg-tertiary);
+                color: var(--text-primary);
+                border: 1px solid var(--border-color);
+            }
+
+            .btn-secondary:hover {
+                border-color: var(--accent-magenta);
+                color: var(--accent-magenta);
+            }
+
+            .btn-warning {
+                background: linear-gradient(135deg, #ff9900, #ff6600);
+                color: var(--bg-primary);
+                font-weight: 600;
+            }
+
+            .btn-warning:hover {
+                box-shadow: 0 0 15px rgba(255, 153, 0, 0.5);
+                transform: translateY(-2px);
+            }
+
+            .btn-success {
+                background: linear-gradient(135deg, var(--accent-green), #00cc66);
+                color: var(--bg-primary);
+                font-weight: 600;
+            }
+
+            .btn-success:hover {
+                box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+                transform: translateY(-2px);
+            }
+
+            .btn:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+                transform: none !important;
+            }
+
+            .play-icon {
+                width: 16px;
+                height: 16px;
+            }
+
+            .interval-filters {
+                display: flex;
+                gap: 1rem;
+                flex-wrap: wrap;
+                margin-bottom: 1.5rem;
+            }
+
+            .filter-group {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .filter-group label {
+                font-size: 0.75rem;
+                color: var(--text-muted);
+                text-transform: uppercase;
+                letter-spacing: 0.1em;
+            }
+
+            .config-accordion {
+                margin-top: 1rem;
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                overflow: hidden;
+            }
+
+            .config-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.75rem 1rem;
+                background: var(--bg-tertiary);
+                cursor: pointer;
+                user-select: none;
+                transition: background 0.2s ease;
+            }
+
+            .config-header:hover {
+                background: rgba(0, 212, 255, 0.1);
+            }
+
+            .config-header h3 {
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 0.9rem;
+                color: var(--text-primary);
+                margin: 0;
+            }
+
+            .config-header .chevron {
+                font-size: 1.2rem;
+                color: var(--text-secondary);
+                transition: transform 0.3s ease;
+            }
+
+            .config-header.open .chevron {
+                transform: rotate(180deg);
+            }
+
+            .config-content {
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.3s ease;
+                background: var(--bg-secondary);
+            }
+
+            .config-content.open {
+                max-height: 400px;
+            }
+
+            .config-section {
+                padding: 0.75rem 1rem;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .config-section:last-child {
+                border-bottom: none;
+            }
+
+            .config-section-title {
+                font-size: 0.8rem;
+                color: var(--accent-cyan);
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                margin-bottom: 0.75rem;
+                font-weight: 600;
+            }
+
+            .filter-checkboxes {
+                display: flex;
+                gap: 0.75rem;
+                flex-wrap: wrap;
+            }
+
+            .filter-checkbox {
+                display: flex;
+                align-items: center;
+                gap: 0.4rem;
+                cursor: pointer;
+            }
+
+            .filter-checkbox input {
+                accent-color: var(--accent-cyan);
+                width: 16px;
+                height: 16px;
+            }
+
+            .filter-checkbox span {
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 0.85rem;
+                color: var(--text-secondary);
+            }
+
+            .mode-selector {
+                display: flex;
+                gap: 0.5rem;
+            }
+
+            .mode-btn {
+                padding: 0.5rem 1rem;
+                background: var(--bg-tertiary);
+                border: 1px solid var(--border-color);
+                border-radius: 6px;
+                color: var(--text-secondary);
+                font-size: 0.8rem;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                display: flex;
+                align-items: center;
+                gap: 0.4rem;
+            }
+
+            .mode-btn .arrow {
+                font-size: 1.1rem;
+                font-weight: bold;
+            }
+
+            .mode-btn.active {
+                background: rgba(0, 212, 255, 0.15);
+                border-color: var(--accent-cyan);
+                color: var(--accent-cyan);
+            }
+
+            .mode-btn.active .arrow {
+                color: var(--accent-cyan);
+            }
+
+            .interval-options {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 0.5rem;
+                margin-top: 0.75rem;
+            }
+
+            .filter-checkboxes {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 0.5rem;
+            }
+
+            .filter-checkbox {
+                display: flex;
+                align-items: center;
+                gap: 0.3rem;
+                cursor: pointer;
+            }
+
+            .interval-btn {
+                padding: 0.875rem;
+                background: var(--bg-tertiary);
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                color: var(--text-primary);
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 0.85rem;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+
+            .interval-btn:hover {
+                border-color: var(--accent-cyan);
+                background: rgba(0, 212, 255, 0.1);
+            }
+
+            .interval-btn.correct {
+                background: rgba(0, 255, 136, 0.2);
+                border-color: var(--accent-green);
+                color: var(--accent-green);
+            }
+
+            .interval-btn.incorrect {
+                background: rgba(255, 68, 102, 0.2);
+                border-color: var(--accent-red);
+                color: var(--accent-red);
+            }
+
+            .interval-btn.correct-answer {
+                border-color: var(--accent-green);
+                box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
+            }
+
+            .interval-btn.selected {
+                border-color: var(--accent-gold);
+                background: rgba(255, 215, 0, 0.15);
+                box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+            }
+
+            .feedback {
+                margin-top: 0.75rem;
+                margin-bottom: 1rem;
+                padding: 1.25rem 1.5rem;
+                border-radius: 8px;
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 1.1rem;
+                font-weight: 600;
+                display: none;
+            }
+
+            .feedback.show {
+                display: block;
+                animation: pulse 0.3s ease;
+            }
+
+            @keyframes pulse {
+                0%,
+                100% {
+                    transform: scale(1);
+                }
+                50% {
+                    transform: scale(1.02);
+                }
+            }
+
+            .feedback.correct {
+                background: rgba(0, 255, 136, 0.1);
+                border: 1px solid var(--accent-green);
+                color: var(--accent-green);
+            }
+
+            .feedback.incorrect {
+                background: rgba(255, 68, 102, 0.1);
+                border: 1px solid var(--accent-red);
+                color: var(--accent-red);
+            }
+
+            .micro-tuning-display {
+                text-align: center;
+                margin: 2rem 0;
+            }
+
+            .note-display {
+                display: flex;
+                justify-content: center;
+                gap: 3rem;
+                margin-bottom: 1rem;
+            }
+
+            .note-box {
+                padding: 1.5rem 2rem;
+                background: var(--bg-tertiary);
+                border: 2px solid var(--border-color);
+                border-radius: 12px;
+                min-width: 120px;
+            }
+
+            .note-box .note-name {
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 2.5rem;
+                font-weight: 700;
+                color: var(--accent-cyan);
+            }
+
+            .note-box .note-label {
+                font-size: 0.75rem;
+                color: var(--text-muted);
+                text-transform: uppercase;
+                letter-spacing: 0.1em;
+                margin-top: 0.5rem;
+            }
+
+            .deviation-display {
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 1.2rem;
+                color: var(--accent-gold);
+                margin: 1.5rem 0;
+                min-height: 2rem;
+            }
+
+            .difficulty-controls {
+                display: flex;
+                justify-content: center;
+                gap: 2rem;
+                flex-wrap: wrap;
+                margin: 1.5rem 0;
+            }
+
+            .difficulty-control {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 1rem;
+                margin: 1.5rem 0;
+                padding: 0.75rem 1.5rem;
+                background: var(--bg-tertiary);
+                border-radius: 8px;
+                border: 1px solid var(--border-color);
+            }
+
+            .difficulty-control label {
+                font-size: 0.85rem;
+                color: var(--text-secondary);
+            }
+
+            .difficulty-control input[type='range'] {
+                width: 150px;
+                accent-color: var(--accent-magenta);
+            }
+
+            .difficulty-control span {
+                font-family: 'JetBrains Mono', monospace;
+                color: var(--accent-gold);
+                min-width: 90px;
+            }
+
+            .tuning-options {
+                display: flex;
+                justify-content: center;
+                gap: 1rem;
+                flex-wrap: wrap;
+                margin-top: 1.5rem;
+            }
+
+            .tuning-btn {
+                padding: 1rem 2rem;
+                background: var(--bg-tertiary);
+                border: 2px solid var(--border-color);
+                border-radius: 12px;
+                color: var(--text-primary);
+                font-family: 'Space Grotesk', sans-serif;
+                font-size: 1rem;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                min-width: 140px;
+            }
+
+            .tuning-btn:hover {
+                border-color: var(--accent-cyan);
+                transform: translateY(-3px);
+            }
+
+            .tuning-btn.correct {
+                background: rgba(0, 255, 136, 0.15);
+                border-color: var(--accent-green);
+            }
+
+            .tuning-btn.incorrect {
+                background: rgba(255, 68, 102, 0.15);
+                border-color: var(--accent-red);
+            }
+
+            .rhythm-builder {
+                display: flex;
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+
+            .beat-display {
+                display: flex;
+                justify-content: center;
+                gap: 0.5rem;
+                padding: 1.5rem;
+                background: var(--bg-tertiary);
+                border-radius: 12px;
+                min-height: 100px;
+                align-items: center;
+            }
+
+            .beat-slot {
+                width: 60px;
+                height: 60px;
+                border: 2px dashed var(--border-color);
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 1.2rem;
+                color: var(--text-muted);
+                transition: all 0.2s ease;
+            }
+
+            .beat-slot.filled {
+                border-style: solid;
+                border-color: var(--accent-cyan);
+                background: rgba(0, 212, 255, 0.1);
+                color: var(--accent-cyan);
+            }
+
+            .beat-slot.active {
+                border-color: var(--accent-gold);
+                box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+            }
+
+            .rhythm-buttons {
+                display: flex;
+                justify-content: center;
+                gap: 1rem;
+                flex-wrap: wrap;
+            }
+
+            .dictado-display {
+                display: flex;
+                justify-content: center;
+                gap: 0.5rem;
+                flex-wrap: wrap;
+                min-height: 60px;
+                padding: 1rem;
+                margin-bottom: 1rem;
+                background: var(--bg-tertiary);
+                border-radius: 8px;
+                border: 1px dashed var(--border-color);
+            }
+
+            .dictado-item {
+                width: 40px;
+                height: 50px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .dictado-item img {
+                max-width: 100%;
+                max-height: 100%;
+            }
+
+            .dictado-item.error img {
+                outline: 3px solid #ff4444;
+                border-radius: 4px;
+            }
+
+            .dictado-item.correct {
+                outline: 2px solid #44ff44;
+                border-radius: 4px;
+            }
+
+            #dictadoCount {
+                padding: 0.4rem 0.6rem;
+                background: var(--bg-tertiary);
+                border: 1px solid var(--border-color);
+                border-radius: 6px;
+                color: var(--text-primary);
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 0.85rem;
+                cursor: pointer;
+            }
+
+            .hidden {
+                display: none !important;
+            }
+
+            .rhythm-btn {
+                padding: 0.75rem 1.25rem;
+                background: var(--bg-tertiary);
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                color: var(--text-primary);
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 0.9rem;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+
+            .rhythm-btn:hover {
+                border-color: var(--accent-magenta);
+                background: rgba(255, 0, 110, 0.1);
+            }
+
+            .rhythm-btn .duration {
+                color: var(--text-muted);
+                font-size: 0.75rem;
+                display: block;
+                margin-top: 0.25rem;
+            }
+
+            .rhythm-actions {
+                display: flex;
+                justify-content: center;
+                gap: 1rem;
+                margin-top: 1rem;
+            }
+
+            .user-rhythm {
+                display: flex;
+                justify-content: center;
+                gap: 0.5rem;
+                padding: 1rem;
+                background: var(--bg-secondary);
+                border-radius: 8px;
+                min-height: 50px;
+                flex-wrap: wrap;
+            }
+
+            .user-rhythm .note-chip {
+                padding: 0.4rem 0.8rem;
+                background: rgba(255, 0, 110, 0.2);
+                border: 1px solid var(--accent-magenta);
+                border-radius: 4px;
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 0.85rem;
+                color: var(--accent-magenta);
+            }
+
+            .rhythm-settings {
+                background: var(--bg-tertiary);
+                border-radius: 12px;
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .rhythm-settings-row {
+                display: flex;
+                justify-content: center;
+                gap: 2rem;
+                flex-wrap: wrap;
+                margin-bottom: 1.5rem;
+            }
+
+            .rhythm-controls {
+                display: flex;
+                justify-content: center;
+                gap: 2rem;
+                flex-wrap: wrap;
+                margin-bottom: 2rem;
+                padding: 1rem;
+                background: var(--bg-tertiary);
+                border-radius: 12px;
+            }
+
+            .rhythm-buttons {
+                display: flex;
+                justify-content: center;
+                gap: 1.5rem;
+                flex-wrap: wrap;
+            }
+
+            .rhythm-btn {
+                background: #e8e8ec;
+                border: 2px solid #888;
+                border-radius: 12px;
+                padding: 0.75rem;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                min-width: 100px;
+            }
+
+            .rhythm-btn:hover {
+                border-color: var(--accent-cyan);
+                transform: translateY(-3px);
+                box-shadow: 0 8px 20px rgba(0, 212, 255, 0.2);
+            }
+
+            .rhythm-btn:active {
+                transform: translateY(0);
+                background: #d0d0d8;
+            }
+
+            .rhythm-btn img {
+                width: 80px;
+                height: 40px;
+                object-fit: contain;
+            }
+
+            .rhythm-btn .btn-label {
+                font-size: 0.75rem;
+                color: var(--text-muted);
+                margin-top: 0.5rem;
+            }
+
+            .setting-group {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+
+            .setting-group label {
+                font-size: 0.85rem;
+                color: var(--text-secondary);
+            }
+
+            .setting-group input[type='range'] {
+                width: 120px;
+                accent-color: var(--accent-cyan);
+            }
+
+            .setting-group select {
+                padding: 0.4rem 0.75rem;
+                background: var(--bg-secondary);
+                border: 1px solid var(--border-color);
+                border-radius: 6px;
+                color: var(--text-primary);
+                font-size: 0.9rem;
+            }
+
+            .setting-group span {
+                font-family: 'JetBrains Mono', monospace;
+                color: var(--accent-gold);
+                min-width: 80px;
+            }
+
+            .pattern-filters {
+                margin-top: 1rem;
+            }
+
+            .pattern-filters > label {
+                display: block;
+                font-size: 0.8rem;
+                color: var(--text-muted);
+                margin-bottom: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+
+            .pattern-checkboxes {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.75rem;
+                justify-content: center;
+            }
+
+            .pattern-checkbox {
+                display: flex;
+                align-items: center;
+                gap: 0.4rem;
+                cursor: pointer;
+            }
+
+            .pattern-checkbox input {
+                accent-color: var(--accent-cyan);
+                width: 16px;
+                height: 16px;
+            }
+
+            .pattern-checkbox span {
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 0.85rem;
+                color: var(--text-secondary);
+            }
+
+            .rhythm-display {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+                margin: 1.5rem 0;
+            }
+
+            .rhythm-display > div {
+                background: var(--bg-tertiary);
+                border-radius: 8px;
+                padding: 1rem;
+                min-height: 80px;
+                overflow-x: auto;
+            }
+
+            .rhythm-display .label {
+                font-size: 0.75rem;
+                color: var(--text-muted);
+                text-transform: uppercase;
+                letter-spacing: 0.1em;
+                margin-bottom: 0.5rem;
+            }
+
+            .pattern-buttons {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+                justify-content: center;
+                margin: 1.5rem 0;
+            }
+
+            .pattern-btn {
+                padding: 0.6rem 1rem;
+                background: var(--bg-tertiary);
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                color: var(--text-primary);
+                font-family: 'JetBrains Mono', monospace;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                min-width: 110px;
+            }
+
+            .pattern-btn:hover {
+                border-color: var(--accent-cyan);
+                background: rgba(0, 212, 255, 0.15);
+                transform: translateY(-2px);
+            }
+
+            .pattern-btn .pattern-symbol {
+                font-size: 1.5rem;
+                display: flex;
+                align-items: center;
+                gap: 0.25rem;
+                line-height: 1;
+            }
+
+            .pattern-btn .note-q {
+                color: var(--accent-cyan);
+                font-size: 1.6rem;
+            }
+            .pattern-btn .note-8 {
+                color: var(--accent-magenta);
+                font-size: 1.4rem;
+            }
+            .pattern-btn .note-16 {
+                color: var(--accent-gold);
+                font-size: 1.2rem;
+            }
+            .pattern-btn .note-r {
+                color: var(--text-muted);
+                font-size: 1.3rem;
+            }
+            .pattern-btn .note-gap {
+                width: 0.3rem;
+            }
+
+            .pattern-btn .pattern-name {
+                font-size: 0.7rem;
+                color: var(--text-secondary);
+                margin-top: 0.4rem;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+
+            .pattern-btn svg {
+                height: 30px;
+            }
+
+            .pattern-btn.correct {
+                background: rgba(0, 255, 136, 0.2);
+                border-color: var(--accent-green);
+            }
+
+            .pattern-btn.incorrect {
+                background: rgba(255, 68, 102, 0.2);
+                border-color: var(--accent-red);
+            }
+
+            .pattern-slot {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0.3rem 0.5rem;
+                margin: 0.2rem;
+                border-radius: 4px;
+                font-size: 1.2rem;
+            }
+
+            .pattern-slot.correct {
+                background: rgba(0, 255, 136, 0.2);
+                color: var(--accent-green);
+            }
+
+            .pattern-slot.incorrect {
+                background: rgba(255, 68, 102, 0.2);
+                color: var(--accent-red);
+            }
+
+            .pattern-slot.missing {
+                background: rgba(255, 215, 0, 0.1);
+                border: 1px dashed var(--accent-gold);
+            }
+
+            .vexflow-container svg {
+                background: transparent !important;
+            }
+
+            .start-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(10, 10, 15, 0.95);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+            }
+
+            .start-overlay.hidden {
+                display: none;
+            }
+
+            .start-content {
+                text-align: center;
+                padding: 3rem;
+            }
+
+            .start-content h2 {
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 1.5rem;
+                color: var(--accent-cyan);
+                margin-bottom: 1rem;
+            }
+
+            .start-content p {
+                color: var(--text-secondary);
+                margin-bottom: 2rem;
+                max-width: 400px;
+            }
+
+            .start-btn {
+                padding: 1rem 3rem;
+                font-size: 1.1rem;
+                background: linear-gradient(135deg, var(--accent-cyan), var(--accent-magenta));
+                border: none;
+                border-radius: 12px;
+                color: white;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+
+            .start-btn:hover {
+                transform: scale(1.05);
+                box-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+            }
+
+            .info-text {
+                font-size: 0.8rem;
+                color: var(--text-muted);
+                text-align: center;
+                margin-top: 1rem;
+            }
+
+            @media (max-width: 768px) {
+                .container {
+                    padding: 1rem;
+                }
+
+                h1 {
+                    font-size: 1.5rem;
+                }
+
+                .note-display {
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 1rem;
+                }
+
+                .beat-slot {
+                    width: 45px;
+                    height: 45px;
+                    font-size: 1rem;
+                }
+            }
+
+            .back-btn {
+                position: fixed;
+                top: 16px;
+                right: 16px;
+                padding: 8px 16px;
+                background: rgba(15, 15, 20, 0.9);
+                border: 1px solid #444;
+                color: #888;
+                text-decoration: none;
+                border-radius: 6px;
+                font-size: 0.8rem;
+                font-weight: 500;
+                text-transform: lowercase;
+                letter-spacing: 1px;
+                transition: all 0.2s ease;
+                z-index: 9999;
+                backdrop-filter: blur(4px);
+            }
+
+            .back-btn:hover {
+                border-color: var(--accent-cyan);
+                color: var(--accent-cyan);
+                background: rgba(15, 15, 20, 1);
+            }
+
+            .config-toggle {
+                position: fixed;
+                top: 12px;
+                left: 12px;
+                width: 36px;
+                height: 36px;
+                background: var(--bg-secondary);
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                color: var(--text-muted);
+                font-size: 1.1rem;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                z-index: 1000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .config-toggle:hover {
+                border-color: var(--accent-cyan);
+                color: var(--accent-cyan);
+            }
+
+            .config-toggle.active {
+                background: rgba(0, 212, 255, 0.15);
+                border-color: var(--accent-cyan);
+                color: var(--accent-cyan);
+            }
+
+            .score-inline {
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 0.85rem;
+                color: var(--accent-gold);
+                padding: 0.5rem 0.75rem;
+                background: var(--bg-tertiary);
+                border-radius: 6px;
+                margin-left: 0.5rem;
+            }
+        </style>
+    </head>
+    <body>
+        <button class="config-toggle" id="configToggle" title="Configuración">⚙️</button>
+
+        <div class="start-overlay hidden" id="startOverlay">
+            <div class="start-content">
+                <h2>🎧 EarUp</h2>
+                <p>Una aplicación de entrenamiento auditivo profesional. Haz clic para inicializar el motor de audio.</p>
+                <button class="start-btn" id="startBtn">Iniciar Audio</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <header>
+                <h1>EARUP</h1>
+                <p class="subtitle">Entrenamiento auditivo de precisión</p>
+
+                <div class="a4-reference">
+                    <label>A4 Reference:</label>
+                    <input type="number" id="a4Reference" value="440" min="420" max="460" step="1" />
+                    <span>Hz</span>
+                </div>
+            </header>
+
+            <nav class="modules-nav">
+                <button class="module-btn active" data-module="intervals">Intervalos</button>
+                <button class="module-btn" data-module="microtuning">Micro-Tuning</button>
+                <button class="module-btn" data-module="rhythm">Dictado Rítmico</button>
+            </nav>
+
+            <!-- MÓDULO DE INTERVALOS -->
+            <section class="module active" id="intervals">
+                <div class="card">
+                    <div class="controls" style="margin-bottom: 0.5rem">
+                        <button class="btn btn-primary" id="playInterval">
+                            <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M8 5v14l11-7z" />
+                            </svg>
+                            Reproducir
+                        </button>
+                        <span class="score-inline" id="intervalScore">0/0</span>
+                        <button class="btn btn-secondary" id="newInterval">Nueva</button>
+                        <button class="btn btn-success hidden" id="verifyInterval">✓ Verificar</button>
+                        <button class="btn btn-warning hidden" id="nextInterval">→ Siguiente</button>
+                        <div class="mode-selector">
+                            <button class="mode-btn active" data-mode="melodic-asc"><span class="arrow">↑</span></button>
+                            <button class="mode-btn" data-mode="melodic-desc"><span class="arrow">↓</span></button>
+                            <button class="mode-btn" data-mode="harmonic">♫</button>
+                        </div>
+                    </div>
+
+                    <div class="config-accordion hidden" id="intervalConfig">
+                        <div class="config-header">
+                            <h3>⚙️ Configuración</h3>
+                            <span class="chevron">▼</span>
+                        </div>
+                        <div class="config-content">
+                            <div class="config-section">
+                                <div class="config-section-title">Consonancias Perfectas</div>
+                                <div class="filter-checkboxes">
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" data-interval="0" checked />
+                                        <span>Unísono</span>
+                                    </label>
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" data-interval="5" checked />
+                                        <span>4ta Justa</span>
+                                    </label>
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" data-interval="7" checked />
+                                        <span>5ta Justa</span>
+                                    </label>
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" data-interval="12" checked />
+                                        <span>8va</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="config-section">
+                                <div class="config-section-title">Consonancias Imperfectas</div>
+                                <div class="filter-checkboxes">
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" data-interval="3" checked />
+                                        <span>3ra Mayor</span>
+                                    </label>
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" data-interval="4" checked />
+                                        <span>3ra Menor</span>
+                                    </label>
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" data-interval="8" checked />
+                                        <span>6ta Mayor</span>
+                                    </label>
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" data-interval="9" checked />
+                                        <span>6ta Menor</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="config-section">
+                                <div class="config-section-title">Disonancias</div>
+                                <div class="filter-checkboxes">
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" data-interval="1" checked />
+                                        <span>2da Menor</span>
+                                    </label>
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" data-interval="2" checked />
+                                        <span>2da Mayor</span>
+                                    </label>
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" data-interval="6" checked />
+                                        <span>Tritono</span>
+                                    </label>
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" data-interval="10" checked />
+                                        <span>7ma Menor</span>
+                                    </label>
+                                    <label class="filter-checkbox">
+                                        <input type="checkbox" data-interval="11" checked />
+                                        <span>7ma Mayor</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="info-text" id="intervalInstruction">Selecciona tu respuesta:</p>
+                    <div class="feedback" id="intervalFeedback"></div>
+                    <div class="interval-options" id="intervalOptions"></div>
+                </div>
+            </section>
+
+            <!-- MÓDULO DE MICRO-TUNING -->
+            <section class="module" id="microtuning">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">MICRO-TUNING (X-Solfeggio)</span>
+                        <span class="score-display" id="tuningScore">0 / 0</span>
+                    </div>
+
+                    <div class="controls">
+                        <button class="btn btn-primary" id="playTuning">
+                            <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M8 5v14l11-7z" />
+                            </svg>
+                            Reproducir Notas
+                        </button>
+                        <button class="btn btn-secondary" id="playReference">
+                            <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2L2 22h20L12 2zm0 4l7 14H5l7-14z" />
+                            </svg>
+                            Referencia (Justa)
+                        </button>
+                        <button class="btn btn-secondary" id="nextTuning">Siguiente Par</button>
+                        <button class="btn btn-secondary" id="toggleGuitarMode">Modo Guitarra: OFF</button>
+                    </div>
+
+                    <div class="micro-tuning-display">
+                        <div class="note-display">
+                            <div class="note-box">
+                                <div class="note-name" id="noteA">A</div>
+                                <div class="note-label">Nota de Referencia</div>
+                            </div>
+                            <div class="note-box">
+                                <div class="note-name" id="noteB">?</div>
+                                <div class="note-label">Nota a Evaluar</div>
+                            </div>
+                        </div>
+
+                        <div class="deviation-display" id="deviationDisplay"></div>
+
+                        <div class="info-text" id="tuningInstruction">La Nota B debería estar a distancia de 4ta o 5ta justa</div>
+
+                        <div class="difficulty-controls">
+                            <div class="difficulty-control">
+                                <label>Rango:</label>
+                                <input type="range" id="minDetune" min="5" max="35" value="10" />
+                                <span id="minDetuneValue">10</span>
+                            </div>
+                            <div class="difficulty-control">
+                                <span style="margin: 0 0.25rem">-</span>
+                                <input type="range" id="maxDetune" min="10" max="40" value="25" />
+                                <span id="maxDetuneValue">25 cents</span>
+                            </div>
+                        </div>
+
+                        <div class="tuning-options">
+                            <button class="tuning-btn" data-response="low">BAJA<br /><small>Intervalo menor</small></button>
+                            <button class="tuning-btn" data-response="just">JUSTA<br /><small>Intervalo correcto</small></button>
+                            <button class="tuning-btn" data-response="high">ALTA<br /><small>Intervalo mayor</small></button>
+                        </div>
+
+                        <div class="feedback" id="tuningFeedback"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MÓDULO DE RITMO (Estilo Clave) -->
+            <section class="module" id="rhythm">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">RITMO</span>
+                    </div>
+
+                    <div class="rhythm-controls">
+                        <div class="setting-group">
+                            <label>Tempo:</label>
+                            <input type="range" id="rhythmTempo" min="40" max="200" value="70" />
+                            <span id="rhythmTempoValue">70 BPM</span>
+                        </div>
+                        <div class="setting-group">
+                            <label>Patrones:</label>
+                            <select id="dictadoCount">
+                                <option value="2">2</option>
+                                <option value="4" selected>4</option>
+                                <option value="6">6</option>
+                                <option value="8">8</option>
+                            </select>
+                        </div>
+                        <button id="iniciarDictado" class="btn btn-primary">Iniciar Dictado</button>
+                        <button id="borrarUltimo" class="btn btn-secondary hidden">Borrar</button>
+                        <button id="nuevoDictado" class="btn btn-secondary hidden">Nuevo</button>
+                        <button id="replayDictado" class="btn btn-secondary hidden">Replay Dictado</button>
+                        <button id="replayRespuesta" class="btn btn-secondary hidden">Replay Respuesta</button>
+                        <button id="enviarRespuesta" class="btn btn-success hidden">Enviar Respuesta</button>
+                        <button id="toggleSonido" class="btn btn-warning">Sound: ON</button>
+                    </div>
+
+                    <div class="dictado-display" id="dictadoDisplay"></div>
+
+                    <div class="rhythm-buttons" id="rhythmButtons"></div>
+
+                    <div class="feedback" id="rhythmFeedback"></div>
+                </div>
+            </section>
+        </div>
+
+        <script>
+            // ============================================
+            // CONFIGURACIÓN GLOBAL
+            // ============================================
+            const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+            const INTERVAL_NAMES = {
+                0: 'Unísono',
+                1: '2da Menor',
+                2: '2da Mayor',
+                3: '3ra Menor',
+                4: '3ra Mayor',
+                5: '4ta Justa',
+                6: 'Tritono',
+                7: '5ta Justa',
+                8: '6ta Menor',
+                9: '6ta Mayor',
+                10: '7ma Menor',
+                11: '7ma Mayor',
+                12: '8va'
+            };
+            const RHYTHM_SYMBOLS = { 4: '♩', 2: '♪', 1: '𝅘𝅥𝅯', 0: '𝅘𝅥𝅮' };
+
+            let audioContextStarted = false;
+            let synth, reverb, masterGain;
+            let currentA4 = 440;
+
+            // Estado de Intervalos
+            let intervalState = {
+                rootNote: null,
+                targetInterval: null,
+                mode: 'melodic-asc',
+                enabledIntervals: [0, 3, 4, 5, 7, 8, 9, 12],
+                correct: 0,
+                total: 0,
+                selectedAnswer: null,
+                answered: false
+            };
+
+            // Estado de Micro-Tuning
+            let tuningState = {
+                noteA: null,
+                noteB: null,
+                deviation: 0,
+                minDetune: 20,
+                maxDetune: 50,
+                correct: 0,
+                total: 0,
+                guitarMode: false,
+                guitarPair: null
+            };
+
+            // Guitar string pairs: [stringLower, stringHigher, interval in semitones]
+            const GUITAR_STRING_PAIRS = [
+                { low: 6, high: 5, interval: 5, nameLow: '6ª', nameHigh: '5ª' }, // E-A (P4)
+                { low: 5, high: 4, interval: 5, nameLow: '5ª', nameHigh: '4ª' }, // A-D (P4)
+                { low: 4, high: 3, interval: 5, nameLow: '4ª', nameHigh: '3ª' }, // D-G (P4)
+                { low: 3, high: 2, interval: 4, nameLow: '3ª', nameHigh: '2ª' }, // G-B (M3)
+                { low: 2, high: 1, interval: 5, nameLow: '2ª', nameHigh: '1ª' } // B-E (P4)
+            ];
+
+            const GUITAR_NOTES = {
+                6: 'E3',
+                5: 'A3',
+                4: 'D4',
+                3: 'G4',
+                2: 'B4',
+                1: 'E5'
+            };
+
+            // ============================================
+            // INICIALIZACIÓN DE AUDIO
+            // ============================================
+            async function initAudio(showOverlay = true) {
+                if (audioContextStarted) return;
+
+                if (showOverlay) {
+                    document.getElementById('startOverlay').classList.remove('hidden');
+                    return;
+                }
+
+                await Tone.start();
+
+                reverb = new Tone.Reverb({
+                    decay: 1.5,
+                    preDelay: 0.01
+                });
+
+                masterGain = new Tone.Gain(0.98).toDestination();
+
+                synth = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: 'triangle' },
+                    envelope: {
+                        attack: 0.02,
+                        decay: 0.1,
+                        sustain: 0.5,
+                        release: 0.5
+                    }
+                });
+
+                synth.connect(reverb);
+                reverb.connect(masterGain);
+
+                await reverb.generate();
+                audioContextStarted = true;
+            }
+
+            async function ensureAudio() {
+                if (!audioContextStarted) {
+                    document.getElementById('startOverlay').classList.remove('hidden');
+                    return false;
+                }
+                return true;
+            }
+
+            // ============================================
+            // UTILIDADES
+            // ============================================
+            function midiToNote(midi) {
+                const octave = Math.floor(midi / 12) - 1;
+                const noteIndex = midi % 12;
+                return `${NOTE_NAMES[noteIndex]}${octave}`;
+            }
+
+            function noteToMidi(note) {
+                const match = note.match(/([A-G]#?)(\d+)/);
+                if (!match) return null;
+                const noteName = match[1];
+                const octave = parseInt(match[2]);
+                return NOTE_NAMES.indexOf(noteName) + (octave + 1) * 12;
+            }
+
+            function midiToFrequency(midi) {
+                return currentA4 * Math.pow(2, (midi - 69) / 12);
+            }
+
+            function frequencyToMidi(freq) {
+                return 69 + 12 * Math.log2(freq / currentA4);
+            }
+
+            function randomInt(min, max) {
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            }
+
+            function getRandomItem(arr) {
+                return arr[Math.floor(Math.random() * arr.length)];
+            }
+
+            function updateScore(elementId, correct, total) {
+                document.getElementById(elementId).textContent = `${correct} / ${total}`;
+            }
+
+            function showFeedback(elementId, message, isCorrect) {
+                const feedback = document.getElementById(elementId);
+                feedback.textContent = message;
+                feedback.className = 'feedback show ' + (isCorrect ? 'correct' : 'incorrect');
+            }
+
+            // ============================================
+            // MÓDULO: INTERVALOS
+            // ============================================
+            function initIntervalOptions() {
+                const container = document.getElementById('intervalOptions');
+                container.innerHTML = '';
+
+                Object.entries(INTERVAL_NAMES).forEach(([semitones, name]) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'interval-btn';
+                    btn.dataset.interval = semitones;
+                    btn.textContent = name;
+                    btn.disabled = true; // Disabled until user plays interval
+                    btn.addEventListener('click', () => selectIntervalAnswer(parseInt(semitones)));
+                    container.appendChild(btn);
+                });
+            }
+
+            function generateNewInterval() {
+                const rootMidi = randomInt(48, 72);
+                const enabledIntervals = intervalState.enabledIntervals;
+
+                if (enabledIntervals.length === 0) {
+                    alert('Selecciona al menos un tipo de intervalo');
+                    return;
+                }
+
+                const interval = getRandomItem(enabledIntervals);
+                const targetMidi = rootMidi + interval;
+
+                intervalState.rootNote = rootMidi;
+                intervalState.targetInterval = interval;
+            }
+
+            async function playInterval() {
+                if (!(await ensureAudio())) return;
+
+                const rootMidi = intervalState.rootNote;
+                const targetMidi = rootMidi + intervalState.targetInterval;
+                const rootFreq = midiToFrequency(rootMidi);
+                const targetFreq = midiToFrequency(targetMidi);
+
+                // Enable answer buttons after playing
+                document.querySelectorAll('.interval-btn').forEach((btn) => {
+                    btn.disabled = false;
+                });
+
+                switch (intervalState.mode) {
+                    case 'melodic-asc':
+                        synth.triggerAttackRelease(rootFreq, '8n', Tone.now());
+                        synth.triggerAttackRelease(targetFreq, '8n', Tone.now() + 0.6);
+                        break;
+                    case 'melodic-desc':
+                        synth.triggerAttackRelease(targetFreq, '8n', Tone.now());
+                        synth.triggerAttackRelease(rootFreq, '8n', Tone.now() + 0.6);
+                        break;
+                    case 'harmonic':
+                        synth.triggerAttackRelease([rootFreq, targetFreq], '1n');
+                        break;
+                }
+            }
+
+            function selectIntervalAnswer(selectedInterval) {
+                if (intervalState.answered || intervalState.targetInterval === null) return;
+
+                // Deselect previous
+                document.querySelectorAll('.interval-btn').forEach((btn) => {
+                    btn.classList.remove('selected');
+                });
+
+                // Select new
+                intervalState.selectedAnswer = selectedInterval;
+                const selectedBtn = document.querySelector(`.interval-btn[data-interval="${selectedInterval}"]`);
+                selectedBtn.classList.add('selected');
+
+                // Show verify button
+                document.getElementById('verifyInterval').classList.remove('hidden');
+            }
+
+            function verifyIntervalAnswer() {
+                if (intervalState.selectedAnswer === null || intervalState.answered) return;
+
+                intervalState.answered = true;
+                const correct = intervalState.selectedAnswer === intervalState.targetInterval;
+                const buttons = document.querySelectorAll('.interval-btn');
+
+                buttons.forEach((btn) => {
+                    btn.disabled = true;
+                    if (parseInt(btn.dataset.interval) === intervalState.targetInterval) {
+                        btn.classList.add('correct-answer');
+                    }
+                });
+
+                const selectedBtn = document.querySelector(`.interval-btn[data-interval="${intervalState.selectedAnswer}"]`);
+                if (correct) {
+                    selectedBtn.classList.add('correct');
+                    showFeedback('intervalFeedback', '¡Correcto!', true);
+                    intervalState.correct++;
+                } else {
+                    selectedBtn.classList.add('incorrect');
+                    showFeedback('intervalFeedback', `Incorrecto. La respuesta era: ${INTERVAL_NAMES[intervalState.targetInterval]}`, false);
+                }
+
+                intervalState.total++;
+                updateScore('intervalScore', intervalState.correct, intervalState.total);
+
+                // Hide verify, show next
+                document.getElementById('verifyInterval').classList.add('hidden');
+                document.getElementById('nextInterval').classList.remove('hidden');
+            }
+
+            function nextInterval() {
+                // Reset state
+                intervalState.selectedAnswer = null;
+                intervalState.answered = false;
+
+                // Reset UI
+                document.getElementById('nextInterval').classList.add('hidden');
+                document.getElementById('intervalFeedback').classList.remove('show');
+                document.getElementById('verifyInterval').classList.add('hidden');
+
+                document.querySelectorAll('.interval-btn').forEach((btn) => {
+                    btn.disabled = false;
+                    btn.classList.remove('correct', 'incorrect', 'correct-answer', 'selected');
+                });
+
+                generateNewInterval();
+            }
+
+            // ============================================
+            // MÓDULO: MICRO-TUNING
+            // ============================================
+            function generateNewTuningPair() {
+                let noteA, noteAMidi, interval, noteB, noteBMidi;
+
+                if (tuningState.guitarMode) {
+                    // Guitar mode: select random string pair
+                    const pair = getRandomItem(GUITAR_STRING_PAIRS);
+                    tuningState.guitarPair = pair;
+
+                    noteA = GUITAR_NOTES[pair.low];
+                    noteAMidi = noteToMidi(noteA);
+                    interval = pair.interval;
+                    noteBMidi = noteAMidi + interval;
+
+                    // In guitar mode, show string pair instead of note name
+                    document.getElementById('noteA').textContent = `${pair.nameLow}-${pair.nameHigh}`;
+                    document.querySelector('.note-box:nth-child(1) .note-label').textContent = 'Cuerdas';
+                } else {
+                    // Normal mode: random note + interval
+                    const rootNotes = ['C', 'D', 'E', 'F', 'G', 'A'];
+                    noteA = getRandomItem(rootNotes) + '4';
+                    noteAMidi = noteToMidi(noteA);
+
+                    const intervals = [5, 7];
+                    interval = getRandomItem(intervals);
+                    noteBMidi = noteAMidi + interval;
+
+                    document.getElementById('noteA').textContent = noteA;
+                    document.querySelector('.note-box:nth-child(1) .note-label').textContent = 'Nota de Referencia';
+                }
+
+                const minDetune = tuningState.minDetune;
+                const maxDetune = tuningState.maxDetune;
+
+                // 1 de 3 opciones: LOW, JUSTA, HIGH
+                const choices = ['low', 'just', 'high'];
+                const choice = choices[Math.floor(Math.random() * 3)];
+
+                let deviation;
+                if (choice === 'just') {
+                    deviation = 0;
+                } else {
+                    const detuneAmount = randomInt(minDetune, maxDetune);
+                    deviation = choice === 'high' ? detuneAmount : -detuneAmount;
+                }
+
+                tuningState.noteA = noteA;
+                tuningState.noteB = midiToNote(noteBMidi);
+                tuningState.deviation = deviation;
+
+                document.getElementById('noteB').textContent = '?';
+                document.getElementById('deviationDisplay').textContent = '';
+                document.getElementById('tuningFeedback').classList.remove('show');
+
+                document.querySelectorAll('.tuning-btn').forEach((btn) => {
+                    btn.disabled = false;
+                    btn.classList.remove('correct', 'incorrect');
+                });
+            }
+
+            async function playTuningNotes() {
+                if (!(await ensureAudio()) || !tuningState.noteA) return;
+
+                const noteAMidi = noteToMidi(tuningState.noteA);
+                const noteBMidi = noteToMidi(tuningState.noteB);
+                const deviation = tuningState.deviation;
+
+                const freqA = midiToFrequency(noteAMidi);
+                const freqB = midiToFrequency(noteBMidi) * Math.pow(2, deviation / 1200);
+
+                console.log('=== DEBUG MICRO-TUNING ===');
+                console.log('Nota A:', tuningState.noteA, '-> Frecuencia:', freqA.toFixed(2), 'Hz');
+                console.log('Nota B (base):', tuningState.noteB, '-> Frecuencia base:', freqB.toFixed(2), 'Hz');
+                console.log('Desviación:', deviation, 'cents');
+                console.log('Nota B (desafinada):', (freqB * Math.pow(2, deviation / 1200)).toFixed(2), 'Hz');
+                console.log('Modo Guitarra:', tuningState.guitarMode);
+                console.log('=========================');
+
+                synth.triggerAttackRelease(freqA, '4n', Tone.now());
+                synth.triggerAttackRelease(freqB * Math.pow(2, deviation / 1200), '4n', Tone.now() + 0.8);
+
+                // Show note B after playing
+                document.getElementById('noteB').textContent = tuningState.noteB;
+            }
+
+            async function playReferenceInterval() {
+                if (!(await ensureAudio()) || !tuningState.noteA) return;
+
+                const noteAMidi = noteToMidi(tuningState.noteA);
+                const noteBMidi = noteToMidi(tuningState.noteB);
+
+                const freqA = midiToFrequency(noteAMidi);
+                const freqB = midiToFrequency(noteBMidi);
+
+                console.log('=== DEBUG REFERENCIA JUSTA ===');
+                console.log('Nota A:', tuningState.noteA, '-> Frecuencia:', freqA.toFixed(2), 'Hz');
+                console.log('Nota B (justa):', tuningState.noteB, '-> Frecuencia:', freqB.toFixed(2), 'Hz');
+                console.log('==============================');
+
+                await reverb.generate();
+
+                synth.triggerAttackRelease(freqA, '4n', Tone.now());
+                synth.triggerAttackRelease(freqB, '4n', Tone.now() + 0.8);
+            }
+
+            function checkTuningAnswer(response) {
+                const deviation = tuningState.deviation;
+                const threshold = 4;
+                let isCorrect = false;
+                let correctResponse = '';
+
+                if (deviation < -threshold) {
+                    correctResponse = 'low';
+                    isCorrect = response === 'low';
+                } else if (deviation > threshold) {
+                    correctResponse = 'high';
+                    isCorrect = response === 'high';
+                } else {
+                    correctResponse = 'just';
+                    isCorrect = response === 'just';
+                }
+
+                const feedbackEl = document.getElementById('tuningFeedback');
+                const deviationDisplay = document.getElementById('deviationDisplay');
+
+                let deviationText = `Desviación: ${deviation > 0 ? '+' : ''}${deviation} cents`;
+                if (tuningState.guitarMode && tuningState.guitarPair) {
+                    const pair = tuningState.guitarPair;
+                    const intervalName = pair.interval === 5 ? '4ta Justa' : '3ra Mayor';
+                    deviationText += ` (${intervalName})`;
+                }
+                deviationDisplay.textContent = deviationText;
+
+                if (isCorrect) {
+                    const correctLabel = deviation === 0 ? 'JUSTA' : deviation > 0 ? 'ALTA' : 'BAJA';
+                    feedbackEl.textContent = '¡Correcto! La nota estaba ' + correctLabel;
+                    feedbackEl.className = 'feedback show correct';
+                    tuningState.correct++;
+                } else {
+                    const correctLabel = deviation === 0 ? 'JUSTA' : deviation > 0 ? 'ALTA' : 'BAJA';
+                    feedbackEl.textContent = `Incorrecto. La nota estaba ${correctLabel}.`;
+                    feedbackEl.className = 'feedback show incorrect';
+                }
+
+                document.querySelectorAll('.tuning-btn').forEach((btn) => {
+                    btn.disabled = true;
+                    if (btn.dataset.response === response) {
+                        btn.classList.add(isCorrect ? 'correct' : 'incorrect');
+                    }
+                    if (btn.dataset.response === correctResponse && !isCorrect) {
+                        btn.classList.add('correct');
+                    }
+                });
+
+                tuningState.total++;
+                updateScore('tuningScore', tuningState.correct, tuningState.total);
+            }
+
+            // ============================================
+            // MÓDULO: RITMO (Estilo Clave)
+            // ============================================
+            let rhythmPatterns = {};
+            let rhythmState = {
+                tempo: 70,
+                isPlaying: false,
+                correctoRespuesta: [],
+                usuarioRespuesta: [],
+                isDictadoActivo: false,
+                replayDictadoCount: 0,
+                soundEnabled: true
+            };
+
+            // Patrones por defecto (si el fetch falla)
+            const defaultPatterns = {
+                1: { id: '1', durations: [1] },
+                2: { id: '2', durations: [0.5, 0.5] },
+                3: { id: '3', durations: [0.5, 0.25, 0.25] },
+                4: { id: '4', durations: [0.75, 0.25] }
+            };
+
+            function initRhythmModule() {
+                rhythmPatterns = { ...defaultPatterns };
+                renderRhythmButtons();
+
+                // Intentar cargar desde archivo externo
+                fetch('./earup_img/list.rtm')
+                    .then((response) => response.text())
+                    .then((text) => {
+                        const lines = text.trim().split('\n');
+                        lines.forEach((line) => {
+                            const match = line.match(/^(\d+)\.png=\[([\d.,]+)\]$/);
+                            if (match) {
+                                const id = match[1];
+                                const durations = match[2].split(',').map((d) => parseFloat(d));
+                                rhythmPatterns[id] = { id: id, durations: durations };
+                            }
+                        });
+                        renderRhythmButtons();
+                    })
+                    .catch((e) => console.log('Usando patrones por defecto'));
+            }
+
+            function renderRhythmButtons() {
+                const container = document.getElementById('rhythmButtons');
+                if (!container) return;
+                container.innerHTML = '';
+
+                Object.values(rhythmPatterns).forEach((pattern) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'rhythm-btn';
+                    btn.dataset.id = pattern.id;
+
+                    const img = document.createElement('img');
+                    img.src = `./earup_img/${pattern.id}.png`;
+                    img.alt = `Patrón ${pattern.id}`;
+
+                    btn.appendChild(img);
+                    btn.addEventListener('click', async () => {
+                        if (rhythmState.soundEnabled) {
+                            await playRhythmPattern(pattern.id);
+                        }
+                        if (rhythmState.isDictadoActivo) {
+                            agregarPatronUsuario(pattern.id);
+                        }
+                    });
+
+                    container.appendChild(btn);
+                });
+            }
+
+            async function playRhythmPattern(patternId) {
+                if (!(await ensureAudio()) || rhythmState.isPlaying) {
+                    console.log('No playing: audioContextStarted=', audioContextStarted, 'isPlaying=', rhythmState.isPlaying);
+                    return;
+                }
+                rhythmState.isPlaying = true;
+
+                const pattern = rhythmPatterns[patternId];
+                if (!pattern) {
+                    rhythmState.isPlaying = false;
+                    return;
+                }
+
+                const beatDuration = 60 / rhythmState.tempo;
+
+                for (let i = 0; i < pattern.durations.length; i++) {
+                    const duration = pattern.durations[i];
+                    const noteDuration = beatDuration * duration;
+
+                    playClap();
+
+                    await new Promise((resolve) => setTimeout(resolve, noteDuration * 1000));
+                }
+
+                rhythmState.isPlaying = false;
+            }
+
+            let clapSynth;
+
+            function initClapSynth() {
+                clapSynth = new Tone.NoiseSynth({
+                    noise: { type: 'white' },
+                    envelope: {
+                        attack: 0.002,
+                        decay: 0.08,
+                        sustain: 0
+                    }
+                }).toDestination();
+                clapSynth.volume.value = -3;
+            }
+
+            function playClap() {
+                if (!clapSynth) initClapSynth();
+                clapSynth.triggerAttackRelease('32n');
+            }
+
+            async function iniciarDictado() {
+                const count = parseInt(document.getElementById('dictadoCount').value);
+                const patternIds = ['1', '2', '3', '4'];
+
+                rhythmState.correctoRespuesta = [];
+                rhythmState.usuarioRespuesta = [];
+                rhythmState.isDictadoActivo = true;
+
+                document.getElementById('dictadoDisplay').innerHTML = '';
+                document.getElementById('rhythmFeedback').textContent = '';
+
+                document.getElementById('iniciarDictado').classList.add('hidden');
+                document.getElementById('enviarRespuesta').classList.remove('hidden');
+                document.getElementById('borrarUltimo').classList.remove('hidden');
+                document.getElementById('nuevoDictado').classList.remove('hidden');
+                document.getElementById('replayDictado').classList.remove('hidden');
+                document.getElementById('replayRespuesta').classList.remove('hidden');
+
+                const tempo = rhythmState.tempo;
+                const beatDuration = 60 / tempo;
+
+                if (!(await ensureAudio())) return;
+
+                synth.triggerAttackRelease('C5', '32n', Tone.now());
+                synth.triggerAttackRelease('C5', '32n', Tone.now() + beatDuration);
+
+                await new Promise((resolve) => setTimeout(resolve, beatDuration * 2 * 1000));
+
+                for (let i = 0; i < count; i++) {
+                    const randomPattern = patternIds[Math.floor(Math.random() * patternIds.length)];
+                    rhythmState.correctoRespuesta.push(randomPattern);
+                    await playRhythmPattern(randomPattern);
+                }
+            }
+
+            function agregarPatronUsuario(patternId) {
+                if (!rhythmState.isDictadoActivo) return;
+
+                rhythmState.usuarioRespuesta.push(patternId);
+
+                const display = document.getElementById('dictadoDisplay');
+                const item = document.createElement('div');
+                item.className = 'dictado-item';
+
+                const img = document.createElement('img');
+                img.src = `./earup_img/${patternId}.png`;
+                img.alt = `Patrón ${patternId}`;
+
+                item.appendChild(img);
+                display.appendChild(item);
+            }
+
+            function enviarRespuesta() {
+                if (!rhythmState.isDictadoActivo) return;
+
+                const correcto = rhythmState.correctoRespuesta;
+                const usuario = rhythmState.usuarioRespuesta;
+                const feedback = document.getElementById('rhythmFeedback');
+                const displayItems = document.querySelectorAll('.dictado-item');
+
+                let todosCorrectos = true;
+
+                for (let i = 0; i < Math.max(correcto.length, usuario.length); i++) {
+                    if (i < displayItems.length) {
+                        if (usuario[i] !== correcto[i]) {
+                            displayItems[i].classList.add('error');
+                            todosCorrectos = false;
+                        } else {
+                            displayItems[i].classList.add('correct');
+                        }
+                    }
+                }
+
+                if (todosCorrectos && usuario.length === correcto.length) {
+                    feedback.textContent = '¡Correcto!';
+                    feedback.className = 'feedback show correct';
+                    rhythmState.isDictadoActivo = false;
+                } else {
+                    feedback.textContent = 'Revisa los errores en rojo';
+                    feedback.className = 'feedback show incorrect';
+                }
+            }
+
+            function borrarUltimo() {
+                if (!rhythmState.isDictadoActivo || rhythmState.usuarioRespuesta.length === 0) return;
+
+                rhythmState.usuarioRespuesta.pop();
+
+                const display = document.getElementById('dictadoDisplay');
+                display.lastChild.remove();
+
+                document.getElementById('rhythmFeedback').textContent = '';
+                document.getElementById('rhythmFeedback').classList.remove('show');
+            }
+
+            function nuevoDictado() {
+                rhythmState.isDictadoActivo = false;
+                rhythmState.correctoRespuesta = [];
+                rhythmState.usuarioRespuesta = [];
+                rhythmState.replayDictadoCount = 0;
+
+                document.getElementById('dictadoDisplay').innerHTML = '';
+                document.getElementById('rhythmFeedback').textContent = '';
+                document.getElementById('rhythmFeedback').classList.remove('show');
+
+                document.getElementById('iniciarDictado').classList.remove('hidden');
+                document.getElementById('enviarRespuesta').classList.add('hidden');
+                document.getElementById('borrarUltimo').classList.add('hidden');
+                document.getElementById('nuevoDictado').classList.add('hidden');
+                document.getElementById('replayDictado').classList.add('hidden');
+                document.getElementById('replayRespuesta').classList.add('hidden');
+            }
+
+            async function replayDictado() {
+                if (rhythmState.correctoRespuesta.length === 0) return;
+
+                rhythmState.replayDictadoCount++;
+
+                const tempo = rhythmState.tempo;
+                const beatDuration = 60 / tempo;
+
+                if (!(await ensureAudio())) return;
+
+                synth.triggerAttackRelease('C5', '32n', Tone.now());
+                synth.triggerAttackRelease('C5', '32n', Tone.now() + beatDuration);
+
+                await new Promise((resolve) => setTimeout(resolve, beatDuration * 2 * 1000));
+
+                for (const patternId of rhythmState.correctoRespuesta) {
+                    await playRhythmPattern(patternId);
+                }
+            }
+
+            async function replayRespuesta() {
+                if (rhythmState.usuarioRespuesta.length === 0) return;
+
+                const tempo = rhythmState.tempo;
+                const beatDuration = 60 / tempo;
+
+                if (!(await ensureAudio())) return;
+
+                for (const patternId of rhythmState.usuarioRespuesta) {
+                    await playRhythmPattern(patternId);
+                }
+            }
+
+            document.getElementById('rhythmTempo').addEventListener('input', (e) => {
+                rhythmState.tempo = parseInt(e.target.value);
+                document.getElementById('rhythmTempoValue').textContent = `${rhythmState.tempo} BPM`;
+            });
+
+            document.getElementById('iniciarDictado').addEventListener('click', iniciarDictado);
+            document.getElementById('enviarRespuesta').addEventListener('click', enviarRespuesta);
+            document.getElementById('borrarUltimo').addEventListener('click', borrarUltimo);
+            document.getElementById('nuevoDictado').addEventListener('click', nuevoDictado);
+            document.getElementById('replayDictado').addEventListener('click', replayDictado);
+            document.getElementById('replayRespuesta').addEventListener('click', replayRespuesta);
+            document.getElementById('toggleSonido').addEventListener('click', () => {
+                rhythmState.soundEnabled = !rhythmState.soundEnabled;
+                const btn = document.getElementById('toggleSonido');
+                btn.textContent = rhythmState.soundEnabled ? 'Sound: ON' : 'Sound: OFF';
+                btn.classList.toggle('btn-warning', rhythmState.soundEnabled);
+                btn.classList.toggle('btn-secondary', !rhythmState.soundEnabled);
+            });
+
+            // ============================================
+            // EVENT LISTENERS
+            // ============================================
+            document.getElementById('startBtn').addEventListener('click', async () => {
+                await initAudio(false);
+                initClapSynth();
+                document.getElementById('startOverlay').classList.add('hidden');
+            });
+
+            // Initialize rhythm module on page load
+            initRhythmModule();
+
+            document.getElementById('a4Reference').addEventListener('change', (e) => {
+                currentA4 = parseInt(e.target.value) || 440;
+            });
+
+            // Navegación de módulos
+            document.querySelectorAll('.module-btn').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.module-btn').forEach((b) => b.classList.remove('active'));
+                    document.querySelectorAll('.module').forEach((m) => m.classList.remove('active'));
+
+                    btn.classList.add('active');
+                    document.getElementById(btn.dataset.module).classList.add('active');
+                });
+            });
+
+            // Intervalos
+            document.querySelectorAll('.filter-checkbox input').forEach((checkbox) => {
+                checkbox.addEventListener('change', () => {
+                    intervalState.enabledIntervals = Array.from(document.querySelectorAll('.filter-checkbox input:checked')).map((cb) =>
+                        parseInt(cb.dataset.interval)
+                    );
+                });
+            });
+
+            document.querySelectorAll('.mode-btn').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.mode-btn').forEach((b) => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    intervalState.mode = btn.dataset.mode;
+                });
+            });
+
+            document.getElementById('playInterval').addEventListener('click', () => {
+                generateNewInterval();
+                setTimeout(playInterval, 100);
+            });
+
+            document.getElementById('newInterval').addEventListener('click', () => {
+                generateNewInterval();
+                document.getElementById('intervalFeedback').classList.remove('show');
+                document.getElementById('verifyInterval').classList.add('hidden');
+                document.getElementById('nextInterval').classList.add('hidden');
+                intervalState.selectedAnswer = null;
+                intervalState.answered = false;
+                document.querySelectorAll('.interval-btn').forEach((btn) => {
+                    btn.disabled = true;
+                    btn.classList.remove('correct', 'incorrect', 'correct-answer', 'selected');
+                });
+            });
+
+            document.getElementById('verifyInterval').addEventListener('click', verifyIntervalAnswer);
+            document.getElementById('nextInterval').addEventListener('click', nextInterval);
+
+            // Micro-Tuning
+            document.getElementById('playTuning').addEventListener('click', playTuningNotes);
+            document.getElementById('playReference').addEventListener('click', playReferenceInterval);
+            document.getElementById('nextTuning').addEventListener('click', generateNewTuningPair);
+            document.getElementById('toggleGuitarMode').addEventListener('click', () => {
+                tuningState.guitarMode = !tuningState.guitarMode;
+                const btn = document.getElementById('toggleGuitarMode');
+                btn.textContent = `Modo Guitarra: ${tuningState.guitarMode ? 'ON' : 'OFF'}`;
+                btn.classList.toggle('btn-primary', tuningState.guitarMode);
+                btn.classList.toggle('btn-secondary', !tuningState.guitarMode);
+
+                // Update instruction text
+                const instruction = document.getElementById('tuningInstruction');
+                if (tuningState.guitarMode) {
+                    instruction.textContent = 'Evalúa si el intervalo entre las dos cuerdas está bajo, justo o alto';
+                } else {
+                    instruction.textContent = 'La Nota B debería estar a distancia de 4ta o 5ta justa';
+                }
+
+                generateNewTuningPair();
+            });
+
+            document.getElementById('minDetune').addEventListener('input', (e) => {
+                const value = parseInt(e.target.value);
+                tuningState.minDetune = value;
+                document.getElementById('minDetuneValue').textContent = value;
+            });
+
+            document.getElementById('maxDetune').addEventListener('input', (e) => {
+                const value = parseInt(e.target.value);
+                tuningState.maxDetune = value;
+                document.getElementById('maxDetuneValue').textContent = value + ' cents';
+            });
+
+            document.querySelectorAll('.tuning-btn').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    if (!tuningState.noteA) {
+                        alert('Primero reproduce las notas');
+                        return;
+                    }
+                    checkTuningAnswer(btn.dataset.response);
+                });
+            });
+
+            // Ritmo
+            document.getElementById('rhythmTempo').addEventListener('input', (e) => {
+                rhythmState.tempo = parseInt(e.target.value);
+                document.getElementById('rhythmTempoValue').textContent = `${rhythmState.tempo} BPM`;
+            });
+
+            // Config accordion toggle
+            document.querySelectorAll('.config-header').forEach((header) => {
+                header.addEventListener('click', () => {
+                    const content = header.nextElementSibling;
+                    header.classList.toggle('open');
+                    content.classList.toggle('open');
+                });
+            });
+
+            // Config toggle button
+            document.getElementById('configToggle').addEventListener('click', () => {
+                const config = document.getElementById('intervalConfig');
+                const btn = document.getElementById('configToggle');
+                config.classList.toggle('hidden');
+                btn.classList.toggle('active');
+            });
+
+            // Inicialización
+            initIntervalOptions();
+            generateNewInterval();
+            generateNewTuningPair();
+        </script>
+    </body>
+</html>

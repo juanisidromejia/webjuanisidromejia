@@ -1,0 +1,160 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getTranslations } from '../../utils/i18n';
+
+const currentLocale = Astro.currentLocale || 'es';
+const translations = await getTranslations(currentLocale);
+
+const tools = [
+  {
+    id: 'metronome',
+    icon: 'metronome',
+    href: '/tools/metronome',
+    colors: 'from-amber-500 to-orange-600',
+    iconBg: 'bg-amber-500/10',
+    iconColor: 'text-amber-500'
+  },
+  {
+    id: 'diagram-editor',
+    icon: 'guitar',
+    href: '/tools/diagram-editor',
+    colors: 'from-emerald-500 to-teal-600',
+    iconBg: 'bg-emerald-500/10',
+    iconColor: 'text-emerald-500'
+  },
+  {
+    id: 'earup',
+    icon: 'ear',
+    href: '/tools/earup',
+    colors: 'from-violet-500 to-purple-600',
+    iconBg: 'bg-violet-500/10',
+    iconColor: 'text-violet-500'
+  },
+  {
+    id: 'chord-dictionary',
+    icon: 'music',
+    href: '/tools/chord-dictionary',
+    colors: 'from-rose-500 to-pink-600',
+    iconBg: 'bg-rose-500/10',
+    iconColor: 'text-rose-500'
+  },
+  {
+    id: 'music-reader',
+    icon: 'score',
+    href: '/tools/music-reader',
+    colors: 'from-blue-500 to-indigo-600',
+    iconBg: 'bg-blue-500/10',
+    iconColor: 'text-blue-500'
+  }
+];
+
+const toolNames: Record<string, Record<string, string>> = {
+  metronome: {
+    es: 'Metrónomo',
+    en: 'Metronome',
+    ru: 'Метроном'
+  },
+  'diagram-editor': {
+    es: 'Editor de Diagramas',
+    en: 'Diagram Editor',
+    ru: 'Редактор диаграмм'
+  },
+  earup: {
+    es: 'Entrenamiento Auditivo',
+    en: 'Ear Training',
+    ru: 'Тренировка слуха'
+  },
+  'chord-dictionary': {
+    es: 'Diccionario de Acordes',
+    en: 'Chord Dictionary',
+    ru: 'Словарь аккордов'
+  },
+  'music-reader': {
+    es: 'Lector de Partituras',
+    en: 'Music Reader',
+    ru: 'Чтение нот'
+  }
+};
+
+const toolDescriptions: Record<string, Record<string, string>> = {
+  metronome: {
+    es: 'Metrónomo visual con patrones de ritmo y control de BPM',
+    en: 'Visual metronome with rhythm patterns and BPM control',
+    ru: 'Визуальный метроном с ритмическими паттернами и контролем BPM'
+  },
+  'diagram-editor': {
+    es: 'Crea y comparte diagramas de acordes y escalas',
+    en: 'Create and share chord and scale diagrams',
+    ru: 'Создавайте и делитесь диаграммами аккордов и гамм'
+  },
+  earup: {
+    es: 'Desarrolla tu oído musical con ejercicios',
+    en: 'Develop your musical ear with exercises',
+    ru: 'Развивайте музыкальный слух с упражнениями'
+  },
+  'chord-dictionary': {
+    es: 'Explora acordes y escalas para guitarra',
+    en: 'Explore chords and scales for guitar',
+    ru: 'Изучайте аккорды и гаммы для гитары'
+  },
+  'music-reader': {
+    es: 'Entrena tu lectura de partituras',
+    en: 'Train your score reading',
+    ru: 'Тренируйте чтение нот'
+  }
+};
+
+function getToolName(id: string): string {
+  return toolNames[id]?.[currentLocale] || toolNames[id]?.es || id;
+}
+
+function getToolDescription(id: string): string {
+  return toolDescriptions[id]?.[currentLocale] || toolDescriptions[id]?.es || '';
+}
+---
+
+<BaseLayout title={`${translations.tools_title || 'Herramientas'} - Juan Isidro Mejía`}>
+  <article>
+    <header class="mb-12">
+      <h1 class="text-4xl sm:text-5xl font-serif font-medium text-center">
+        {translations.tools_title || 'Herramientas'}
+      </h1>
+      <p class="mt-4 text-lg text-center text-muted max-w-2xl mx-auto">
+        {translations.tools_description || 'Utilidades musicales para mejorar tu práctica'}
+      </p>
+    </header>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {tools.map((tool) => (
+        <a
+          href={tool.href}
+          class="group block p-6 bg-muted/30 rounded-xl border border-main/10 hover:border-main/30 transition-all duration-300 hover:shadow-lg"
+        >
+          <div class={`w-14 h-14 rounded-xl ${tool.iconBg} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
+            {tool.id === 'metronome' && (
+              <img src="/iconosapp/metronome-svgrepo-com.svg" alt="Metronome" class="w-8 h-8" />
+            )}
+            {tool.id === 'diagram-editor' && (
+              <img src="/iconosapp/guitar-diagram.svg" alt="Diagram Editor" class="w-8 h-8" />
+            )}
+            {tool.id === 'earup' && (
+              <img src="/iconosapp/ear-svgrepo-com.svg" alt="Ear Training" class="w-8 h-8" />
+            )}
+            {tool.id === 'chord-dictionary' && (
+              <img src="/iconosapp/chordanalyser-svgrepo-com.svg" alt="Chord Dictionary" class="w-8 h-8" />
+            )}
+            {tool.id === 'music-reader' && (
+              <img src="/iconosapp/music-note-on-a-musical-pentagram-lines-svgrepo-com.svg" alt="Music Reader" class="w-8 h-8" />
+            )}
+          </div>
+          <h2 class="text-xl font-medium mb-2 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+            {getToolName(tool.id)}
+          </h2>
+          <p class="text-sm text-muted">
+            {getToolDescription(tool.id)}
+          </p>
+        </a>
+      ))}
+    </div>
+  </article>
+</BaseLayout>

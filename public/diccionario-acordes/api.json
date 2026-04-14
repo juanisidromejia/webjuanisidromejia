@@ -1,0 +1,30 @@
+{
+    "chord": {
+        "C": ["major", "minor", "7", "maj7", "m7"],
+        "C#": ["major", "minor", "7", "maj7", "m7"],
+        "D": ["major", "minor", "7", "maj7", "m7"],
+        "D#": ["major", "minor", "7", "maj7", "m7"],
+        "E": ["major", "minor", "7", "maj7", "m7"],
+        "F": ["major", "minor", "7", "maj7", "m7"],
+        "F#": ["major", "minor", "7", "maj7", "m7"],
+        "G": ["major", "minor", "7", "maj7", "m7"],
+        "G#": ["major", "minor", "7", "maj7", "m7"],
+        "A": ["major", "minor", "7", "maj7", "m7"],
+        "A#": ["major", "minor", "7", "maj7", "m7"],
+        "B": ["major", "minor", "7", "maj7", "m7"]
+    },
+    "scale": {
+        "C": ["major", "minor", "pentatonic", "blues", "dorian", "mixolydian"],
+        "C#": ["major", "minor", "pentatonic", "blues", "dorian", "mixolydian"],
+        "D": ["major", "minor", "pentatonic", "blues", "dorian", "mixolydian"],
+        "D#": ["major", "minor", "pentatonic", "blues", "dorian", "mixolydian"],
+        "E": ["major", "minor", "pentatonic", "blues", "dorian", "mixolydian"],
+        "F": ["major", "minor", "pentatonic", "blues", "dorian", "mixolydian"],
+        "F#": ["major", "minor", "pentatonic", "blues", "dorian", "mixolydian"],
+        "G": ["major", "minor", "pentatonic", "blues", "dorian", "mixolydian"],
+        "G#": ["major", "minor", "pentatonic", "blues", "dorian", "mixolydian"],
+        "A": ["major", "minor", "pentatonic", "blues", "dorian", "mixolydian"],
+        "A#": ["major", "minor", "pentatonic", "blues", "dorian", "mixolydian"],
+        "B": ["major", "minor", "pentatonic", "blues", "dorian", "mixolydian"]
+    }
+}

@@ -46,7 +46,7 @@ let resources = {};
         </div>
 
         <!-- Mostrar recursos solo para el proyecto UERDF -->
-        {project.id.startsWith('uerdf') && <ResourcesList resources={resources} client:load />}
+        {project.id.startsWith('uerdf') && <ResourcesList />}
     </article>
     {
         (prevProject || nextProject) && (

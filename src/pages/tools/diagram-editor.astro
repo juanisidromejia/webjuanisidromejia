@@ -1,0 +1,29 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Editor de Diagramas - Juan Isidro Mejía">
+  <div class="iframe-container">
+    <iframe 
+      src="/diagram_editor.html"
+      loading="lazy"
+      title="Editor de Diagramas"
+    ></iframe>
+  </div>
+</BaseLayout>
+
+<style>
+  .iframe-container {
+    width: 100%;
+    height: calc(100vh - 120px);
+    min-height: 500px;
+  }
+
+  iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 12px;
+    background: #121212;
+  }
+</style>

@@ -1,0 +1,1854 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>metro-guide</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <style>
+    :root {
+      --bg-dark: #0a0a0a;
+      --bg-panel: #151515;
+      --neon-yellow: #EFFD00;
+      --neon-green: #00FF88;
+      --neon-red: #FF3355;
+      --neon-cyan: #00E5FF;
+      --text-primary: #FFFFFF;
+      --text-secondary: #888888;
+      --border-color: #333333;
+      --beat-accent: #FF6B00;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .metronome-container {
+      width: 100%;
+      max-width: 600px;
+      background: var(--bg-panel);
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--neon-yellow);
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      font-family: 'Courier New', monospace;
+    }
+
+    .beat-display {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .beat-dot {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--bg-dark);
+      border: 2px solid var(--text-secondary);
+      transition: all 0.1s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .beat-dot.active {
+      background: var(--neon-green);
+      border-color: var(--neon-green);
+      box-shadow: 0 0 20px var(--neon-green);
+      transform: scale(1.2);
+    }
+
+    .beat-dot.accent {
+      border-color: var(--beat-accent);
+    }
+
+    .beat-dot.accent.active {
+      background: var(--beat-accent);
+      border-color: var(--beat-accent);
+      box-shadow: 0 0 20px var(--beat-accent);
+    }
+
+    .beat-dot.first-beat {
+      border-width: 3px;
+    }
+
+    .beat-dot.first-beat.active {
+      background: var(--neon-yellow);
+      border-color: var(--neon-yellow);
+      box-shadow: 0 0 30px var(--neon-yellow), 0 0 60px var(--neon-yellow);
+    }
+
+    .beat-dot.rest {
+      opacity: 0.3;
+    }
+
+    .beat-dot.upbeat {
+      border-color: var(--text-secondary);
+      opacity: 0.6;
+    }
+
+    .beat-dot.upbeat.active {
+      background: var(--neon-cyan);
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 15px var(--neon-cyan);
+      opacity: 1;
+    }
+
+    .tempo-display {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .bpm-value {
+      font-size: 4rem;
+      font-weight: 700;
+      color: var(--neon-yellow);
+      line-height: 1;
+      text-shadow: 0 0 30px rgba(239, 255, 0, 0.5);
+    }
+
+    .bpm-label {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .tempo-slider {
+      width: 100%;
+      margin: 20px 0;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 8px;
+      background: var(--bg-dark);
+      border-radius: 4px;
+      outline: none;
+    }
+
+    .tempo-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      background: var(--neon-yellow);
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 10px var(--neon-yellow);
+    }
+
+    .tempo-slider::-moz-range-thumb {
+      width: 24px;
+      height: 24px;
+      background: var(--neon-yellow);
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 0 10px var(--neon-yellow);
+    }
+
+    .tempo-controls {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .tempo-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 2px solid var(--text-secondary);
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      font-size: 1.25rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tempo-btn:hover {
+      border-color: var(--neon-yellow);
+      color: var(--neon-yellow);
+    }
+
+    .tempo-btn:active {
+      transform: scale(0.95);
+    }
+
+    .play-btn {
+      width: 100%;
+      max-width: 200px;
+      height: 64px;
+      border-radius: 32px;
+      border: none;
+      background: var(--neon-green);
+      color: var(--bg-dark);
+      font-size: 1.25rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin: 0 auto 24px;
+      display: block;
+    }
+
+    .play-btn:hover {
+      box-shadow: 0 0 30px var(--neon-green);
+    }
+
+    .play-btn:active {
+      transform: scale(0.98);
+    }
+
+    .play-btn.playing {
+      background: var(--neon-red);
+      max-width: 140px;
+      height: 48px;
+      font-size: 1rem;
+    }
+
+    .controls-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .control-group {
+      background: var(--bg-dark);
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+    }
+
+    .control-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .select-wrapper {
+      position: relative;
+    }
+
+    .control-select {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 1rem;
+      cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .control-select:focus {
+      outline: none;
+      border-color: var(--neon-cyan);
+    }
+
+    .volume-control {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .volume-slider {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 6px;
+      background: var(--bg-panel);
+      border-radius: 3px;
+      outline: none;
+    }
+
+    .volume-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      background: var(--neon-cyan);
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .volume-slider::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      background: var(--neon-cyan);
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+    }
+
+    .mute-btn {
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-panel);
+      color: var(--text-secondary);
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .mute-btn.active {
+      border-color: var(--neon-red);
+      color: var(--neon-red);
+      background: rgba(255, 51, 85, 0.1);
+    }
+
+    .ramp-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .ramp-input {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .ramp-input label {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+    }
+
+    .ramp-input input {
+      padding: 10px 12px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      width: 100%;
+    }
+
+    .ramp-input input:focus {
+      outline: none;
+      border-color: var(--neon-cyan);
+    }
+
+    .ramp-btn {
+      grid-column: span 2;
+      padding: 14px;
+      border-radius: 8px;
+      border: none;
+      background: var(--neon-cyan);
+      color: var(--bg-dark);
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .ramp-btn:hover {
+      box-shadow: 0 0 20px var(--neon-cyan);
+    }
+
+    .ramp-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .practice-btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      background: var(--neon-cyan);
+      color: var(--bg-dark);
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .practice-btn:hover {
+      box-shadow: 0 0 20px var(--neon-cyan);
+    }
+
+    .practice-btn.active {
+      background: var(--neon-red);
+    }
+
+    .practice-btn.active:hover {
+      box-shadow: 0 0 20px var(--neon-red);
+    }
+
+    .beat-dot.silent {
+      opacity: 0.2;
+      border-color: var(--text-secondary) !important;
+      background: transparent !important;
+      box-shadow: none !important;
+    }
+
+    .beat-dot.silent.active {
+      opacity: 0.4;
+    }
+
+    .beat-dot.normal {
+      border-color: var(--neon-green) !important;
+    }
+
+    .beat-dot.normal.active {
+      background: var(--neon-green) !important;
+      border-color: var(--neon-green) !important;
+      box-shadow: 0 0 15px var(--neon-green) !important;
+    }
+
+    .pulse-indicator {
+      width: 100%;
+      height: 4px;
+      background: var(--bg-dark);
+      border-radius: 2px;
+      margin-top: 20px;
+      overflow: hidden;
+    }
+
+    .pulse-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--neon-green), var(--neon-yellow));
+      border-radius: 2px;
+      transition: width 0.05s linear;
+    }
+
+    .current-pattern {
+      text-align: center;
+      padding: 12px;
+      background: var(--bg-dark);
+      border-radius: 8px;
+      margin-top: 16px;
+      font-family: monospace;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      letter-spacing: 2px;
+    }
+
+    .pattern-display {
+      color: var(--neon-cyan);
+    }
+
+    @media (max-width: 480px) {
+      .metronome-container {
+        padding: 16px;
+        border-radius: 12px;
+      }
+
+      .bpm-value {
+        font-size: 3rem;
+      }
+
+      .beat-dot {
+        width: 28px;
+        height: 28px;
+        font-size: 10px;
+      }
+
+      .ramp-section {
+        grid-template-columns: 1fr;
+      }
+
+      .ramp-btn {
+        grid-column: span 1;
+      }
+
+      .block-item {
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .block-fields {
+        flex-wrap: wrap;
+      }
+
+      .block-field {
+        min-width: 45%;
+      }
+    }
+
+    .sequencer-section {
+      margin-top: 16px;
+    }
+
+    .sequencer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .loop-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .loop-toggle input {
+      width: 40px;
+      height: 20px;
+      appearance: none;
+      background: var(--bg-panel);
+      border-radius: 10px;
+      position: relative;
+      cursor: pointer;
+      border: 1px solid var(--border-color);
+    }
+
+    .loop-toggle input::before {
+      content: '';
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      background: var(--text-secondary);
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: all 0.2s ease;
+    }
+
+    .loop-toggle input:checked {
+      background: var(--neon-cyan);
+      border-color: var(--neon-cyan);
+    }
+
+    .loop-toggle input:checked::before {
+      background: var(--bg-dark);
+      left: 22px;
+    }
+
+    .block-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .block-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px;
+      background: var(--bg-panel);
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      transition: all 0.2s ease;
+    }
+
+    .block-item.active {
+      border-color: var(--neon-yellow);
+      box-shadow: 0 0 15px rgba(239, 255, 0, 0.3);
+    }
+
+    .block-number {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      min-width: 24px;
+    }
+
+    .block-fields {
+      display: flex;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .block-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .block-field label {
+      font-size: 0.6rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+
+    .block-field input,
+    .block-field select {
+      padding: 6px 8px;
+      background: var(--bg-dark);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      color: var(--text-primary);
+      font-size: 0.8rem;
+      min-width: 60px;
+    }
+
+    .block-field input:focus,
+    .block-field select:focus {
+      outline: none;
+      border-color: var(--neon-cyan);
+    }
+
+    .block-actions {
+      display: flex;
+      gap: 4px;
+    }
+
+    .block-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-dark);
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .block-btn:hover {
+      border-color: var(--neon-cyan);
+      color: var(--neon-cyan);
+    }
+
+    .block-btn.delete:hover {
+      border-color: var(--neon-red);
+      color: var(--neon-red);
+    }
+
+    .add-block-btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px dashed var(--border-color);
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 8px;
+    }
+
+    .add-block-btn:hover {
+      border-color: var(--neon-green);
+      color: var(--neon-green);
+    }
+
+    .sequence-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 8px;
+      border: none;
+      background: var(--neon-cyan);
+      color: var(--bg-dark);
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 12px;
+    }
+
+    .sequence-btn:hover {
+      box-shadow: 0 0 20px var(--neon-cyan);
+    }
+
+    .sequence-btn.active {
+      background: var(--neon-red);
+    }
+
+    .sequence-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .play-mode-btns {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .play-mode-btns .play-btn {
+      flex: 1;
+      margin: 0;
+    }
+
+    .small-play-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 2px solid var(--neon-cyan);
+      background: transparent;
+      color: var(--neon-cyan);
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-left: 2px;
+    }
+
+    .small-play-btn:hover {
+      background: var(--neon-cyan);
+      color: var(--bg-dark);
+      box-shadow: 0 0 15px var(--neon-cyan);
+    }
+
+    .small-play-btn.active {
+      background: var(--neon-red);
+      border-color: var(--neon-red);
+      color: white;
+    }
+
+    .small-play-btn.active:hover {
+      box-shadow: 0 0 15px var(--neon-red);
+    }
+
+    .back-btn {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      padding: 8px 16px;
+      background: rgba(21, 21, 21, 0.9);
+      border: 1px solid #444;
+      color: #888;
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-transform: lowercase;
+      letter-spacing: 1px;
+      transition: all 0.2s ease;
+      z-index: 9999;
+      backdrop-filter: blur(4px);
+    }
+
+    .back-btn:hover {
+      border-color: var(--neon-cyan);
+      color: var(--neon-cyan);
+      background: rgba(21, 21, 21, 1);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="metronome-container">
+    <div class="header">
+      <h1>metro-guide</h1>
+    </div>
+
+    <div class="beat-display" id="beatDisplay"></div>
+
+    <div class="tempo-display">
+      <div class="bpm-value" id="bpmValue">120</div>
+      <div class="bpm-label">BPM</div>
+      <button class="mute-btn active" id="muteUpbeatsBtn" style="margin-top: 8px;">Activar Upbeats</button>
+    </div>
+
+    <input type="range" class="tempo-slider" id="tempoSlider" min="10" max="300" value="120">
+
+    <div class="tempo-controls">
+      <button class="tempo-btn" id="decreaseBtn">−</button>
+      <button class="tempo-btn" id="tapBtn">TAP</button>
+      <button class="tempo-btn" id="increaseBtn">+</button>
+    </div>
+
+    <div class="play-mode-btns">
+      <button class="play-btn" id="playBtn">Iniciar</button>
+    </div>
+
+    <div class="controls-grid">
+      <div class="control-group">
+        <label class="control-label">Patrón Rítmico</label>
+        <div class="select-wrapper">
+          <select class="control-select" id="patternSelect">
+            <option value="b u b u b u b u">4/4 Estándar</option>
+            <option value="s u b u s u b u">4/4 Backbeat (2 y 4)</option>
+            <option value="b u b u b u">3/4 Estándar</option>
+            <option value="b u u b u u">6/8 Estándar</option>
+            <option value="b u u b u u b u">Milonga</option>
+            <option value="b u u b u u b u u u b u b u u u">Rumba</option>
+            <option value="b u u b u u b u b u b u">Amalgama 6/8 - 3/4</option>
+            <option value="u u b u u b u b u b u b">Copás Flamenco</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control</label>
+       -label">Sound Kit <select class="control-select" id="kitSelect">
+          <option value="oscillator">Oscilador</option>
+          <option value="wood">Madera</option>
+          <option value="electronic">Electrónico</option>
+          <option value="drum">Batería</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">Mezclador</label>
+        <div class="mixer-controls">
+          <div class="volume-control">
+            <span style="font-size: 0.75rem; color: var(--text-secondary);">VOL</span>
+            <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="100">
+          </div>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">Práctica de Pulso</label>
+        <div class="pulse-practice-section">
+          <div class="practice-options" style="margin-bottom: 12px;">
+            <label class="toggle-label" style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--text-secondary); cursor: pointer;">
+              <input type="checkbox" id="intermittentToggle" style="width: 18px; height: 18px; accent-color: var(--neon-cyan);">
+              Práctica intermitente
+            </label>
+          </div>
+          <div class="practice-config" style="display: flex; gap: 16px; margin-bottom: 12px;">
+            <div class="practice-input" style="display: flex; flex-direction: column; gap: 4px;">
+              <label style="font-size: 0.65rem; color: var(--text-secondary); text-transform: uppercase;">Silenciar</label>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <input type="number" id="silentMeasures" value="4" min="1" max="99" style="width: 50px; padding: 8px; background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary); font-size: 0.9rem; text-align: center;">
+                <span style="font-size: 0.75rem; color: var(--text-secondary);">compases</span>
+              </div>
+            </div>
+            <div class="practice-input" id="intervalContainer" style="display: none; flex-direction: column; gap: 4px;">
+              <label style="font-size: 0.65rem; color: var(--text-secondary); text-transform: uppercase;">Cada</label>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <input type="number" id="intervalMeasures" value="8" min="1" max="99" style="width: 50px; padding: 8px; background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary); font-size: 0.9rem; text-align: center;">
+                <span style="font-size: 0.75rem; color: var(--text-secondary);">compases</span>
+              </div>
+            </div>
+          </div>
+          <button class="practice-btn" id="practiceBtn">Iniciar Práctica</button>
+          <div id="practiceStatus" style="margin-top: 10px; font-size: 0.8rem; color: var(--neon-cyan); text-align: center; min-height: 20px;"></div>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">Tempo Ramping</label>
+        <div class="ramp-section">
+          <div class="ramp-input">
+            <label>BPM Inicio</label>
+            <input type="number" id="rampStart" value="80" min="10" max="300">
+          </div>
+          <div class="ramp-input">
+            <label>BPM Fin</label>
+            <input type="number" id="rampEnd" value="140" min="10" max="300">
+          </div>
+          <div class="ramp-input">
+            <label>Duración (segundos)</label>
+            <input type="number" id="rampDuration" value="60" min="1" max="300">
+          </div>
+          <div class="ramp-input">
+            <label>Dirección</label>
+            <select id="rampDirection" style="padding: 10px 12px; background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary); font-size: 0.9rem;">
+              <option value="up">Ascendente</option>
+              <option value="down">Descendente</option>
+            </select>
+          </div>
+          <button class="ramp-btn" id="rampBtn">Iniciar Rampa</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <div class="sequencer-header">
+          <label class="control-label" style="margin-bottom: 0;">Programador de Secuencias</label>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <label class="loop-toggle">
+              <input type="checkbox" id="loopToggle">
+              Loop
+            </label>
+            <button class="small-play-btn" id="sequenceBtn">▶</button>
+          </div>
+        </div>
+        <div class="block-list" id="blockList"></div>
+        <button class="add-block-btn" id="addBlockBtn">+ Añadir Bloque</button>
+        <div class="progress-display">
+          <div class="progress-item current">
+            <div class="progress-label">Bloque Actual</div>
+            <div class="progress-value" id="currentBlock">-</div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label">Compás</div>
+            <div class="progress-value" id="currentMeasure">-</div>
+          </div>
+          <div class="progress-item remaining">
+            <div class="progress-label">Restantes</div>
+            <div class="progress-value" id="remainingMeasures">-</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pulse-indicator">
+      <div class="pulse-bar" id="pulseBar"></div>
+    </div>
+  </div>
+
+  <script>
+    class Metronome {
+      constructor() {
+        this.audioContext = null;
+        this.isPlaying = false;
+        this.bpm = 120;
+        this.currentBeat = 0;
+        this.pattern = 'b u b u b u b u';
+        this.patternArray = [];
+        this.nextNoteTime = 0;
+        this.current16thNote = 0;
+        this.lookahead = 25.0;
+        this.scheduleAheadTime = 0.1;
+        this.timerID = null;
+        
+        this.volume = 1.4;
+        this.muteUpbeats = false;
+        this.currentKit = 'oscillator';
+        
+        this.tapTimes = [];
+        this.isRamping = false;
+        
+        this.animations = [];
+
+        this.blocks = [];
+        this.currentBlockIndex = 0;
+        this.currentMeasure = 0;
+        this.loopMode = false;
+        this.sequencerActive = false;
+        this.sequencePlaying = false;
+
+        this.practiceMode = false;
+        this.intermittentMode = false;
+        this.silentMeasures = 4;
+        this.intervalMeasures = 8;
+        this.measuresPlayed = 0;
+        this.measuresInInterval = 0;
+
+        this.patternOptions = [
+          { value: 'b u b u b u b u', label: '4/4 Estándar' },
+          { value: 's u b u s u b u', label: '4/4 Backbeat (2 y 4)' },
+          { value: 'b u b u b u', label: '3/4 Estándar' },
+          { value: 'b u u b u u', label: '6/8 Estándar' },
+          { value: 'b u u b u u b u', label: 'Milonga' },
+          { value: 'b u u b u u b u u u b u b u u u', label: 'Rumba' },
+          { value: 'b u u b u u b u b u b u', label: 'Amalgama 6/8 - 3/4' },
+          { value: 'u u b u u b u b u b u b', label: 'Copás Flamenco' }
+        ];
+        
+        this.initElements();
+        this.initEventListeners();
+        this.parsePattern();
+        this.createBeatDisplay();
+        this.loadBlocks();
+      }
+
+      initElements() {
+        this.elements = {
+          bpmValue: document.getElementById('bpmValue'),
+          tempoSlider: document.getElementById('tempoSlider'),
+          playBtn: document.getElementById('playBtn'),
+          patternSelect: document.getElementById('patternSelect'),
+          beatDisplay: document.getElementById('beatDisplay'),
+          volumeSlider: document.getElementById('volumeSlider'),
+          muteUpbeatsBtn: document.getElementById('muteUpbeatsBtn'),
+          decreaseBtn: document.getElementById('decreaseBtn'),
+          increaseBtn: document.getElementById('increaseBtn'),
+          tapBtn: document.getElementById('tapBtn'),
+          rampBtn: document.getElementById('rampBtn'),
+          rampStart: document.getElementById('rampStart'),
+          rampEnd: document.getElementById('rampEnd'),
+          rampDuration: document.getElementById('rampDuration'),
+          rampDirection: document.getElementById('rampDirection'),
+          pulseBar: document.getElementById('pulseBar'),
+          kitSelect: document.getElementById('kitSelect'),
+          blockList: document.getElementById('blockList'),
+          addBlockBtn: document.getElementById('addBlockBtn'),
+          loopToggle: document.getElementById('loopToggle'),
+          currentBlock: document.getElementById('currentBlock'),
+          currentMeasure: document.getElementById('currentMeasure'),
+          remainingMeasures: document.getElementById('remainingMeasures'),
+          sequenceBtn: document.getElementById('sequenceBtn'),
+          practiceBtn: document.getElementById('practiceBtn'),
+          silentMeasures: document.getElementById('silentMeasures'),
+          intervalMeasures: document.getElementById('intervalMeasures'),
+          intermittentToggle: document.getElementById('intermittentToggle'),
+          intervalContainer: document.getElementById('intervalContainer'),
+          practiceStatus: document.getElementById('practiceStatus')
+        };
+      }
+
+      initEventListeners() {
+        this.elements.playBtn.addEventListener('click', () => this.togglePlay());
+        this.elements.tempoSlider.addEventListener('input', (e) => this.setBPM(parseInt(e.target.value)));
+        this.elements.patternSelect.addEventListener('change', (e) => this.setPattern(e.target.value));
+        this.elements.volumeSlider.addEventListener('input', (e) => this.setVolume(parseInt(e.target.value) / 100));
+        this.elements.muteUpbeatsBtn.addEventListener('click', () => this.toggleMuteUpbeats());
+        this.elements.decreaseBtn.addEventListener('click', () => this.adjustBPM(-1));
+        this.elements.increaseBtn.addEventListener('click', () => this.adjustBPM(1));
+        this.elements.tapBtn.addEventListener('click', () => this.tapTempo());
+        this.elements.rampBtn.addEventListener('click', () => this.startRamp());
+        this.elements.kitSelect.addEventListener('change', (e) => this.setKit(e.target.value));
+
+        this.elements.addBlockBtn.addEventListener('click', () => this.addBlock());
+        this.elements.loopToggle.addEventListener('change', (e) => {
+          this.loopMode = e.target.checked;
+          this.saveBlocks();
+        });
+        this.elements.sequenceBtn.addEventListener('click', () => this.toggleSequence());
+
+        this.elements.practiceBtn.addEventListener('click', () => this.togglePractice());
+        this.elements.intermittentToggle.addEventListener('change', (e) => {
+          this.intermittentMode = e.target.checked;
+          this.elements.intervalContainer.style.display = this.intermittentMode ? 'flex' : 'none';
+        });
+        this.elements.silentMeasures.addEventListener('change', (e) => {
+          this.silentMeasures = parseInt(e.target.value) || 4;
+        });
+        this.elements.intervalMeasures.addEventListener('change', (e) => {
+          this.intervalMeasures = parseInt(e.target.value) || 8;
+        });
+
+        document.addEventListener('keydown', (e) => {
+          if (e.code === 'Space') {
+            e.preventDefault();
+            this.togglePlay();
+          }
+        });
+      }
+
+      initAudio() {
+        if (!this.audioContext) {
+          this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (this.audioContext.state === 'suspended') {
+          this.audioContext.resume();
+        }
+      }
+
+      parsePattern() {
+        this.patternArray = this.pattern.split(' ').filter(p => p.length > 0);
+        this.createBeatDisplay();
+      }
+
+      createBeatDisplay() {
+        const display = this.elements.beatDisplay;
+        display.innerHTML = '';
+        
+        let beatIndex = 0;
+        let isFirstBeat = true;
+        this.patternArray.forEach((note, idx) => {
+          const dot = document.createElement('div');
+          dot.className = 'beat-dot';
+          
+          if (note === 'b') {
+            dot.classList.add('accent');
+            if (isFirstBeat) {
+              dot.classList.add('first-beat');
+              isFirstBeat = false;
+            }
+            dot.textContent = ++beatIndex;
+          } else if (note === 's') {
+            dot.classList.add('normal');
+            dot.textContent = ++beatIndex;
+          } else if (note === 'r') {
+            dot.classList.add('rest');
+          } else if (note === 'u') {
+            dot.classList.add('upbeat');
+          }
+          
+          dot.dataset.index = idx;
+          display.appendChild(dot);
+        });
+      }
+
+      setPattern(pattern) {
+        this.pattern = pattern;
+        this.currentBeat = 0;
+        this.parsePattern();
+        this.updateBeatDisplay();
+      }
+
+      setBPM(bpm) {
+        this.bpm = Math.max(10, Math.min(300, bpm));
+        this.elements.bpmValue.textContent = this.bpm;
+        this.elements.tempoSlider.value = this.bpm;
+      }
+
+      adjustBPM(amount) {
+        this.setBPM(this.bpm + amount);
+      }
+
+      setVolume(vol) {
+        this.volume = vol;
+      }
+
+      toggleMuteUpbeats() {
+        this.muteUpbeats = !this.muteUpbeats;
+        this.elements.muteUpbeatsBtn.classList.toggle('active', !this.muteUpbeats);
+        this.elements.muteUpbeatsBtn.textContent = this.muteUpbeats ? 'Activar Upbeats' : 'Silenciar Upbeats';
+      }
+
+      setKit(kit) {
+        this.currentKit = kit;
+        this.elements.kitSelect.value = kit;
+      }
+
+      togglePlay() {
+        this.initAudio();
+        
+        if (this.isPlaying) {
+          this.stop();
+        } else {
+          this.start();
+        }
+      }
+
+      start() {
+        this.isPlaying = true;
+        this.currentBeat = 0;
+        this.current16thNote = 0;
+        this.nextNoteTime = this.audioContext.currentTime + 0.05;
+        this.elements.playBtn.textContent = 'Detener';
+        this.elements.playBtn.classList.add('playing');
+        this.scheduler();
+      }
+
+      toggleSequence() {
+        this.initAudio();
+        
+        if (this.sequencePlaying) {
+          this.stopSequence();
+        } else {
+          this.startSequence();
+        }
+      }
+
+      startSequence() {
+        if (this.blocks.length === 0) return;
+        
+        this.sequencePlaying = true;
+        this.sequencerActive = true;
+        this.currentBlockIndex = 0;
+        this.currentMeasure = 0;
+        
+        const firstBlock = this.blocks[0];
+        this.setBPM(firstBlock.bpm);
+        this.setPattern(firstBlock.pattern);
+        this.elements.patternSelect.value = firstBlock.pattern;
+        
+        this.isPlaying = true;
+        this.currentBeat = 0;
+        this.current16thNote = 0;
+        this.nextNoteTime = this.audioContext.currentTime + 0.05;
+        
+        this.elements.sequenceBtn.textContent = '⏹';
+        this.elements.sequenceBtn.classList.add('active');
+        
+        this.renderBlocks();
+        this.updateBlockUI(0);
+        this.updateProgressDisplay();
+        
+        this.scheduler();
+      }
+
+      stopSequence() {
+        this.sequencePlaying = false;
+        this.sequencerActive = false;
+        
+        if (this.timerID) {
+          clearTimeout(this.timerID);
+          this.timerID = null;
+        }
+        
+        this.animations.forEach(anim => {
+          if (anim.frameId) cancelAnimationFrame(anim.frameId);
+        });
+        this.animations = [];
+        
+        this.isPlaying = false;
+        
+        this.elements.sequenceBtn.textContent = '▶';
+        this.elements.sequenceBtn.classList.remove('active');
+        
+        this.currentBlockIndex = 0;
+        this.currentMeasure = 0;
+        
+        this.renderBlocks();
+        this.updateProgressDisplay();
+        this.resetBeatDisplay();
+      }
+
+      stop() {
+        if (this.sequencePlaying) {
+          this.stopSequence();
+          return;
+        }
+        
+        this.isPlaying = false;
+        this.elements.playBtn.textContent = 'Iniciar';
+        this.elements.playBtn.classList.remove('playing');
+        
+        if (this.timerID) {
+          clearTimeout(this.timerID);
+          this.timerID = null;
+        }
+        
+        this.animations.forEach(anim => {
+          if (anim.frameId) cancelAnimationFrame(anim.frameId);
+        });
+        this.animations = [];
+        
+        this.resetPracticeState();
+        this.resetBeatDisplay();
+      }
+
+      resetPracticeState() {
+        this.practiceMode = false;
+        this.measuresPlayed = 0;
+        this.measuresInInterval = 0;
+        this.elements.practiceBtn.textContent = 'Iniciar Práctica';
+        this.elements.practiceBtn.classList.remove('active');
+        this.elements.practiceStatus.textContent = '';
+      }
+
+      togglePractice() {
+        this.initAudio();
+        
+        if (this.practiceMode) {
+          this.stopPractice();
+        } else {
+          this.startPractice();
+        }
+      }
+
+      startPractice() {
+        this.silentMeasures = parseInt(this.elements.silentMeasures.value) || 4;
+        this.intervalMeasures = parseInt(this.elements.intervalMeasures.value) || 8;
+        
+        this.practiceMode = true;
+        this.measuresPlayed = 0;
+        this.measuresInInterval = 0;
+        
+        this.isPlaying = true;
+        this.currentBeat = 0;
+        this.current16thNote = 0;
+        this.nextNoteTime = this.audioContext.currentTime + 0.05;
+        
+        this.elements.practiceBtn.textContent = 'Detener Práctica';
+        this.elements.practiceBtn.classList.add('active');
+        
+        this.updatePracticeStatus();
+        this.scheduler();
+      }
+
+      stopPractice() {
+        this.practiceMode = false;
+        
+        if (this.timerID) {
+          clearTimeout(this.timerID);
+          this.timerID = null;
+        }
+        
+        this.animations.forEach(anim => {
+          if (anim.frameId) cancelAnimationFrame(anim.frameId);
+        });
+        this.animations = [];
+        
+        this.isPlaying = false;
+        this.resetPracticeState();
+        this.resetBeatDisplay();
+      }
+
+      updatePracticeStatus() {
+        if (!this.practiceMode) return;
+        
+        const isSilent = this.shouldBeSilent();
+        if (this.intermittentMode) {
+          const cyclePosition = this.measuresInInterval % (this.silentMeasures + this.intervalMeasures);
+          const remaining = this.silentMeasures - cyclePosition;
+          if (remaining > 0) {
+            this.elements.practiceStatus.textContent = `SILENCIO: ${remaining} compases`;
+          } else {
+            const playingRemaining = (this.silentMeasures + this.intervalMeasures) - cyclePosition;
+            this.elements.practiceStatus.textContent = `SUENA: ${playingRemaining} compases`;
+          }
+        } else {
+          if (isSilent) {
+            const remaining = this.silentMeasures - this.measuresPlayed;
+            this.elements.practiceStatus.textContent = `SILENCIO: ${remaining} compases`;
+          } else {
+            this.elements.practiceStatus.textContent = 'SUENAN TODOS LOS COMPASES';
+          }
+        }
+      }
+
+      scheduler() {
+        if (!this.isPlaying) return;
+        
+        while (this.nextNoteTime < this.audioContext.currentTime + this.scheduleAheadTime) {
+          this.scheduleNote(this.current16thNote, this.nextNoteTime);
+          this.advanceNote();
+          
+          if (!this.isPlaying) return;
+        }
+        
+        this.timerID = setTimeout(() => this.scheduler(), this.lookahead);
+      }
+
+      advanceNote() {
+        const secondsPerBeat = 60.0 / this.bpm;
+        const nextNoteIndex = this.current16thNote + 1 >= this.patternArray.length ? 0 : this.current16thNote + 1;
+        const nextNote = this.patternArray[nextNoteIndex];
+        
+        const is6_8 = this.pattern === 'b u u b u u';
+        const upbeatDuration = is6_8 ? 1/3 : 0.5;
+        
+        if (nextNote === 'u' || nextNote === 'b' || nextNote === 's') {
+          this.nextNoteTime += secondsPerBeat * upbeatDuration;
+        } else {
+          this.nextNoteTime += secondsPerBeat;
+        }
+        
+        this.current16thNote++;
+        
+        if (this.current16thNote >= this.patternArray.length) {
+          this.current16thNote = 0;
+          if (this.practiceMode) {
+            this.measuresPlayed++;
+            if (this.intermittentMode) {
+              this.measuresInInterval++;
+            }
+            this.updatePracticeStatus();
+          }
+        }
+      }
+
+      getCurrentBeatInMeasure() {
+        let beatCount = 0;
+        for (let i = 0; i < this.current16thNote; i++) {
+          if (this.patternArray[i] === 'b' || this.patternArray[i] === 's') {
+            beatCount++;
+          }
+        }
+        return beatCount + 1;
+      }
+
+      scheduleNote(beatIndex, time) {
+        const note = this.patternArray[beatIndex];
+        if (!note) return;
+
+        const isAccent = note === 'b';
+        const isNormal = note === 's';
+        const isRest = note === 'r';
+        const isFirstBeat = isAccent && this.getCurrentBeatInMeasure() === 1;
+        
+        if (this.muteUpbeats && note === 'u') {
+          return;
+        }
+
+        const isSilentPhase = this.practiceMode && this.shouldBeSilent();
+
+        if (!isSilentPhase) {
+          this.playSound(time, isAccent, isNormal, isRest, isFirstBeat);
+        }
+        this.scheduleVisual(beatIndex, time, isAccent, isNormal, isRest, isSilentPhase);
+      }
+
+      shouldBeSilent() {
+        if (!this.intermittentMode) {
+          return this.measuresPlayed < this.silentMeasures;
+        } else {
+          const cyclePosition = this.measuresInInterval % (this.silentMeasures + this.intervalMeasures);
+          return cyclePosition < this.silentMeasures;
+        }
+      }
+
+      playSound(time, isAccent, isNormal, isRest, isFirstBeat) {
+        if (isRest) return;
+
+        const osc = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
+        
+        osc.connect(gainNode);
+        gainNode.connect(this.audioContext.destination);
+
+        const now = time;
+        const duration = 0.05;
+
+        if (this.currentKit === 'oscillator') {
+          const freq = isFirstBeat ? 1400 : (isAccent ? 800 : 600);
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now);
+          
+          gainNode.gain.setValueAtTime(this.volume * 0.9, now);
+          gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
+        } 
+        else if (this.currentKit === 'wood') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(isFirstBeat ? 800 : (isAccent ? 400 : 300), now);
+          
+          gainNode.gain.setValueAtTime(this.volume * 1.0, now);
+          gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration * 0.8);
+        }
+        else if (this.currentKit === 'electronic') {
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(isFirstBeat ? 1200 : (isAccent ? 440 : 330), now);
+          
+          const filter = this.audioContext.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(2000, now);
+          
+          osc.disconnect();
+          osc.connect(filter);
+          filter.connect(gainNode);
+          
+          gainNode.gain.setValueAtTime(this.volume * 0.7, now);
+          gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
+        }
+        else if (this.currentKit === 'drum') {
+          if (isFirstBeat) {
+            const osc = this.audioContext.createOscillator();
+            const gainNode = this.audioContext.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(this.audioContext.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(200, now);
+            osc.frequency.exponentialRampToValueAtTime(50, now + 0.15);
+            gainNode.gain.setValueAtTime(this.volume * 1.4, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+            osc.start(now);
+            osc.stop(now + 0.25);
+          } else if (isAccent) {
+            const osc = this.audioContext.createOscillator();
+            const gainNode = this.audioContext.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(this.audioContext.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(150, now);
+            osc.frequency.exponentialRampToValueAtTime(40, now + 0.15);
+            gainNode.gain.setValueAtTime(this.volume * 1.2, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+            osc.start(now);
+            osc.stop(now + 0.25);
+          } else {
+            const osc = this.audioContext.createOscillator();
+            const osc2 = this.audioContext.createOscillator();
+            const gainNode = this.audioContext.createGain();
+            const filter = this.audioContext.createBiquadFilter();
+            
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(200, now);
+            osc2.type = 'square';
+            osc2.frequency.setValueAtTime(8000, now);
+            
+            filter.type = 'highpass';
+            filter.frequency.setValueAtTime(3000, now);
+            
+            osc.connect(gainNode);
+            osc2.connect(filter);
+            filter.connect(gainNode);
+            gainNode.connect(this.audioContext.destination);
+            
+            gainNode.gain.setValueAtTime(this.volume * 0.7, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+            
+            osc.start(now);
+            osc.stop(now + 0.1);
+            osc2.start(now);
+            osc2.stop(now + 0.05);
+          }
+        }
+
+        osc.start(now);
+        osc.stop(now + duration + 0.01);
+      }
+
+      scheduleVisual(beatIndex, time, isAccent, isNormal, isRest, isSilentPhase = false) {
+        const delay = (time - this.audioContext.currentTime) * 1000;
+        
+        const beatCountInPattern = this.patternArray.filter(n => n === 'b' || n === 's').length;
+        let currentBeatPosition = 0;
+        for (let i = 0; i <= beatIndex; i++) {
+          if (this.patternArray[i] === 'b' || this.patternArray[i] === 's') {
+            currentBeatPosition++;
+          }
+        }
+        const isLastBeat = isAccent && currentBeatPosition === beatCountInPattern;
+        
+        setTimeout(() => {
+          if (!this.isPlaying) return;
+          
+          const dots = this.elements.beatDisplay.querySelectorAll('.beat-dot');
+          dots.forEach(dot => dot.classList.remove('active', 'silent', 'normal'));
+          
+          if (dots[beatIndex]) {
+            dots[beatIndex].classList.add('active');
+            if (isNormal) {
+              dots[beatIndex].classList.add('normal');
+            }
+            if (isSilentPhase) {
+              dots[beatIndex].classList.add('silent');
+            }
+          }
+          
+          if (!isRest && !isSilentPhase) {
+            this.animatePulse();
+          }
+        }, Math.max(0, delay));
+        
+        if (this.sequencerActive && isLastBeat) {
+          setTimeout(() => {
+            if (!this.isPlaying || !this.sequencerActive) return;
+            
+            const currentBlock = this.blocks[this.currentBlockIndex];
+            this.currentMeasure++;
+            
+            if (this.currentMeasure >= currentBlock.measures) {
+              this.nextBlock();
+            } else {
+              this.updateProgressDisplay();
+            }
+          }, Math.max(0, delay + 80));
+        }
+      }
+
+      animatePulse() {
+        const pulseBar = this.elements.pulseBar;
+        let startTime = null;
+        const duration = (60 / this.bpm) * 1000;
+        
+        const animate = (timestamp) => {
+          if (!startTime) startTime = timestamp;
+          const progress = (timestamp - startTime) / duration;
+          
+          if (progress < 1) {
+            pulseBar.style.width = `${(1 - progress) * 100}%`;
+            requestAnimationFrame(animate);
+          } else {
+            pulseBar.style.width = '0%';
+          }
+        };
+        
+        requestAnimationFrame(animate);
+      }
+
+      resetBeatDisplay() {
+        const dots = this.elements.beatDisplay.querySelectorAll('.beat-dot');
+        dots.forEach(dot => dot.classList.remove('active'));
+      }
+
+      updateBeatDisplay() {
+        const dots = this.elements.beatDisplay.querySelectorAll('.beat-dot');
+        dots.forEach(dot => dot.classList.remove('active'));
+      }
+
+      tapTempo() {
+        const now = Date.now();
+        this.tapTimes.push(now);
+        
+        if (this.tapTimes.length > 4) {
+          this.tapTimes.shift();
+        }
+        
+        if (this.tapTimes.length >= 2) {
+          const intervals = [];
+          for (let i = 1; i < this.tapTimes.length; i++) {
+            intervals.push(this.tapTimes[i] - this.tapTimes[i - 1]);
+          }
+          
+          const avgInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+          const bpm = Math.round(60000 / avgInterval);
+          
+          this.setBPM(bpm);
+        }
+        
+        setTimeout(() => {
+          if (Date.now() - this.tapTimes[this.tapTimes.length - 1] > 2000) {
+            this.tapTimes = [];
+          }
+        }, 2000);
+      }
+
+      startRamp() {
+        if (this.isRamping) {
+          this.isRamping = false;
+          this.elements.rampBtn.textContent = 'Iniciar Rampa';
+          return;
+        }
+
+        const startBPM = parseInt(this.elements.rampStart.value);
+        const endBPM = parseInt(this.elements.rampEnd.value);
+        const duration = parseInt(this.elements.rampDuration.value) * 1000;
+        const direction = this.elements.rampDirection.value;
+
+        this.setBPM(startBPM);
+        
+        if (!this.isPlaying) {
+          this.start();
+        }
+
+        this.isRamping = true;
+        this.elements.rampBtn.textContent = 'Detener Rampa';
+
+        const startTime = Date.now();
+        
+        const ramp = () => {
+          if (!this.isRamping) return;
+          
+          const elapsed = Date.now() - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          
+          let currentBPM;
+          if (direction === 'up') {
+            currentBPM = startBPM + (endBPM - startBPM) * progress;
+          } else {
+            currentBPM = startBPM - (startBPM - endBPM) * progress;
+          }
+          
+          this.setBPM(Math.round(currentBPM));
+          
+          if (progress < 1 && this.isRamping) {
+            requestAnimationFrame(ramp);
+          } else {
+            this.isRamping = false;
+            this.elements.rampBtn.textContent = 'Iniciar Rampa';
+          }
+        };
+        
+        requestAnimationFrame(ramp);
+      }
+
+      loadBlocks() {
+        const saved = localStorage.getItem('metroBlocks');
+        const savedLoop = localStorage.getItem('metroLoop');
+        
+        if (saved) {
+          try {
+            this.blocks = JSON.parse(saved);
+          } catch (e) {
+            this.blocks = [];
+          }
+        }
+        
+        if (savedLoop) {
+          this.loopMode = savedLoop === 'true';
+          this.elements.loopToggle.checked = this.loopMode;
+        }
+
+        if (this.blocks.length === 0) {
+          this.addBlock(8, 120, 'b u b u b u b u');
+        }
+
+        this.renderBlocks();
+      }
+
+      saveBlocks() {
+        localStorage.setItem('metroBlocks', JSON.stringify(this.blocks));
+        localStorage.setItem('metroLoop', this.loopMode.toString());
+      }
+
+      addBlock(measures = 8, bpm = 120, pattern = 'b u b u b u b u') {
+        this.blocks.push({
+          id: Date.now() + Math.random(),
+          measures,
+          bpm,
+          pattern
+        });
+        this.saveBlocks();
+        this.renderBlocks();
+      }
+
+      removeBlock(index) {
+        if (this.blocks.length <= 1) return;
+        this.blocks.splice(index, 1);
+        this.saveBlocks();
+        this.renderBlocks();
+      }
+
+      updateBlock(index, field, value) {
+        this.blocks[index][field] = field === 'measures' || field === 'bpm' ? parseInt(value) : value;
+        this.saveBlocks();
+        
+        if (this.sequencerActive && this.currentBlockIndex === index) {
+          if (field === 'bpm') {
+            this.setBPM(this.blocks[index].bpm);
+          } else if (field === 'pattern') {
+            this.setPattern(this.blocks[index].pattern);
+          }
+        }
+        
+        this.updateBlockUI(index);
+      }
+
+      renderBlocks() {
+        const list = this.elements.blockList;
+        list.innerHTML = '';
+
+        this.blocks.forEach((block, index) => {
+          const item = document.createElement('div');
+          item.className = 'block-item';
+          item.dataset.index = index;
+          
+          const patternOptions = this.patternOptions.map(opt => 
+            `<option value="${opt.value}" ${opt.value === block.pattern ? 'selected' : ''}>${opt.label}</option>`
+          ).join('');
+
+          item.innerHTML = `
+            <span class="block-number">${index + 1}</span>
+            <div class="block-fields">
+              <div class="block-field">
+                <label>Compases</label>
+                <input type="number" class="block-measures" value="${block.measures}" min="1" max="999">
+              </div>
+              <div class="block-field">
+                <label>BPM</label>
+                <input type="number" class="block-bpm" value="${block.bpm}" min="10" max="300">
+              </div>
+              <div class="block-field">
+                <label>Patrón</label>
+                <select class="block-pattern">${patternOptions}</select>
+              </div>
+            </div>
+            <div class="block-actions">
+              <button class="block-btn delete" data-action="delete">×</button>
+            </div>
+          `;
+
+          const deleteBtn = item.querySelector('.delete');
+          deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.removeBlock(index);
+          });
+
+          const measuresInput = item.querySelector('.block-measures');
+          measuresInput.addEventListener('change', (e) => this.updateBlock(index, 'measures', e.target.value));
+
+          const bpmInput = item.querySelector('.block-bpm');
+          bpmInput.addEventListener('change', (e) => this.updateBlock(index, 'bpm', e.target.value));
+
+          const patternSelect = item.querySelector('.block-pattern');
+          patternSelect.addEventListener('change', (e) => this.updateBlock(index, 'pattern', e.target.value));
+
+          list.appendChild(item);
+        });
+
+        this.updateProgressDisplay();
+      }
+
+      updateBlockUI(index) {
+        const items = this.elements.blockList.querySelectorAll('.block-item');
+        items.forEach((item, i) => {
+          item.classList.toggle('active', i === index && this.sequencerActive);
+        });
+      }
+
+      updateProgressDisplay() {
+        if (!this.sequencerActive) {
+          this.elements.currentBlock.textContent = '-';
+          this.elements.currentMeasure.textContent = '-';
+          this.elements.remainingMeasures.textContent = '-';
+          return;
+        }
+
+        const currentBlock = this.blocks[this.currentBlockIndex];
+        if (!currentBlock) return;
+
+        const totalRemaining = this.blocks.slice(this.currentBlockIndex).reduce((sum, b) => sum + b.measures, 0) - this.currentMeasure;
+
+        this.elements.currentBlock.textContent = `${this.currentBlockIndex + 1}/${this.blocks.length}`;
+        this.elements.currentMeasure.textContent = `${this.currentMeasure + 1}/${currentBlock.measures}`;
+        this.elements.remainingMeasures.textContent = totalRemaining;
+      }
+
+      nextBlock() {
+        this.currentBlockIndex++;
+        this.currentMeasure = 0;
+
+        if (this.currentBlockIndex >= this.blocks.length) {
+          if (this.loopMode) {
+            this.currentBlockIndex = 0;
+          } else {
+            this.stop();
+            return false;
+          }
+        }
+
+        const block = this.blocks[this.currentBlockIndex];
+        this.setBPM(block.bpm);
+        this.setPattern(block.pattern);
+        this.elements.patternSelect.value = block.pattern;
+
+        this.updateBlockUI(this.currentBlockIndex);
+        this.updateProgressDisplay();
+
+        return true;
+      }
+
+      advanceMeasure() {
+        if (!this.sequencerActive) return;
+
+        const currentBlock = this.blocks[this.currentBlockIndex];
+        this.currentMeasure++;
+
+        if (this.currentMeasure >= currentBlock.measures) {
+          return this.nextBlock();
+        }
+
+        this.updateProgressDisplay();
+        return true;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      window.metronome = new Metronome();
+    });
+  </script>
+</body>
+</html>
