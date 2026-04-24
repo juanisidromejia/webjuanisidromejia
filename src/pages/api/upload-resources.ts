@@ -95,8 +95,8 @@ export async function POST({ request }: APIContext) {
                 continue;
             }
 
-            // Sanitizar nombre de archivo
-            const sanitizedName = fileName.replace(/[^a-zA-Z0-9._\-\(\)]/g, '_');
+            // Sanitizar nombre de archivo - permitir caracteres Unicode (tildes, ñ, ü, etc.)
+            const sanitizedName = fileName.replace(/[^\p{L}\p{N}._\-\(\)]/gu, '_');
             const baseName = sanitizedName.replace(/\.(pdf|mscz|ogg|mp3)$/i, '');
             const ext = fileExt.slice(1); // sin punto
 
